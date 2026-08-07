@@ -1,0 +1,16 @@
+name: Diskium
+description: $description
+version: '1.0.alpha.1+26.2'
+
+main: org.diskium.Diskium
+bootstrapper: org.diskyy.Bootstrap.DiskyyBootstrap
+api-version: '26.2'
+load: STARTUP
+
+authors: [ adamekk04 ]
+
+commands:
+  diskyy:
+    description: "Diskium's main command"
+    usage: "/diskium <args>"
+    permession:

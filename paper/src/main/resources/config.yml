@@ -1,0 +1,3 @@
+bootstrap: true # bootstrap will always automatically run, but this says if it has end itself immediately or continue running
+backups: true # makes backups into plugins/Diskyy/backups/ it takes space, but you can be sure, you have backup when something fails
+delete-logs-while-running: false # if log(s) deletion command is triggered, delete them immediately (true) or add them into plugins/Diskyy/tasks.yml to get deleted in bootstrap (if both bootstrap and logs deletion are false, logs will never get deleted)
