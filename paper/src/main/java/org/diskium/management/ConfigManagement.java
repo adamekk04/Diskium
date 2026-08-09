@@ -18,14 +18,14 @@ public class ConfigManagement {
     public static Object getSingleConfig(String name){
         return Diskium.getInstance().getConfig().get(name);
     }
-    public static void setSingleConfig(String configName, String[] input){
+    public static boolean setSingleConfig(String configName, boolean input){
         if (!Diskium.getInstance().getConfig().contains(configName)) {
-            Diskium.getInstance().getLogger().severe("Config " + configName + " does not exist");
-            return;
+            return false;
         }
-        String replacement = String.join(" ", input);
-        Diskium.getInstance().getConfig().set(configName, replacement);
+
+        Diskium.getInstance().getConfig().set(configName, input);
         Diskium.getInstance().saveConfig();
-        Diskium.getInstance().getLogger().info("Set " + configName + " to " + replacement);
+        Diskium.getInstance().getLogger().info("Set " + configName + " to " + input);
+        return true;
     }
 }

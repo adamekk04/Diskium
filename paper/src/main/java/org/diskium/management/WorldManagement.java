@@ -60,8 +60,9 @@ public class WorldManagement {
         return creator.createWorld();
     }
 
-    public static void delWorld(World world){
-
+    public static boolean delWorld(World world){
+        Bukkit.unloadWorld(world, false); // TODO: Check for side effects that unloading world midtick can have: https://jd.papermc.io/paper/26.2/org/bukkit/Bukkit.html#unloadWorld(org.bukkit.World,boolean)
+        return world.getWorldFolder().delete();
     }
 
     private static String getSalt(){

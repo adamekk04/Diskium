@@ -19,9 +19,7 @@ public class DiskiumCommand implements CommandExecutor { // TODO: Use Paper's co
                 sender.sendMessage(args[1] + ": " + ConfigManagement.getSingleConfig(args[1]).toString());
                 return true;
             } else if (args.length > 2) {
-                String path = args[1];
-                String[] replace = Arrays.copyOfRange(args, 2, args.length);
-                ConfigManagement.setSingleConfig(path, replace);
+                ConfigManagement.setSingleConfig(args[1], Boolean.getBoolean(args[2]));
                 return true;
             }
             for (Map.Entry<String, Object> i : ConfigManagement.getConfig().entrySet()){
@@ -166,7 +164,17 @@ public class DiskiumCommand implements CommandExecutor { // TODO: Use Paper's co
                                     sender.sendMessage("Use /diskium world " + args[1] + " getBlock thisWorld <x> <y> <z>");
                                     return true;
                                 }
-                                String toSend = WorldManagement.getBlock(args[4], args[3], args[4], args[5], true);
+                                String toSend = WorldManagement.getBlock(args[1], args[3], args[4], args[5], true);
+                                if (toSend == null) sender.sendMessage("Something went wrong");
+                                else sender.sendMessage(toSend);
+                                return true;
+                            }
+                            else if (args[3].equalsIgnoreCase("naturally")) {
+                                if (args.length <= 7) {
+                                    sender.sendMessage("Use /diskium world " + args[1] + " getBlock naturally <x> <y> <z>");
+                                    return true;
+                                }
+                                String toSend = WorldManagement.getBlock(args[1], args[3], args[4], args[5], false);
                                 if (toSend == null) sender.sendMessage("Something went wrong");
                                 else sender.sendMessage(toSend);
                                 return true;
