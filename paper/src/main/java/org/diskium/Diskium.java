@@ -10,7 +10,6 @@ public final class Diskium extends JavaPlugin {
     public void onEnable() {
         getDataFolder().mkdirs();
         saveDefaultConfig();
-        getCommand("diskium").setExecutor(new DiskiumCommand());
     }
 
     @Override

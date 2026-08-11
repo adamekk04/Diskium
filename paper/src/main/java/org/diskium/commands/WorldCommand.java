@@ -8,6 +8,9 @@ public class WorldCommand {
 
     public static LiteralArgumentBuilder<CommandSourceStack> entry() {
 
-        return Commands.literal("world");
+        return Commands.literal("world")
+                .then(
+                        Commands.literal("allWorlds")
+                );
     }
 }

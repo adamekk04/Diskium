@@ -1,20 +1,18 @@
 package org.diskium.commands;
 
-import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 
 public class MainCommand {
 
-    public void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+    public static LiteralCommandNode<CommandSourceStack> register() {
 
-        dispatcher.register(
-                Commands.literal("diskium")
-                        .then(ConfigCommand.entry())
-                        .then(LogsCommand.entry())
-                        .then(PluginsCommand.entry())
-                        .then(WorldCommand.entry())
-        );
-
+        return Commands.literal("diskium")
+                .then(ConfigCommand.entry())
+                .then(LogsCommand.entry())
+                .then(PluginsCommand.entry())
+                .then(WorldCommand.entry())
+                .build();
     }
 }
