@@ -3,7 +3,7 @@ description: $description
 version: '1.0-dev.3+26.2'
 
 main: org.diskium.Diskium
-bootstrapper: org.diskium.DiskyyBootstrap
+bootstrapper: org.diskium.DiskiumBootstrap
 api-version: '26.2'
 load: STARTUP
 
