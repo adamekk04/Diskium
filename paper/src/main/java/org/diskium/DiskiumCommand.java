@@ -22,7 +22,7 @@ public class DiskiumCommand implements CommandExecutor { // TODO: Use Paper's co
                 ConfigManagement.setSingleConfig(args[1], Boolean.getBoolean(args[2]));
                 return true;
             }
-            for (Map.Entry<String, Object> i : ConfigManagement.getConfig().entrySet()){
+            for (Map.Entry<String, Boolean> i : ConfigManagement.getConfig().entrySet()){
                 sender.sendMessage(i.getValue() + ": " + i.getValue().toString());
             }
             sender.sendMessage("Use /diskium config <name> or /diskium config <name> <value> for printing and setting specific config value");
