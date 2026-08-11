@@ -13,6 +13,7 @@ public class MainCommand {
                         .then(ConfigCommand.entry())
                         .then(LogsCommand.entry())
                         .then(PluginsCommand.entry())
+                        .then(WorldCommand.entry())
         );
 
     }
