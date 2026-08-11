@@ -1,6 +1,6 @@
 name: Diskium
 description: $description
-version: '1.0.dev.2+26.2'
+version: '1.0-dev.3+26.2'
 
 main: org.diskium.Diskium
 bootstrapper: org.diskium.DiskyyBootstrap

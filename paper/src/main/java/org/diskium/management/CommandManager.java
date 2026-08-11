@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class CommandManager {
 
-    public LiteralArgumentBuilder<CommandSourceStack>[] configs() {
+    public static List<LiteralArgumentBuilder<CommandSourceStack>> configs() {
 
         List<LiteralArgumentBuilder<CommandSourceStack>> literals = new ArrayList<>();
 
@@ -37,7 +37,8 @@ public class CommandManager {
                                                 return Command.SINGLE_SUCCESS;
                                             })
                             )
-            )
+            );
         }
+        return literals;
     }
 }

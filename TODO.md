@@ -1,5 +1,8 @@
 # TODO
 
+## Release 1.0.0-dev.3
+Goal: Fully migrate to Paper's command system
+
 ## Release 1.0
 Goal: stable version
 
