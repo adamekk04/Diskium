@@ -7,18 +7,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ConfigManagement {
-    public static Map<String, Object> getConfig(){
+    public static Map<String, Object> getConfig() {
         FileConfiguration config = Diskium.getInstance().getConfig();
         Map<String, Object> keys = new HashMap<>();
-        for (String key : config.getKeys(false)){
+        for (String key : config.getKeys(false)) {
             keys.put(key, config.get(key));
         }
         return keys;
     }
-    public static Object getSingleConfig(String name){
+
+    public static Object getSingleConfig(String name) {
         return Diskium.getInstance().getConfig().getBoolean(name);
     }
-    public static boolean setSingleConfig(String configName, Object input){
+
+    public static boolean setSingleConfig(String configName, Object input) {
         if (!Diskium.getInstance().getConfig().contains(configName)) {
             return false;
         }

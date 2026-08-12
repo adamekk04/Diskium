@@ -51,7 +51,6 @@ public class CommandManagement {
                                 .executes(context -> {
                                     String inputedDate = StringArgumentType.getString(context, "sinceArg");
 
-
                                 })
                 )
     }

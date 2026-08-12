@@ -13,15 +13,15 @@ public class TaskObj {
         this.replacementFile = replacementFile;
     }
 
-    public boolean getDelete(){
+    public boolean getDelete() {
         return delete;
     }
 
-    public File getFile(){
+    public File getFile() {
         return file;
     }
 
-    public File getReplacementFile(){
+    public File getReplacementFile() {
         return replacementFile;
     }
 }
