@@ -1,3 +1,4 @@
 bootstrap: true # Bootstrap runs automatically. This configuration asks if you want to exit bootstrap as soon you enter it.
 backups: true # Makes backups into backups/ in plugin's folder. It takes up space, but makes sure you can revert actions, that went wrong.
 delete-logs-while-running: false # Deletes logs while server is running. It gets deleted in bootstrap normally. If bootstrap is off too, logs never get deleted.
+date-format: "yyyy-mm-dd" # Date format, needs to contain 4x y, 2x m and 2x d.

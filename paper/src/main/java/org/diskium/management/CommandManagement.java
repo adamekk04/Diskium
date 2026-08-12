@@ -2,11 +2,13 @@ package org.diskium.management;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -16,8 +18,8 @@ public class CommandManagement {
 
         List<LiteralArgumentBuilder<CommandSourceStack>> literals = new ArrayList<>();
 
-        Map<String, Boolean> configs = ConfigManagement.getConfig();
-        for (Map.Entry<String, Boolean> config : configs.entrySet()) {
+        Map<String, Object> configs = ConfigManagement.getConfig();
+        for (Map.Entry<String, Object> config : configs.entrySet()) {
             literals.add(
                     Commands.literal(config.getKey())
                             .executes(context -> {
@@ -40,5 +42,17 @@ public class CommandManagement {
             );
         }
         return literals;
+    }
+
+    public static LiteralArgumentBuilder<CommandSourceStack> logsDates() {
+        Commands.literal("since")
+                .then(
+                        Commands.argument("sinceArg", StringArgumentType.string())
+                                .executes(context -> {
+                                    String inputedDate = StringArgumentType.getString(context, "sinceArg");
+
+
+                                })
+                )
     }
 }
