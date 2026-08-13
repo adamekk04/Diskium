@@ -5,12 +5,5 @@ version: '1.0-dev.3+26.2'
 main: org.diskium.Diskium
 bootstrapper: org.diskium.DiskiumBootstrap
 api-version: '26.2'
-load: STARTUP
 
 authors: [ adamekk04 ]
-
-commands:
-  diskyy:
-    description: "Diskium's main command"
-    usage: "/diskium <args>"
-    permession:

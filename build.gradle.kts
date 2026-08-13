@@ -1,6 +1,5 @@
 plugins {
     id("java-library")
-    alias(libs.plugins.run.paper)
 }
 
 repositories {
@@ -16,18 +15,4 @@ dependencies {
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(25)
-}
-
-tasks {
-    runServer {
-        minecraftVersion(libs.versions.minecraft.get())
-        jvmArgs("-Xms2G", "-Xmx2G", "-Dcom.mojang.eula.agree=true")
-    }
-
-    processResources {
-        val props = mapOf("version" to version, "description" to project.description)
-        filesMatching("paper-plugin.yml") {
-            expand(props)
-        }
-    }
 }
