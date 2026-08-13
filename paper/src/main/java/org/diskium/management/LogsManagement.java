@@ -1,5 +1,6 @@
 package org.diskium.management;
 
+import org.diskium.DateManagement;
 import org.diskium.Diskium;
 
 import java.io.File;
@@ -8,7 +9,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,27 +17,28 @@ import java.util.zip.GZIPInputStream;
 
 public class LogsManagement {
 
-    private static File logsDir = new File(Diskium.getInstance().getDataFolder().getParentFile().getParentFile(), "logs");
+    private static final File logsDir = new File(Diskium.getInstance().getDataFolder().getParentFile().getParentFile(), "logs");
 
-    public static String[] getLogs(String startDate, String endDate){
+    public static String[] getLogs(LocalDate startDate, LocalDate endDate) {
         String[] dir = logsDir.list((File directory, String s) -> s.matches(".log.gz"));
-        if (startDate == null && endDate == null) {
-            return dir;
-        }
-        if (!isValidDate(startDate, endDate)) return new String[] {"Invalid input of date"};
+        if (startDate == null && endDate == null) return dir;
         return filter(dir, startDate, endDate);
     }
 
-    public static void delete(String start, String end){
-        for (String name : getLogs(start, end)){
-            new File(name).delete();
+    public static boolean delete(String start, String end) {
+        if (!DateManagement.isValidDate(start, end)) return false;
+        String[] logs = getLogs(LocalDate.parse(start), LocalDate.parse(end));
+        if (logs == null) return false;
+        for (String name : logs) {
+            new File(name).delete(); // TODO: Provide more information, if something fails
         }
+        return true;
     }
 
-    public static Map<String, Integer> search(String keyword){
+    public static Map<String, Integer> search(String keyword) {
         String[] logs = getLogs(null, null);
         Map<String, Integer> map = new HashMap<>();
-        for (String log : logs){
+        for (String log : logs) {
             File zipped = new File(Diskium.getInstance().getServer().getWorldContainer(), "logs/" + log);
             try {
                 FileInputStream fis = new FileInputStream(zipped);
@@ -55,7 +56,10 @@ public class LogsManagement {
         return map;
     }
 
-    private static String getLatestLog(){
+
+
+
+    private static String getLatestLog() {
         File file = new File(Diskium.getInstance().getServer().getWorldContainer(), "logs/latest.log");
         try {
             return Files.readString(file.toPath());
@@ -74,11 +78,11 @@ public class LogsManagement {
         return count;
     }
 
-    private static String[] filter(String[] original, String start, String end){
+    private static String[] filter(String[] original, LocalDate start, LocalDate end) {
         List<String> list = new ArrayList<>();
-        if (start == null){
-            for (String i : original){
-                if (supposedToAdd(i, null, end)){
+        if (start == null) {
+            for (String i : original) {
+                if (supposedToAdd(i, null, end)) {
                     list.add(i);
                 }
             }
@@ -86,24 +90,12 @@ public class LogsManagement {
         return list.toArray(String[]::new);
     }
 
-    private static boolean supposedToAdd(String fileName, String start, String end){
-        if (start == null){
-            if (LocalDate.parse(end).isAfter(LocalDate.parse(fileName.substring(0, 10)))) return true;
-            return false;
+    private static boolean supposedToAdd(String fileName, LocalDate start, LocalDate end) {
+        if (start == null) {
+            return end.isAfter(LocalDate.parse(fileName.substring(0, 10)));
+        } else if (end == null) {
+            return end.isBefore(LocalDate.parse(fileName.substring(0, 10)));
         }
-        if (end == null) {
-            if (LocalDate.parse(end).isBefore(LocalDate.parse(fileName.substring(0, 10)))) return true;
-            return false;
-        }
-        if (LocalDate.parse(start).isBefore(LocalDate.parse(fileName.substring(0, 10))) && LocalDate.parse(end).isAfter(LocalDate.parse(fileName.substring(0, 10)))) return true;
-        return false;
-    }
-
-    private static boolean isValidDate(String start, String end){
-        try {
-            return !LocalDate.parse(start).isAfter(LocalDate.parse(end));
-        } catch (DateTimeParseException e) {
-            return false;
-        }
+        return start.isBefore(LocalDate.parse(fileName.substring(0, 10))) && end.isAfter(LocalDate.parse(fileName.substring(0, 10)));
     }
 }

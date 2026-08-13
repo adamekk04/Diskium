@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import org.diskium.management.CommandManagement;
 import org.diskium.management.LogsManagement;
 
 import java.util.Map;
@@ -24,7 +25,12 @@ public class LogsCommand {
                                     }
                                     return Command.SINGLE_SUCCESS;
                                 })
-                        // add filtering options: starting date, ending date, size, lines, etc
+                                .then(
+                                        CommandManagement.logsDates(true)
+                                )
+                                .then(
+                                        CommandManagement.logsDates(false)
+                                )
                 )
                 .then(
                         Commands.literal("delete")
@@ -34,7 +40,12 @@ public class LogsCommand {
                                     LogsManagement.delete(null, null);
                                     return Command.SINGLE_SUCCESS;
                                 })
-                        // add filtering options: starting date, ending date, size, lines, etc
+                                .then(
+                                        CommandManagement.logsDates(true)
+                                )
+                                .then(
+                                        CommandManagement.logsDates(false)
+                                )
                 )
                 .then(
                         Commands.literal("search")
