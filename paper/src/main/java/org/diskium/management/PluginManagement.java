@@ -9,22 +9,19 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 
 public class PluginManagement {
-    public static boolean tempDisablePlugin(String name) {
-        if (Arrays.asList(getPlugins()).contains(name)) {
-            Bukkit.getPluginManager().disablePlugin(Bukkit.getPluginManager().getPlugin(name));
+    public static boolean tempDisablePlugin(Plugin pl) {
+        if (Arrays.asList(getPlugins()).contains(pl)) {
+            Bukkit.getPluginManager().disablePlugin(pl);
             return true;
         }
         return false;
     }
 
-    public static boolean permDisablePlugin(String name) {
-        if (Arrays.asList(getPlugins()).contains(name)) {
-            Plugin plugin = Bukkit.getPluginManager().getPlugin(name);
-            if (plugin == null) {
-                return false;
-            }
+    public static boolean permDisablePlugin(Plugin pl) {
+        if (Arrays.asList(getPlugins()).contains(pl)) {
+            if (pl == null) return false;
             try {
-                File oldFile = new File(plugin.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
+                File oldFile = new File(pl.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
                 File newFile = new File(oldFile.getPath() + "diskiumdisable");
                 return oldFile.renameTo(newFile);
             } catch (URISyntaxException e) {
@@ -34,19 +31,18 @@ public class PluginManagement {
         return false;
     }
 
-    public static boolean tempEnablePlugin(String name) {
-        if (Arrays.asList(getPlugins()).contains(name)) {
-            Bukkit.getPluginManager().enablePlugin(Bukkit.getPluginManager().getPlugin(name));
+    public static boolean tempEnablePlugin(Plugin pl) {
+        if (Arrays.asList(getPlugins()).contains(pl)) {
+            Bukkit.getPluginManager().enablePlugin(pl);
             return true;
         }
         return false;
     }
 
-    public static boolean permEnablePlugin(String name) {
-        if (Arrays.asList(getPlugins()).contains(name)) {
-            Plugin plugin = Bukkit.getPluginManager().getPlugin(name);
+    public static boolean permEnablePlugin(Plugin pl) {
+        if (Arrays.asList(getPlugins()).contains(pl)) {
             try {
-                File oldFile = new File(plugin.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
+                File oldFile = new File(pl.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
                 if (!oldFile.getPath().endsWith("diskiumdisable")) return false;
                 String oldPath = oldFile.getPath();
                 String newPath = oldPath.substring(0, oldPath.length() - 14);
@@ -59,21 +55,19 @@ public class PluginManagement {
         return false;
     }
 
-    public static boolean deleteFolder(String name) {
-        if (Arrays.asList(getPlugins()).contains(name)) {
-            Plugin plugin = Bukkit.getPluginManager().getPlugin(name);
-            File file = plugin.getDataFolder();
-            return file.delete();
+    public static boolean deleteFolder(Plugin pl) {
+        if (Arrays.asList(getPlugins()).contains(pl)) {
+            File file = pl.getDataFolder();
+            return file.delete(); // TODO: Provide more info when something fails
         }
         return false;
     }
 
-    public static boolean deletePlugin(String name) {
-        if (Arrays.asList(getPlugins()).contains(name)) {
-            Plugin plugin = Bukkit.getPluginManager().getPlugin(name);
+    public static boolean deletePlugin(Plugin pl) {
+        if (Arrays.asList(getPlugins()).contains(pl)) {
             try {
-                File file = new File(plugin.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
-                return file.delete();
+                File file = new File(pl.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
+                return file.delete(); // TODO: Provide more info when something fails
             } catch (URISyntaxException e) {
                 return false;
             }
@@ -81,28 +75,29 @@ public class PluginManagement {
         return false;
     }
 
-    public static String pluginInfo(String name) {
-        if (Arrays.asList(getPlugins()).contains(name)) {
-            Plugin plugin = Bukkit.getPluginManager().getPlugin(name);
-            PluginMeta meta = plugin.getPluginMeta();
+    public static boolean hasFolder(Plugin pl) {
+        return pl.getDataFolder().exists();
+    }
+
+    public static String info(Plugin pl) {
+        if (Arrays.asList(getPlugins()).contains(pl)) {
+            PluginMeta meta = pl.getPluginMeta();
             String authors;
             if (meta.getAuthors().size() == 1) authors = "Author: ";
             else authors = "Authors: ";
             for (String author : meta.getAuthors()) {
-                authors = authors + author + ", ";
+                authors = authors + author + ", "; // TODO: Use StringBuilder
             }
             authors = authors.substring(0, authors.length() - 2);
-            return "Name: " + meta.getName() + "\nVersion: " + meta.getVersion() + "\n" + authors + "\nWebsite: " + meta.getWebsite(); // TODO: Add "Is on tasklist: true/false" & "Is enabled: ture/false"
+            return "Name: " + meta.getName() + "\n" +
+                    "Version: " + meta.getVersion() + "\n" +
+                    authors +
+                    "\nWebsite: " + meta.getWebsite(); // TODO: Add "Is on tasklist: true/false" & "Is enabled: ture/false"
         }
         return null;
     }
 
-    public static String[] getPlugins() {
-        Plugin[] plugins = Bukkit.getPluginManager().getPlugins();
-        String[] pluginsName = new String[plugins.length];
-        for (int i = 0; i < plugins.length; i++) {
-            pluginsName[i] = plugins[i].getName();
-        }
-        return pluginsName;
+    public static Plugin[] getPlugins() {
+        return Bukkit.getPluginManager().getPlugins();
     }
 }

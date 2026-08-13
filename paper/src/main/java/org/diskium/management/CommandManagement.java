@@ -6,6 +6,8 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,5 +79,94 @@ public class CommandManagement {
                                     })
                     );
         }
+    }
+
+    public static LiteralArgumentBuilder<CommandSourceStack> pluginSwitcher(String literal, boolean enabled, Boolean thisInstance) {
+        LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal(literal);
+        Plugin[] plugins = Bukkit.getPluginManager().getPlugins();
+
+        for (Plugin pl : plugins) {
+            if (pl.isEnabled() && enabled) {
+                if (thisInstance) {
+                    root.then(
+                            Commands.literal(pl.getName()).executes(context -> {
+                                PluginManagement.tempDisablePlugin(pl);
+                                return Command.SINGLE_SUCCESS;
+                            })
+                    );
+                } else if (!thisInstance) {
+                    root.then(
+                            Commands.literal(pl.getName()).executes(context -> {
+                                PluginManagement.permDisablePlugin(pl);
+                                return Command.SINGLE_SUCCESS;
+                            })
+                    );
+                }
+            } else if (!enabled) {
+                root.then(
+                        Commands.literal(pl.getName()).executes(context -> {
+                            if (!PluginManagement.tempEnablePlugin(pl)) {
+                                PluginManagement.permEnablePlugin(pl);
+                            }
+                            return Command.SINGLE_SUCCESS;
+                        })
+                );
+            }
+        }
+
+        return root;
+    }
+
+    public static LiteralArgumentBuilder<CommandSourceStack> pluginDeleter(String literal, boolean delPlugin, boolean delFolder) {
+        LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal(literal);
+        Plugin[] plugins = Bukkit.getPluginManager().getPlugins();
+
+        for (Plugin pl : plugins) {
+            if (delPlugin && (!delFolder)) {
+                root.then(
+                        Commands.literal(pl.getName()).executes(context -> {
+                            PluginManagement.deletePlugin(pl);
+                            return Command.SINGLE_SUCCESS;
+                        })
+                );
+            } else if ((!delPlugin) && delFolder) {
+                if (PluginManagement.hasFolder(pl)) {
+                    root.then(
+                            Commands.literal(pl.getName()).executes(context -> {
+                                PluginManagement.deleteFolder(pl);
+                                return Command.SINGLE_SUCCESS;
+                            })
+                    );
+                } // TODO: Edit those two else if blocks to prevent duplicate code
+            } else if (delPlugin && delFolder) {
+                if (PluginManagement.hasFolder(pl)) {
+                    root.then(
+                            Commands.literal(pl.getName()).executes(context -> {
+                                PluginManagement.deleteFolder(pl);
+                                PluginManagement.deletePlugin(pl);
+                                return Command.SINGLE_SUCCESS;
+                            })
+                    );
+                }
+            }
+        }
+
+        return root;
+    }
+
+    public static LiteralArgumentBuilder<CommandSourceStack> pluginInfo(String literal) {
+        LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal(literal);
+        Plugin[] plugins = Bukkit.getPluginManager().getPlugins();
+
+        for (Plugin pl : plugins) {
+            root.then(
+                    Commands.literal(pl.getName()).executes(context -> {
+                        context.getSource().getSender().sendMessage(PluginManagement.info(pl)); // TODO: Fix possible NPE
+                        return Command.SINGLE_SUCCESS;
+                    })
+            );
+        }
+
+        return root;
     }
 }

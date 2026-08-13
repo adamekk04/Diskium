@@ -4,7 +4,9 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
-import org.diskium.management.PluginManagement;
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
+import org.diskium.management.CommandManagement;
 
 public class PluginsCommand {
 
@@ -14,31 +16,25 @@ public class PluginsCommand {
                 .then(
                         Commands.literal("disable")
                                 .then(
-                                        Commands.literal("thisInstance")
-                                        // list all enabled plugins as literals
+                                        CommandManagement.pluginSwitcher("thisInstance", true, true)
                                 )
                                 .then(
-                                        Commands.literal("untilManuallyEnabled")
-                                        // list all enabled plugins as literals
+                                        CommandManagement.pluginSwitcher("untilManualyEnabled", true, false)
                                 )
                 )
                 .then(
-                        Commands.literal("enable")
-                        // list all disabled plugins as literals
+                        CommandManagement.pluginSwitcher("enable", false, null)
                 )
                 .then(
                         Commands.literal("delete")
                                 .then(
-                                        Commands.literal("folder")
-                                        // list all plugins with folders as literals
+                                        CommandManagement.pluginDeleter("folder", false, true)
                                 )
                                 .then(
-                                        Commands.literal("plugin")
-                                        // list all plugins as literals
+                                        CommandManagement.pluginDeleter("plugin", true, false)
                                 )
                                 .then(
-                                        Commands.literal("both")
-                                        // list all plugins as literals
+                                        CommandManagement.pluginDeleter("both", true, true)
                                 )
                 )
                 .then(
@@ -48,10 +44,10 @@ public class PluginsCommand {
                 .then(
                         Commands.literal("list")
                                 .executes(context -> {
-                                    String[] plugins = PluginManagement.getPlugins();
+                                    Plugin[] plugins = Bukkit.getPluginManager().getPlugins();
                                     context.getSource().getSender().sendMessage("Found " + plugins.length + " plugins:");
-                                    for (String pl : plugins) {
-                                        context.getSource().getSender().sendMessage(pl);
+                                    for (Plugin pl : plugins) {
+                                        context.getSource().getSender().sendMessage(pl.getName());
                                     }
                                     return Command.SINGLE_SUCCESS;
                                 })
