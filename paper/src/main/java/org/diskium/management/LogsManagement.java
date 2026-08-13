@@ -57,8 +57,6 @@ public class LogsManagement {
     }
 
 
-
-
     private static String getLatestLog() {
         File file = new File(Diskium.getInstance().getServer().getWorldContainer(), "logs/latest.log");
         try {

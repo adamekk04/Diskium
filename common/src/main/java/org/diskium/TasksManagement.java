@@ -25,8 +25,7 @@ public class TasksManagement {
 
                 if (mode.equals("1")) {
                     tasks.add(new TaskObj(true, path, null));
-                }
-                else {
+                } else {
                     tasks.add(new TaskObj(false, path, new File(mode)));
                 }
 
@@ -37,15 +36,14 @@ public class TasksManagement {
         }
     }
 
-    public static boolean addTask(File folder, TaskObj task){
+    public static boolean addTask(File folder, TaskObj task) {
         File taskFile = new File(folder, "tasks.txt");
 
         try (FileWriter fw = new FileWriter(taskFile, true)) {
             fw.write(task.getFile().toString());
-            if (task.getDelete()){
+            if (task.getDelete()) {
                 fw.write("1");
-            }
-            else {
+            } else {
                 fw.write(task.getReplacementFile().toString());
             }
             return true;
@@ -55,14 +53,14 @@ public class TasksManagement {
     }
 
     public static void doTasks(TaskObj[] tasks) {
-        for (TaskObj task : tasks){
-            if (task.getDelete()){
+        for (TaskObj task : tasks) {
+            if (task.getDelete()) {
                 task.getFile().delete();
-            }
-            else {
+            } else {
                 try {
                     Files.move(Path.of(task.getFile().toURI()), Path.of(task.getReplacementFile().toURI()), StandardCopyOption.REPLACE_EXISTING);
-                } catch (IOException e) {}
+                } catch (IOException e) {
+                }
             }
         }
     }

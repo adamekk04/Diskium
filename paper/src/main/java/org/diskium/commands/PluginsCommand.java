@@ -15,16 +15,16 @@ public class PluginsCommand {
                         Commands.literal("disable")
                                 .then(
                                         Commands.literal("thisInstance")
-                                            // list all enabled plugins as literals
+                                        // list all enabled plugins as literals
                                 )
                                 .then(
                                         Commands.literal("untilManuallyEnabled")
-                                            // list all enabled plugins as literals
+                                        // list all enabled plugins as literals
                                 )
                 )
                 .then(
                         Commands.literal("enable")
-                                // list all disabled plugins as literals
+                        // list all disabled plugins as literals
                 )
                 .then(
                         Commands.literal("delete")
@@ -43,7 +43,7 @@ public class PluginsCommand {
                 )
                 .then(
                         Commands.literal("info")
-                                // list all plugins as literals
+                        // list all plugins as literals
                 )
                 .then(
                         Commands.literal("list")

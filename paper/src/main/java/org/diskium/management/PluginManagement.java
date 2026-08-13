@@ -9,7 +9,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 
 public class PluginManagement {
-    public static boolean tempDisablePlugin(String name){
+    public static boolean tempDisablePlugin(String name) {
         if (Arrays.asList(getPlugins()).contains(name)) {
             Bukkit.getPluginManager().disablePlugin(Bukkit.getPluginManager().getPlugin(name));
             return true;
@@ -17,8 +17,8 @@ public class PluginManagement {
         return false;
     }
 
-    public static boolean permDisablePlugin(String name){
-        if (Arrays.asList(getPlugins()).contains(name)){
+    public static boolean permDisablePlugin(String name) {
+        if (Arrays.asList(getPlugins()).contains(name)) {
             Plugin plugin = Bukkit.getPluginManager().getPlugin(name);
             if (plugin == null) {
                 return false;
@@ -34,16 +34,16 @@ public class PluginManagement {
         return false;
     }
 
-    public static boolean tempEnablePlugin(String name){
-        if (Arrays.asList(getPlugins()).contains(name)){
+    public static boolean tempEnablePlugin(String name) {
+        if (Arrays.asList(getPlugins()).contains(name)) {
             Bukkit.getPluginManager().enablePlugin(Bukkit.getPluginManager().getPlugin(name));
             return true;
         }
         return false;
     }
 
-    public static boolean permEnablePlugin(String name){
-        if (Arrays.asList(getPlugins()).contains(name)){
+    public static boolean permEnablePlugin(String name) {
+        if (Arrays.asList(getPlugins()).contains(name)) {
             Plugin plugin = Bukkit.getPluginManager().getPlugin(name);
             try {
                 File oldFile = new File(plugin.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
@@ -59,8 +59,8 @@ public class PluginManagement {
         return false;
     }
 
-    public static boolean deleteFolder(String name){
-        if (Arrays.asList(getPlugins()).contains(name)){
+    public static boolean deleteFolder(String name) {
+        if (Arrays.asList(getPlugins()).contains(name)) {
             Plugin plugin = Bukkit.getPluginManager().getPlugin(name);
             File file = plugin.getDataFolder();
             return file.delete();
@@ -68,8 +68,8 @@ public class PluginManagement {
         return false;
     }
 
-    public static boolean deletePlugin(String name){
-        if (Arrays.asList(getPlugins()).contains(name)){
+    public static boolean deletePlugin(String name) {
+        if (Arrays.asList(getPlugins()).contains(name)) {
             Plugin plugin = Bukkit.getPluginManager().getPlugin(name);
             try {
                 File file = new File(plugin.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
@@ -82,13 +82,13 @@ public class PluginManagement {
     }
 
     public static String pluginInfo(String name) {
-        if (Arrays.asList(getPlugins()).contains(name)){
+        if (Arrays.asList(getPlugins()).contains(name)) {
             Plugin plugin = Bukkit.getPluginManager().getPlugin(name);
             PluginMeta meta = plugin.getPluginMeta();
             String authors;
             if (meta.getAuthors().size() == 1) authors = "Author: ";
             else authors = "Authors: ";
-            for (String author : meta.getAuthors()){
+            for (String author : meta.getAuthors()) {
                 authors = authors + author + ", ";
             }
             authors = authors.substring(0, authors.length() - 2);
@@ -97,10 +97,10 @@ public class PluginManagement {
         return null;
     }
 
-    public static String[] getPlugins(){
+    public static String[] getPlugins() {
         Plugin[] plugins = Bukkit.getPluginManager().getPlugins();
         String[] pluginsName = new String[plugins.length];
-        for (int i = 0; i < plugins.length; i++){
+        for (int i = 0; i < plugins.length; i++) {
             pluginsName[i] = plugins[i].getName();
         }
         return pluginsName;

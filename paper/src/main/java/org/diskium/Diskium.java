@@ -17,7 +17,7 @@ public final class Diskium extends JavaPlugin {
         // nothing :(
     }
 
-    public static Diskium getInstance(){
+    public static Diskium getInstance() {
         return instance;
     }
 }
