@@ -1,6 +1,7 @@
 package org.diskium.management;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.block.Block;
@@ -15,39 +16,12 @@ public class WorldManagement {
         return false;
     }
 
-    public static String getBlock(String argWorld, String stringX, String stringY, String stringZ, boolean existing) {
-        int x;
-        int y;
-        int z;
-        String toReturn = null;
-        try {
-            x = Integer.parseInt(stringX);
-            y = Integer.parseInt(stringY);
-            z = Integer.parseInt(stringZ);
-        } catch (NumberFormatException e) {
-            return "You need to enter numbers as coordinates";
-        }
+    public static String getBlock(Location loc, boolean existing) {
         if (existing) {
-            if (argWorld.equalsIgnoreCase("allworlds")) {
-                for (World world : Bukkit.getWorlds()) {
-                    Block block = world.getBlockAt(x, y, z);
-                    toReturn = toReturn + world.getName() + ": " + block.getType().toString() + "\n";
-                }
-                return toReturn;
-            }
-            return argWorld + ": " + Bukkit.getWorld(argWorld).getBlockAt(x, y, z);
+            return loc.getWorld().getName() + ": " + loc.getBlock().getType().toString();
         } else {
-            if (argWorld.equalsIgnoreCase("allwordls")) {
-                for (World world : Bukkit.getWorlds()) {
-                    World newWorld = genWorld(world);
-                    toReturn = toReturn + world.getName() + ": " + newWorld.getBlockAt(x, y, z).getType().toString() + "\n";
-                    delWorld(newWorld);
-                }
-                return toReturn;
-            }
-            World originalWorld = Bukkit.getWorld(argWorld);
-            World newWorld = genWorld(originalWorld);
-            toReturn = argWorld + ": " + newWorld.getBlockAt(x, y, z).getType().toString();
+            World newWorld = genWorld(loc.getWorld());
+            String toReturn = loc.getWorld().getName() + ": " + newWorld.getBlockAt(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()).getType().toString();
             delWorld(newWorld);
             return toReturn;
         }
