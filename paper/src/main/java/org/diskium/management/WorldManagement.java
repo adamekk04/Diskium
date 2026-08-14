@@ -38,6 +38,10 @@ public class WorldManagement {
         return world.getWorldFolder().delete();
     }
 
+    public static String info(World world) {
+        return "Name: " + world.getName() + "\nPlayers: " + world.getPlayers() + " (" + world.getPlayerCount() + ")\nSeed: " + world.getSeed() + "\nWorld border radius: " + world.getWorldBorder().getSize();
+    }
+
     private static String getSalt() {
         String chars = "abcdefghijklmnopqrstuvwxyz1234567890";
         String toReturn = "";

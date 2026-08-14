@@ -17,33 +17,6 @@ Goal: stable version
 
 ---
 
-## GetBlock
-
-- [ ] Implement `/diskium world getBlock`
-- [ ] Support world as separate argument
-- [ ] Support `allWorlds`
-- [ ] Get block by coordinates
-
-### Sources
-
-#### `thisWorld`
-
-- [ ] Accept coordinates
-- [ ] Get block from current world
-- [ ] Output block type
-- [ ] Output block properties
-
-
-#### `naturally`
-
-- [ ] Accept coordinates
-- [ ] Get block from natural world
-- [ ] Output block type
-- [ ] Output block properties
-
-
----
-
 # Delete
 
 - [ ] Implement `/diskium world delete`
@@ -103,20 +76,6 @@ Goal: stable version
 
 - [ ] Accept chunk coordinates
 - [ ] Queue chunk deletion task
-
-
----
-
-# World Info
-
-- [ ] Implement `/diskium world info`
-- [ ] Display world information:
-    - [ ] World name
-    - [ ] World size
-    - [ ] Seed
-    - [ ] Chunk count
-    - [ ] Active tasks
-
 
 ---
 

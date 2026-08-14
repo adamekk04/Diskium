@@ -31,13 +31,34 @@ public class WorldCommand {
                                                                                 .executes(context -> {
                                                                                     BlockPosition blockPosition = context.getArgument("position", BlockPositionResolver.class).resolve(context.getSource());
                                                                                     World world = context.getArgument("world", World.class);
-
                                                                                     Location loc = blockPosition.toLocation(world);
+
                                                                                     context.getSource().getSender().sendMessage(WorldManagement.getBlock(loc, true));
                                                                                     return Command.SINGLE_SUCCESS;
                                                                                 })
                                                                 )
                                                 )
+                                                .then(
+                                                        Commands.literal("naturally")
+                                                                .then(
+                                                                        Commands.argument("position", ArgumentTypes.blockPosition())
+                                                                                .executes(context -> {
+                                                                                    BlockPosition blockPosition = context.getArgument("position", BlockPositionResolver.class).resolve(context.getSource());
+                                                                                    World world = context.getArgument("world", World.class);
+                                                                                    Location loc = blockPosition.toLocation(world);
+
+                                                                                    context.getSource().getSender().sendMessage(WorldManagement.getBlock(loc, false));
+                                                                                    return Command.SINGLE_SUCCESS;
+                                                                                })
+                                                                )
+                                                )
+                                )
+                                .then(
+                                        Commands.literal("info")
+                                                .executes(context -> {
+                                                    context.getSource().getSender().sendMessage(WorldManagement.info(context.getArgument("world", World.class)));
+                                                    return Command.SINGLE_SUCCESS;
+                                                })
                                 )
                 );
     }
