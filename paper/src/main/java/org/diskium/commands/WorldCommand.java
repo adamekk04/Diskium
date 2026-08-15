@@ -1,6 +1,7 @@
 package org.diskium.commands;
 
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -59,6 +60,21 @@ public class WorldCommand {
                                                     context.getSource().getSender().sendMessage(WorldManagement.info(context.getArgument("world", World.class)));
                                                     return Command.SINGLE_SUCCESS;
                                                 })
+                                )
+                                .then(
+                                        Commands.literal("delete") // TODO: Add some WorldBorder options
+                                                .then(
+                                                        Commands.literal("in")
+                                                                .then(
+                                                                        Commands.argument("radius", IntegerArgumentType.integer()) // TODO: Add int limitation
+                                                                                .then(
+                                                                                        Commands.literal("checkForBuilds")
+                                                                                                .executes(context -> {
+                                                                                                    WorldManagement.
+                                                                                                })
+                                                                                )
+                                                                )
+                                                )
                                 )
                 );
     }

@@ -10,7 +10,7 @@ public class TasksManagement {
 
     public static boolean taskFileExists(File folder) {
         if (!folder.exists()) return false;
-        File file = new File(folder, "tasks.yml");
+        File file = new File(folder, "tasks.txt");
         if (!file.exists()) return false;
         return true;
     }
@@ -36,8 +36,8 @@ public class TasksManagement {
         }
     }
 
-    public static boolean addTask(File folder, TaskObj task) {
-        File taskFile = new File(folder, "tasks.txt");
+    public static boolean addTask(File pluginFolder, TaskObj task) {
+        File taskFile = new File(pluginFolder, "tasks.txt");
 
         try (FileWriter fw = new FileWriter(taskFile, true)) {
             fw.write(task.getFile().toString());
@@ -55,17 +55,14 @@ public class TasksManagement {
     public static void doTasks(TaskObj[] tasks) {
         for (TaskObj task : tasks) {
             if (task.getDelete()) {
-                task.getFile().delete();
+                task.getFile().delete(); // TODO: Provide more information, if something fails while deleting
             } else {
                 try {
                     Files.move(Path.of(task.getFile().toURI()), Path.of(task.getReplacementFile().toURI()), StandardCopyOption.REPLACE_EXISTING);
                 } catch (IOException e) {
+                    // TODO: Return something, if moving fails
                 }
             }
         }
-    }
-
-    public static void addTask(TaskObj task) {
-
     }
 }

@@ -1,6 +1,6 @@
 package org.diskium.management;
 
-import org.diskium.DateManagement;
+import org.diskium.DateUtils;
 import org.diskium.Diskium;
 
 import java.io.File;
@@ -26,7 +26,7 @@ public class LogsManagement {
     }
 
     public static boolean delete(String start, String end) {
-        if (!DateManagement.isValidDate(start, end)) return false;
+        if (!DateUtils.isValidDate(start, end)) return false;
         String[] logs = getLogs(LocalDate.parse(start), LocalDate.parse(end));
         if (logs == null) return false;
         for (String name : logs) {
