@@ -11,74 +11,8 @@ Goal: stable version
 ## Paper
 
 ### Commands
-#### 🌍 World Commands
-
-### `/diskium world`
 
 ---
-
-# Delete
-
-- [ ] Implement `/diskium world delete`
-- [ ] Use Task Queue system
-
-
-## Delete inside border
-
-### `in`
-
-- [ ] Accept range
-- [ ] Add build checking option
-
-### `out`
-
-- [ ] Accept range
-- [ ] Add build checking option
-
-
----
-
-## Build checking
-
-### `checkForBuilds`
-
-- [ ] Compare against separate world
-- [ ] Detect player-made builds
-- [ ] Prevent deleting protected builds
-
-
-### `dontCheckForBuilds`
-
-- [ ] Skip build checking
-- [ ] Add warning before execution
-- [ ] Allow deleting player builds
-
-
----
-
-## Delete targets
-
-### `wholeWorld`
-
-- [ ] Delete entire world
-- [ ] Support `checkForBuilds`
-- [ ] Support `dontCheckForBuilds`
-
-
-### `region`
-
-- [ ] Accept region coordinates
-- [ ] Validate region boundaries
-- [ ] Queue deletion task
-
-
-### `chunk`
-
-- [ ] Accept chunk coordinates
-- [ ] Queue chunk deletion task
-
----
-
 
 # 📋 Task Commands
 
