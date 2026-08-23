@@ -20,55 +20,6 @@ Goal: stable version
 
 ---
 
-# 📋 Task Commands
-
-## `/diskium task`
-
----
-
-## List
-
-- [ ] Implement `/diskium task list`
-
-### Categories
-
-#### `logs`
-
-- [ ] List all log tasks
-
-
-#### `plugins`
-
-- [ ] List all plugin tasks
-
-
-#### `world`
-
-- [ ] List all world tasks
-
-
----
-
-## Remove
-
-- [ ] Implement `/diskium task remove`
-- [ ] Accept task file name
-- [ ] Remove task from `tasks.yml`
-- [ ] Confirm deletion
-
-
----
-
-## Info
-
-- [ ] Implement `/diskium task info`
-- [ ] Accept task file name
-- [ ] Display task information
-
-
----
-
-
 # 💾 Backup Commands
 
 ## `/diskium backup`

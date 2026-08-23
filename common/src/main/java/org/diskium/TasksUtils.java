@@ -6,13 +6,12 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 
-public class TasksManagement {
+public class TasksUtils {
 
     public static boolean taskFileExists(File folder) {
         if (!folder.exists()) return false;
         File file = new File(folder, "tasks.txt");
-        if (!file.exists()) return false;
-        return true;
+        return file.exists();
     }
 
     public static TaskObj[] getTasks(File folder) {
@@ -24,16 +23,15 @@ public class TasksManagement {
                 String mode = br.readLine();
 
                 if (mode.equals("1")) {
-                    tasks.add(new TaskObj(true, path, null));
+                    tasks.add(new TaskObj(true, path, null, getType(path)));
                 } else {
                     tasks.add(new TaskObj(false, path, new File(mode)));
                 }
-
-                return tasks.toArray(new TaskObj[0]);
             }
         } catch (Exception e) {
             return null;
         }
+        return tasks.toArray(new TaskObj[0]);
     }
 
     public static boolean addTask(File pluginFolder, TaskObj task) {
@@ -64,5 +62,16 @@ public class TasksManagement {
                 }
             }
         }
+    }
+
+    public static void removeTask(TaskObj task) { // TODO: Finish this
+
+    }
+
+    private static String getType(File file) { // TODO: Prevent edge cases by not using contains
+        if (file.getPath().contains("plugins")) return "Plugin";
+        if (file.getPath().contains(".mca")) return "World";
+        if (file.getPath().contains(".log")) return "Log";
+        else return "N/A";
     }
 }

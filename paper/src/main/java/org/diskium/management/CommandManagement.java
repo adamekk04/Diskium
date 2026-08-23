@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class CommandManagement {
+public class CommandManagement { // TODO: Delete this class and put all methods into individual command classes in commands/
 
     public static List<LiteralArgumentBuilder<CommandSourceStack>> configs() {
 

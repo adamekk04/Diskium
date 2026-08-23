@@ -15,14 +15,14 @@ class DiskiumBootstrap implements PluginBootstrap {
 
         context.getLogger().info("Diskium is entering bootstrap is now on");
         context.getLogger().info("Checking for tasks to do before server startup");
-        if (!TasksManagement.taskFileExists(context.getDataDirectory().toFile())) {
+        if (!TasksUtils.taskFileExists(context.getDataDirectory().toFile())) {
             context.getLogger().error("Something went wrong while trying to get the file 'tasks.yml'");
             return;
         }
         context.getLogger().info("Found 'tasks.yml', trying to find tasks");
-        TaskObj[] tasks = TasksManagement.getTasks(context.getDataDirectory().toFile());
+        TaskObj[] tasks = TasksUtils.getTasks(context.getDataDirectory().toFile());
         context.getLogger().info("Found " + tasks.length + " task(s) to do");
-        TasksManagement.doTasks(tasks);
+        TasksUtils.doTasks(tasks);
         context.getLogger().info("All bootstrap tasks done, Diskium is exiting bootstrap");
     }
 }

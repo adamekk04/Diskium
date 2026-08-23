@@ -3,9 +3,9 @@ package org.diskium;
 import java.io.File;
 
 public class FileUtils {
-    public static boolean del(File file, boolean useTaskQueue, File pluginFolder) {
+    public static boolean del(File file, boolean useTaskQueue, File pluginFolder, String type) {
         if (useTaskQueue) {
-            TasksManagement.addTask(pluginFolder, new TaskObj(true, file, null));
+            TasksUtils.addTask(pluginFolder, new TaskObj(true, file, null, type));
             return true;
         } else {
             return file.delete(); // TODO: Provide more information, if something fails while deleting

@@ -4,7 +4,6 @@ import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.diskium.Diskium;
 import org.diskium.FileUtils;
-import org.diskium.TasksManagement;
 import org.diskium.WorldUtils;
 
 import java.util.ArrayList;
@@ -54,7 +53,7 @@ public class WorldManagement {
                     FileUtils.del(
                             FileManagement.getRegionFile(chunk.getX(), chunk.getZ(), world),
                             (boolean) ConfigManagement.getSingleConfig("delete-world-while-running"),
-                            Diskium.getInstance().getDataFolder());
+                            Diskium.getInstance().getDataFolder(), "world");
                 }
             }
         }

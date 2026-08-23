@@ -6,11 +6,13 @@ public class TaskObj {
     boolean delete;
     File file;
     File replacementFile;
+    String type;
 
-    public TaskObj(boolean delete, File file, File replacementFile) {
+    public TaskObj(boolean delete, File file, File replacementFile, String type) {
         this.delete = delete;
         this.file = file;
         this.replacementFile = replacementFile;
+        this.type = type;
     }
 
     public boolean getDelete() {
@@ -23,5 +25,9 @@ public class TaskObj {
 
     public File getReplacementFile() {
         return replacementFile;
+    }
+
+    public String getType() {
+        return type;
     }
 }
