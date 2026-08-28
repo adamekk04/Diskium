@@ -6,11 +6,13 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 
-public class TasksUtils {
+public class TasksUtils { // TODO: Merge tasks and backups
 
-    public static boolean taskFileExists(File folder) {
+    public static boolean fileExists(File folder, boolean task) {
         if (!folder.exists()) return false;
-        File file = new File(folder, "tasks.txt");
+        File file;
+        if (task) file = new File(folder, "backups.txt");
+        else file = new File(folder, "tasks.txt");
         return file.exists();
     }
 
@@ -32,12 +34,32 @@ public class TasksUtils {
             }
 
             return tasks.toArray(new TaskObj[0]);
-        } catch (Exception e) {
+        } catch (Exception e) { // TODO: Provide more info
             return null;
         }
     }
 
-    public static boolean addTask(File pluginFolder, TaskObj task) {
+    public static BackupObj[] getBackups(File folder) {
+        List<BackupObj> backups = new ArrayList<>();
+        File backupFile = new File(folder, "backups.txt");
+        try (BufferedReader br = new BufferedReader(new FileReader(backupFile))) {
+            String fileLine;
+            String itselfLine;
+
+            while (((fileLine = br.readLine()) != null) && ((itselfLine = br.readLine()) != null)) {
+                File path = new File(fileLine);
+                File itself = new File(itselfLine);
+
+                backups.add(new BackupObj(path, itself));
+            }
+
+            return backups.toArray(new BackupObj[0]);
+        } catch (Exception e) { // TODO: Provide more info
+            return null;
+        }
+    }
+
+    public static boolean add(File pluginFolder, TaskObj task) {
         File taskFile = new File(pluginFolder, "tasks.txt");
 
         try (FileWriter fw = new FileWriter(taskFile, true)) {
@@ -53,7 +75,7 @@ public class TasksUtils {
         }
     }
 
-    public static void doTasks(TaskObj[] tasks) {
+    public static void complete(TaskObj[] tasks) {
         for (TaskObj task : tasks) {
             if (task.getDelete()) {
                 task.getFile().delete(); // TODO: Provide more information, if something fails while deleting
@@ -67,11 +89,15 @@ public class TasksUtils {
         }
     }
 
-    public static void removeTask(TaskObj task) { // TODO: Finish this
+    public static void remove(TaskObj task) { // TODO: Finish this
 
     }
 
-    private static String getType(File file) { // TODO: Prevent edge cases by not using contains
+    public static void remove(BackupObj backup) { // TODO: Finish this
+
+    }
+
+    public static String getType(File file) { // TODO: Prevent edge cases by not using contains
         if (file.getPath().contains("plugins")) return "Plugin";
         if (file.getPath().contains(".mca")) return "World";
         if (file.getPath().contains(".log")) return "Log";

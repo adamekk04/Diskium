@@ -76,7 +76,7 @@ public class TaskCommand {
                                 .then(
                                         Commands.argument("id", IntegerArgumentType.integer(0, TasksUtils.getTasks(Bukkit.getPluginsFolder()).length))
                                                 .executes(context -> {
-                                                    TasksUtils.removeTask(TasksUtils.getTasks(Bukkit.getPluginsFolder())[IntegerArgumentType.getInteger(context, "id")]);
+                                                    TasksUtils.remove(TasksUtils.getTasks(Bukkit.getPluginsFolder())[IntegerArgumentType.getInteger(context, "id")]);
 
                                                     return Command.SINGLE_SUCCESS;
                                                 })
