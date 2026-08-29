@@ -16,7 +16,7 @@ public class MainCommand {
                 .then(PluginsCommand.entry(dir))
                 .then(WorldCommand.entry())
                 .then(TaskCommand.entry(dir))
-                .then(BackupCommand.entry())
+                .then(BackupCommand.entry(dir))
                 .build();
     }
 }
