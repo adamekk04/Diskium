@@ -103,4 +103,9 @@ public class TasksUtils { // TODO: Merge tasks and backups
         if (file.getPath().contains(".log")) return "Log";
         else return "N/A";
     }
+
+    public static void create(File dir, boolean task) {
+        if (task) new File(dir, "tasks.txt");
+        else new File(dir, "backups.txt");
+    }
 }
