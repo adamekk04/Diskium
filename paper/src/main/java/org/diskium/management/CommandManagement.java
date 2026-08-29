@@ -118,33 +118,34 @@ public class CommandManagement { // TODO: Delete this class and put all methods 
         return root;
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> pluginDeleter(String literal, boolean delPlugin, boolean delFolder) {
+    public static LiteralArgumentBuilder<CommandSourceStack> pluginDeleter(String literal, boolean delPlugin, boolean delFolder, File dir) {
         LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal(literal);
-        Plugin[] plugins = Bukkit.getPluginManager().getPlugins();
+        String[] plugins = PluginManagement.getPluginNames(dir);
 
-        for (Plugin pl : plugins) {
-            if (delPlugin && (!delFolder)) {
+        for (String pl : plugins) {
+            if (delPlugin && !delFolder) {
                 root.then(
-                        Commands.literal(pl.getName()).executes(context -> {
-                            PluginManagement.deletePlugin(pl);
+                        Commands.literal(pl).executes(context -> {
+                            PluginManagement.deletePlugin(Bukkit.getPluginManager().getPlugin(pl));
                             return Command.SINGLE_SUCCESS;
                         })
                 );
-            } else if ((!delPlugin) && delFolder) {
-                if (PluginManagement.hasFolder(pl)) {
+            } else if (!delPlugin && delFolder) {
+                if (PluginManagement.hasFolder(pl, dir)) {
                     root.then(
-                            Commands.literal(pl.getName()).executes(context -> {
-                                PluginManagement.deleteFolder(pl);
+                            Commands.literal(pl).executes(context -> {
+                                PluginManagement.deleteFolder(Bukkit.getPluginManager().getPlugin(pl));
                                 return Command.SINGLE_SUCCESS;
                             })
                     );
                 } // TODO: Edit those two else if blocks to prevent duplicate code
-            } else if (delPlugin && delFolder) {
-                if (PluginManagement.hasFolder(pl)) {
+            } else if (delPlugin) {
+                if (PluginManagement.hasFolder(pl, dir)) {
                     root.then(
-                            Commands.literal(pl.getName()).executes(context -> {
-                                PluginManagement.deleteFolder(pl);
-                                PluginManagement.deletePlugin(pl);
+                            Commands.literal(pl).executes(context -> {
+                                Plugin plugin = Bukkit.getPluginManager().getPlugin(pl);
+                                PluginManagement.deleteFolder(plugin);
+                                PluginManagement.deletePlugin(plugin);
                                 return Command.SINGLE_SUCCESS;
                             })
                     );

@@ -30,13 +30,13 @@ public class PluginsCommand {
                 .then(
                         Commands.literal("delete")
                                 .then(
-                                        CommandManagement.pluginDeleter("folder", false, true)
+                                        CommandManagement.pluginDeleter("folder", false, true, dir)
                                 )
                                 .then(
-                                        CommandManagement.pluginDeleter("plugin", true, false)
+                                        CommandManagement.pluginDeleter("plugin", true, false, dir)
                                 )
                                 .then(
-                                        CommandManagement.pluginDeleter("both", true, true)
+                                        CommandManagement.pluginDeleter("both", true, true, dir)
                                 )
                 )
                 .then(

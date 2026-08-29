@@ -84,8 +84,8 @@ public class PluginManagement {
         return false;
     }
 
-    public static boolean hasFolder(Plugin pl) {
-        return pl.getDataFolder().exists();
+    public static boolean hasFolder(String pl, File dir) {
+        return new File(dir.getParentFile(), pl).exists();
     }
 
     public static String info(Plugin pl) {
