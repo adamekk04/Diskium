@@ -10,7 +10,7 @@ class DiskiumBootstrap implements PluginBootstrap {
     @Override
     public void bootstrap(final BootstrapContext context) {
         context.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> {
-            commands.registrar().register(MainCommand.register());
+            commands.registrar().register(MainCommand.register(context.getDataDirectory().toFile()));
         });
 
         context.getLogger().info("Diskium is entering bootstrap is now on");

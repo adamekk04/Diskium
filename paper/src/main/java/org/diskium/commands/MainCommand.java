@@ -4,12 +4,14 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 
+import java.io.File;
+
 public class MainCommand {
 
-    public static LiteralCommandNode<CommandSourceStack> register() {
+    public static LiteralCommandNode<CommandSourceStack> register(File dir) {
 
         return Commands.literal("diskium")
-                .then(ConfigCommand.entry())
+                .then(ConfigCommand.entry(dir))
                 .then(LogsCommand.entry())
                 .then(PluginsCommand.entry())
                 .then(WorldCommand.entry())

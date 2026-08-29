@@ -9,17 +9,18 @@ import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class CommandManagement { // TODO: Delete this class and put all methods into individual command classes in commands/
 
-    public static List<LiteralArgumentBuilder<CommandSourceStack>> configs() {
+    public static List<LiteralArgumentBuilder<CommandSourceStack>> configs(File dir) {
 
         List<LiteralArgumentBuilder<CommandSourceStack>> literals = new ArrayList<>();
 
-        Map<String, Object> configs = ConfigManagement.getConfig();
+        Map<String, Object> configs = ConfigManagement.getConfig(dir);
         for (Map.Entry<String, Object> config : configs.entrySet()) {
             literals.add(
                     Commands.literal(config.getKey())
