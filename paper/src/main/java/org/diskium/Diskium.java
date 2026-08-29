@@ -10,11 +10,12 @@ public final class Diskium extends JavaPlugin {
     public void onEnable() {
         getDataFolder().mkdirs(); // TODO: Use return of this line
         saveDefaultConfig();
+        instance = this;
     }
 
     @Override
     public void onDisable() {
-        // nothing :(
+        instance = null;
     }
 
     public static Diskium getInstance() {
