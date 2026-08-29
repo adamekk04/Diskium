@@ -8,22 +8,24 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.diskium.management.CommandManagement;
 
+import java.io.File;
+
 public class PluginsCommand {
 
-    public static LiteralArgumentBuilder<CommandSourceStack> entry() {
+    public static LiteralArgumentBuilder<CommandSourceStack> entry(File dir) {
 
         return Commands.literal("plugins")
                 .then(
                         Commands.literal("disable")
                                 .then(
-                                        CommandManagement.pluginSwitcher("thisInstance", true, true)
+                                        CommandManagement.pluginSwitcher("thisInstance", true, true, dir)
                                 )
                                 .then(
-                                        CommandManagement.pluginSwitcher("untilManualyEnabled", true, false)
+                                        CommandManagement.pluginSwitcher("untilManualyEnabled", true, false, dir)
                                 )
                 )
                 .then(
-                        CommandManagement.pluginSwitcher("enable", false, null)
+                        CommandManagement.pluginSwitcher("enable", false, null, dir)
                 )
                 .then(
                         Commands.literal("delete")
@@ -39,7 +41,7 @@ public class PluginsCommand {
                 )
                 .then(
                         Commands.literal("info")
-                        // list all plugins as literals
+                        // TODO: list all plugins as literals
                 )
                 .then(
                         Commands.literal("list")

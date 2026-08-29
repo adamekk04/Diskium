@@ -13,7 +13,7 @@ public class MainCommand {
         return Commands.literal("diskium")
                 .then(ConfigCommand.entry(dir))
                 .then(LogsCommand.entry())
-                .then(PluginsCommand.entry())
+                .then(PluginsCommand.entry(dir))
                 .then(WorldCommand.entry())
                 .then(TaskCommand.entry())
                 .then(BackupCommand.entry())

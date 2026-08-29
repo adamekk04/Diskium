@@ -2,11 +2,20 @@ package org.diskium.management;
 
 import io.papermc.paper.plugin.configuration.PluginMeta;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
 public class PluginManagement {
     public static boolean tempDisablePlugin(Plugin pl) {
@@ -99,5 +108,28 @@ public class PluginManagement {
 
     public static Plugin[] getPlugins() {
         return Bukkit.getPluginManager().getPlugins();
+    }
+
+    public static String[] getPluginNames(File dir) {
+        List<String> plugins = new ArrayList<>();
+        File[] files = dir.listFiles((file, name) -> name.endsWith(".jar"));
+
+        if (files == null) return new String[0];
+
+        for (File file : files) {
+            try (JarFile jar = new JarFile(file)) {
+                ZipEntry entry = jar.getJarEntry("plugin.yml");
+                if (entry == null) entry = jar.getJarEntry("paper-plugin.yml");
+                if (entry == null) continue; // TODO: Provide more info
+                try (InputStream input = jar.getInputStream(entry); InputStreamReader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
+                    YamlConfiguration config = YamlConfiguration.loadConfiguration(reader);
+                    plugins.add(config.getString("name"));
+                }
+            } catch (IOException e) {
+                // TODO: Provide more info
+            }
+        }
+
+        return plugins.toArray(String[]::new);
     }
 }

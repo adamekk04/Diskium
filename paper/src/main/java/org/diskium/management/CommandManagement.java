@@ -82,32 +82,32 @@ public class CommandManagement { // TODO: Delete this class and put all methods 
         }
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> pluginSwitcher(String literal, boolean enabled, Boolean thisInstance) {
+    public static LiteralArgumentBuilder<CommandSourceStack> pluginSwitcher(String literal, boolean enabled, Boolean thisInstance, File dir) {
         LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal(literal);
-        Plugin[] plugins = Bukkit.getPluginManager().getPlugins();
+        String[] plugins = PluginManagement.getPluginNames(dir);
 
-        for (Plugin pl : plugins) {
-            if (pl.isEnabled() && enabled) {
-                if (thisInstance) {
-                    root.then(
-                            Commands.literal(pl.getName()).executes(context -> {
-                                PluginManagement.tempDisablePlugin(pl);
-                                return Command.SINGLE_SUCCESS;
-                            })
-                    );
-                } else if (!thisInstance) {
-                    root.then(
-                            Commands.literal(pl.getName()).executes(context -> {
-                                PluginManagement.permDisablePlugin(pl);
-                                return Command.SINGLE_SUCCESS;
-                            })
-                    );
-                }
-            } else if (!enabled) {
+        for (String pl : plugins) {
+            if (enabled && thisInstance) {
                 root.then(
-                        Commands.literal(pl.getName()).executes(context -> {
-                            if (!PluginManagement.tempEnablePlugin(pl)) {
-                                PluginManagement.permEnablePlugin(pl);
+                        Commands.literal(pl).executes(context -> {
+                            PluginManagement.tempDisablePlugin(Bukkit.getPluginManager().getPlugin(pl));
+                            return Command.SINGLE_SUCCESS;
+                        })
+                );
+            } else if (enabled) {
+                root.then(
+                        Commands.literal(pl).executes(context -> {
+                            PluginManagement.permDisablePlugin(Bukkit.getPluginManager().getPlugin(pl));
+                            return Command.SINGLE_SUCCESS;
+                        })
+                );
+            } else {
+                root.then(
+                        Commands.literal(pl).executes(context -> {
+                            Plugin plugin = Bukkit.getPluginManager().getPlugin(pl);
+
+                            if (!PluginManagement.tempEnablePlugin(plugin)) {
+                                PluginManagement.permEnablePlugin(plugin);
                             }
                             return Command.SINGLE_SUCCESS;
                         })

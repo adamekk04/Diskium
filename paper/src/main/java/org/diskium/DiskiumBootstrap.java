@@ -13,13 +13,13 @@ class DiskiumBootstrap implements PluginBootstrap {
             commands.registrar().register(MainCommand.register(context.getDataDirectory().toFile()));
         });
 
-        context.getLogger().info("Diskium is entering bootstrap is now on");
+        context.getLogger().info("Diskium is entering bootstrap");
         context.getLogger().info("Checking for tasks to do before server startup");
         if (!TasksUtils.fileExists(context.getDataDirectory().toFile(), true)) {
-            context.getLogger().error("Something went wrong while trying to get the file 'tasks.yml'");
+            context.getLogger().error("Something went wrong while trying to get the file 'tasks.txt'");
             return;
         }
-        context.getLogger().info("Found 'tasks.yml', trying to find tasks");
+        context.getLogger().info("Found 'tasks.txt', trying to find tasks");
         TaskObj[] tasks = TasksUtils.getTasks(context.getDataDirectory().toFile());
         context.getLogger().info("Found " + tasks.length + " task(s) to do");
         TasksUtils.complete(tasks);
