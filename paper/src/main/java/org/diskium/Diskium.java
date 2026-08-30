@@ -8,7 +8,6 @@ public final class Diskium extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        getDataFolder().mkdirs(); // TODO: Use return of this line
         saveDefaultConfig();
         instance = this;
     }
