@@ -3,6 +3,8 @@ name: Java CI with Gradle
 on:
   push:
     branches: ["main"]
+    tags:
+      - "v*"
   pull_request:
     branches: ["main"]
 
@@ -11,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: read
+      contents: write
 
     steps:
       - name: Checkout
@@ -27,7 +29,13 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
 
       - name: Build
-        run: ./gradlew build
+        run: ./gradlew :paper:shadowJar
+
+      - name: Release
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v3
+        with:
+          files: paper/build/libs/*-all.jar
 
   dependency-submission:
     runs-on: ubuntu-latest
