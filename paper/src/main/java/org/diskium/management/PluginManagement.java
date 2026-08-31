@@ -4,18 +4,19 @@ import io.papermc.paper.plugin.configuration.PluginMeta;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
+import org.diskium.MultiplatformLogger;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 
 public class PluginManagement {
     public static boolean tempDisablePlugin(Plugin pl) {
@@ -67,7 +68,13 @@ public class PluginManagement {
     public static boolean deleteFolder(Plugin pl) {
         if (Arrays.asList(getPlugins()).contains(pl)) {
             File file = pl.getDataFolder();
-            return file.delete(); // TODO: Provide more info when something fails
+            try {
+                Files.delete(file.toPath());
+            } catch (NoSuchFileException e) {
+                MultiplatformLogger.error("Couldn't delete file " + file.getName() + ", because it doesn't exist.");
+            } catch (IOException e) {
+                MultiplatformLogger.error("Something went wrong." + e);
+            }
         }
         return false;
     }
@@ -76,9 +83,15 @@ public class PluginManagement {
         if (Arrays.asList(getPlugins()).contains(pl)) {
             try {
                 File file = new File(pl.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
-                return file.delete(); // TODO: Provide more info when something fails
+                try {
+                    Files.delete(file.toPath());
+                } catch (NoSuchFileException e) {
+                    MultiplatformLogger.error("Couldn't delete file " + file.getName() + ", because it doesn't exist.");
+                } catch (IOException e) {
+                    MultiplatformLogger.error("Something went wrong." + e);
+                }
             } catch (URISyntaxException e) {
-                return false;
+                MultiplatformLogger.error("Couldn't make URI while deleting plugin.");
             }
         }
         return false;
@@ -125,8 +138,12 @@ public class PluginManagement {
                     YamlConfiguration config = YamlConfiguration.loadConfiguration(reader);
                     plugins.add(config.getString("name"));
                 }
+            } catch (FileNotFoundException e) {
+                MultiplatformLogger.error("Plugin file " + file.getName() + " not found.");
+            } catch (ZipException e) {
+                MultiplatformLogger.error("Plugin file " + file.getName() + " is maybe damaged, couldn't unzip it.");
             } catch (IOException e) {
-                // TODO: Provide more info
+                MultiplatformLogger.error("Something went wrong while getting name of plugin " + file.getName(), e);
             }
         }
 

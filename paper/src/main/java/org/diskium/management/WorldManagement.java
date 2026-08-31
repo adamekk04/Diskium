@@ -4,8 +4,13 @@ import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.diskium.Diskium;
 import org.diskium.FileUtils;
+import org.diskium.MultiplatformLogger;
 import org.diskium.WorldUtils;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,9 +36,16 @@ public class WorldManagement {
         return "Name: " + world.getName() + "\nPlayers: " + world.getPlayers() + " (" + world.getPlayerCount() + ")\nSeed: " + world.getSeed() + "\nWorld border radius: " + world.getWorldBorder().getSize();
     }
 
-    public static boolean delWorld(World world) {
+    public static void delWorld(World world) {
         Bukkit.unloadWorld(world, false); // TODO: Check for side effects that unloading world midtick can have: https://jd.papermc.io/paper/26.2/org/bukkit/Bukkit.html#unloadWorld(org.bukkit.World,boolean)
-        return world.getWorldFolder().delete(); // TODO: Provide more information, if something fails while deleting the world
+        File file =  world.getWorldFolder();
+        try {
+            Files.delete(file.toPath());
+        } catch (NoSuchFileException e) {
+            MultiplatformLogger.error("Couldn't delete file " + file.getName() + ", because it doesn't exist.");
+        } catch (IOException e) {
+            MultiplatformLogger.error("Something went wrong." + e);
+        }
     }
 
     public static void del(World world, boolean in, int radius, boolean checkForBuilds) {
@@ -86,10 +98,10 @@ public class WorldManagement {
             if (checkForBuilds) {
                 Chunk freshChunk = newWorld.getChunkAt(x, z);
                 if (compareChunks(chunk, freshChunk)) {
-                    // somehow delete single chunk
+                    // TODO: somehow delete single chunk
                 }
             } else {
-                // somehow delete single chunk
+                // TODO: somehow delete single chunk
             }
         } else {
             if (checkForBuilds) {

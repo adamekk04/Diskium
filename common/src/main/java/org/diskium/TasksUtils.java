@@ -1,9 +1,7 @@
 package org.diskium;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.util.*;
 
 public class TasksUtils { // TODO: Merge tasks and backups
@@ -34,7 +32,8 @@ public class TasksUtils { // TODO: Merge tasks and backups
             }
 
             return tasks.toArray(new TaskObj[0]);
-        } catch (Exception e) { // TODO: Provide more info
+        } catch (IOException e) {
+            MultiplatformLogger.error("Couldn't read 'tasks.txt', something went wrong", e);
             return null;
         }
     }
@@ -54,7 +53,8 @@ public class TasksUtils { // TODO: Merge tasks and backups
             }
 
             return backups.toArray(new BackupObj[0]);
-        } catch (Exception e) { // TODO: Provide more info
+        } catch (IOException e) {
+            MultiplatformLogger.error("Couldn't read 'backups.txt', something went wrong", e);
             return null;
         }
     }
@@ -78,12 +78,25 @@ public class TasksUtils { // TODO: Merge tasks and backups
     public static void complete(TaskObj[] tasks) {
         for (TaskObj task : tasks) {
             if (task.getDelete()) {
-                task.getFile().delete(); // TODO: Provide more information, if something fails while deleting
+                File file = task.getFile();
+                try {
+                    Files.delete(file.toPath());
+                } catch (NoSuchFileException e) {
+                    MultiplatformLogger.error("Couldn't delete file " + file.getName() + ", because it doesn't exist.");
+                } catch (IOException e) {
+                    MultiplatformLogger.error("Something went wrong." + e);
+                }
             } else {
                 try {
                     Files.move(Path.of(task.getFile().toURI()), Path.of(task.getReplacementFile().toURI()), StandardCopyOption.REPLACE_EXISTING);
+                } catch (FileAlreadyExistsException e) {
+                    MultiplatformLogger.error("Couldn't move file while completing tasks, because it already exists,");
+                } catch (NoSuchFileException e) {
+                    MultiplatformLogger.error("Couldn't move file while completing tasks, because it doesn't exist.");
+                } catch (SecurityException e) {
+                    MultiplatformLogger.error("Couldn't move file while completing tasks, due to file move permissions.");
                 } catch (IOException e) {
-                    // TODO: Return something, if moving fails
+                    MultiplatformLogger.error("Something went wrong while moving files in tasks completing.", e);
                 }
             }
         }

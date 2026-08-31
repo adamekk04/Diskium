@@ -2,12 +2,14 @@ package org.diskium.management;
 
 import org.diskium.DateUtils;
 import org.diskium.Diskium;
+import org.diskium.MultiplatformLogger;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +32,14 @@ public class LogsManagement {
         String[] logs = getLogs(LocalDate.parse(start), LocalDate.parse(end));
         if (logs == null) return false;
         for (String name : logs) {
-            new File(name).delete(); // TODO: Provide more information, if something fails
+            File file = new File(name);
+            try {
+                Files.delete(file.toPath());
+            } catch (NoSuchFileException e) {
+                MultiplatformLogger.error("Couldn't delete file " + file.getName() + ", because it doesn't exist.");
+            } catch (IOException e) {
+                MultiplatformLogger.error("Something went wrong." + e);
+            }
         }
         return true;
     }
