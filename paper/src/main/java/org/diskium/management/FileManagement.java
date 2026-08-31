@@ -14,7 +14,6 @@ public class FileManagement {
     }
 
     public static void makeFiles(List<Chunk> chunks) {
-        World world = chunks.getFirst().getWorld();
         List<RegionObj> regions = new ArrayList<>();
 
         while (!chunks.isEmpty()) {
