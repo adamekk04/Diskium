@@ -2,11 +2,11 @@ package org.diskium.management;
 
 import org.bukkit.Chunk;
 import org.bukkit.World;
-import org.diskium.RegionObj;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FileManagement {
     public static File getRegionFile(int x, int z, World world) {
@@ -14,7 +14,7 @@ public class FileManagement {
     }
 
     public static void makeFiles(List<Chunk> chunks) {
-        List<RegionObj> regions = new ArrayList<>();
+        Map<Integer, Integer> regions = new HashMap<>();
 
         while (!chunks.isEmpty()) {
             Chunk target = chunks.getFirst();
@@ -22,7 +22,7 @@ public class FileManagement {
             for (Chunk chunk : inRegion) {
                 chunks.remove(chunk);
             }
-            regions.add(new RegionObj(target.getX(), target.getZ()));
+            regions.put(target.getX(), target.getZ());
         }
 
         // TODO: Finish this
