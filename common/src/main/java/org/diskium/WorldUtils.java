@@ -13,7 +13,7 @@ public class WorldUtils {
     }
 
     public static int[] chunkToRegion(int x, int z) {
-        return new int[] {x / 32 + 1, z / 32 + 1};
+        return new int[]{x / 32 + 1, z / 32 + 1};
     }
 
     public static int blockToRegion(int radius) {
@@ -22,26 +22,23 @@ public class WorldUtils {
 
     public static String getSalt() {
         String chars = "abcdefghijklmnopqrstuvwxyz1234567890";
-        String toReturn = "";
+        StringBuilder builder = new StringBuilder();
         Random random = new Random();
+
         for (int i = 0; i < 10; i++) {
-            toReturn = toReturn + chars.charAt(random.nextInt(chars.length())); // TODO: Use StringBuilder
+            builder.append(chars.charAt(random.nextInt(chars.length())));
         }
-        return toReturn;
+        return builder.toString();
     }
 
-    public static boolean isRegionSafeToDelete(int radius, int x, int z, boolean in) { // TODO: Simplify all ifs and returns
+    public static boolean isRegionSafeToDelete(int radius, int x, int z, boolean in) {
+        int max = Arrays.stream(chunkToRegion(x, z)).max().getAsInt();
+
+        // TODO: Fix edge-case, when radius is same as region border
         if (in) {
-            // TODO: Fix edge-case, when radius is same as region border
-            if (Arrays.stream(chunkToRegion(x, z)).max().getAsInt() >= blockToRegion(radius)) {
-                return false;
-            }
-            return true;
+            return !(max >= blockToRegion(radius));
         } else {
-            if (Arrays.stream(chunkToRegion(x, z)).max().getAsInt() <= blockToRegion(radius)) {
-                return false;
-            }
-            return true;
+            return !(max <= blockToRegion(radius));
         }
     }
 }

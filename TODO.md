@@ -16,9 +16,7 @@ Goal: stable version
 - Merge tasks and backups (TasksUtils:7)
 - Finish removing single task and backup (TasksUtils:105) & (TasksUtils:109)
 - Prevent edge cases by not using String#contains while getting task type (TasksUtils:113)
-- Use StringBuilder while generating salt (WorldUtils:28)
-- Simplify if statements (WorldUtils:33)
-- Fix edge case, when radius is the same as region border
+- Fix edge case, when radius is the same as region border (WorldUtils:37)
 ### Paper module
 - Prevent duplicated code (BackupCommand:21)
 - Add filtering options (LogsCommand:70)
