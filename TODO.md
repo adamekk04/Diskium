@@ -33,6 +33,7 @@ Goal: stable version
 - Use nested lists for better management (WorldManagement:63)
 - Finish behavior (WorldManagement:101) & (WorldManagement:104) & (WorldManagement:108)
 - Make custom .mca parser (WorldManagement:169)
+- Create 'delete' subcategory (config.yml:7)
 
 ## 🐛 Bugs
 

@@ -4,4 +4,4 @@ delete-logs-while-running: false # Deletes logs while server is running. It gets
 delete-world-while-running: false # Deletes and modifies the region files while server is running.
 date-format: "yyyy-mm-dd" # Date format, needs to contain 4x y, 2x m and 2x d.
 
-# TODO: Make delete subcategories
+# TODO: Make 'delete' subcategory
