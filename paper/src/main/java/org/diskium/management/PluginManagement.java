@@ -4,7 +4,9 @@ import io.papermc.paper.plugin.configuration.PluginMeta;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
 import org.diskium.MultiplatformLogger;
+import org.diskium.TasksUtils;
 
 import java.io.*;
 import java.net.URISyntaxException;
@@ -104,17 +106,18 @@ public class PluginManagement {
     public static String info(Plugin pl) {
         if (Arrays.asList(getPlugins()).contains(pl)) {
             PluginMeta meta = pl.getPluginMeta();
-            String authors;
-            if (meta.getAuthors().size() == 1) authors = "Author: ";
-            else authors = "Authors: ";
+            StringBuilder authors = new StringBuilder();
+            if (meta.getAuthors().size() == 1) authors.append("Author: ");
+            else authors.append("Authors: ");
             for (String author : meta.getAuthors()) {
-                authors = authors + author + ", "; // TODO: Use StringBuilder
+                authors.append(author).append(", ");
             }
-            authors = authors.substring(0, authors.length() - 2);
-            return "Name: " + meta.getName() + "\n" +
-                    "Version: " + meta.getVersion() + "\n" +
+            authors.delete(authors.length() - 2, authors.length());
+            return "Name: " + meta.getName() +
+                    "\nVersion: " + meta.getVersion() + "\n" +
                     authors +
-                    "\nWebsite: " + meta.getWebsite(); // TODO: Add "Is on tasklist: true/false" & "Is enabled: ture/false"
+                    "\nWebsite: " + meta.getWebsite() +
+                    "\nIs on tasklist: "; // TODO: Add "Is on tasklist: true/false" & "Is enabled: ture/false"
         }
         return null;
     }
