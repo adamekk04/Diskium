@@ -4,7 +4,7 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 
-public class TasksUtils { // TODO: Merge tasks and backups
+public class TasksUtils {
 
     public static boolean fileExists(File folder, boolean task) {
         if (!folder.exists()) return false;
@@ -59,7 +59,7 @@ public class TasksUtils { // TODO: Merge tasks and backups
         }
     }
 
-    public static boolean add(File pluginFolder, TaskObj task) {
+    public static boolean add(File pluginFolder, TaskObj task) { // TODO: add# provides more info, if something fails
         File taskFile = new File(pluginFolder, "tasks.txt");
 
         try (FileWriter fw = new FileWriter(taskFile, true)) {
@@ -69,6 +69,18 @@ public class TasksUtils { // TODO: Merge tasks and backups
             } else {
                 fw.write(task.getReplacementFile().toString());
             }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static boolean add(File pluginFolder, BackupObj backup) {
+        File backupFile = new File(pluginFolder, "backup.txt");
+
+        try (FileWriter fw = new FileWriter(backupFile, true)) {
+            fw.write(backup.getFile().toString());
+            fw.write(backup.getItself().toString());
             return true;
         } catch (Exception e) {
             return false;
@@ -98,6 +110,22 @@ public class TasksUtils { // TODO: Merge tasks and backups
                 } catch (IOException e) {
                     MultiplatformLogger.error("Something went wrong while moving files in tasks completing.", e);
                 }
+            }
+        }
+    }
+
+    public static void complete(BackupObj[] backups) { // TODO: Make methods for those long try catch blocks
+        for (BackupObj backup : backups) {
+            try {
+                Files.move(Path.of(backup.getItself().toURI()), Path.of(backup.getFile().toURI()), StandardCopyOption.REPLACE_EXISTING);
+            } catch (FileAlreadyExistsException e) {
+                MultiplatformLogger.error("Couldn't move file while completing tasks, because it already exists,");
+            } catch (NoSuchFileException e) {
+                MultiplatformLogger.error("Couldn't move file while completing tasks, because it doesn't exist.");
+            } catch (SecurityException e) {
+                MultiplatformLogger.error("Couldn't move file while completing tasks, due to file move permissions.");
+            } catch (IOException e) {
+                MultiplatformLogger.error("Something went wrong while moving files in tasks completing.", e);
             }
         }
     }
