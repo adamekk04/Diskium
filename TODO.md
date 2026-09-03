@@ -1,10 +1,10 @@
 # TODO
 
-## Release 1.0-dev.5
-Goal: Make plugin run without crashing and throwing errors
-
 ## Release 1.0-dev.6
 Goal: Complete all todos
+
+## Release 1.0-dev.7
+Add better design
 
 ## Release 1.0
 Goal: stable version
@@ -13,9 +13,7 @@ Goal: stable version
 
 ## TODOs in code
 ### Common module
-- Merge tasks and backups (TasksUtils:7)
 - Finish removing single task and backup (TasksUtils:105) & (TasksUtils:109)
-- Prevent edge cases by not using String#contains while getting task type (TasksUtils:113)
 - Fix edge case, when radius is the same as region border (WorldUtils:37)
 ### Paper module
 - Prevent duplicated code (BackupCommand:21)

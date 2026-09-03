@@ -10,6 +10,8 @@ import java.util.*;
 
 public class TasksUtils {
 
+    private static File serverRoot;
+
     public static boolean fileExists(File folder, boolean task) {
         if (!folder.exists()) return false;
         File file;
@@ -111,7 +113,7 @@ public class TasksUtils {
         }
     }
 
-    public static void complete(BackupObj[] backups) { // TODO: Make methods for those long try catch blocks
+    public static void complete(BackupObj[] backups) {
         for (BackupObj backup : backups) {
             FileUtils.move(backup.getItself(), backup.getFile());
         }
@@ -125,15 +127,19 @@ public class TasksUtils {
 
     }
 
-    public static String getType(File file) { // TODO: Prevent edge cases by not using contains
-        if (file.getPath().contains("plugins")) return "Plugin";
-        if (file.getPath().contains(".mca")) return "World";
-        if (file.getPath().contains(".log")) return "Log";
+    public static String getType(File file) {
+        if (file.getPath().startsWith(new File(serverRoot, "plugins").toString())) return "Plugin";
+        if (file.getPath().endsWith(".mca")) return "World";
+        if (file.getPath().startsWith(new File(serverRoot, "logs").toString())) return "Log";
         else return "N/A";
     }
 
     public static void create(File dir, boolean task) {
         if (task) new File(dir, "tasks.txt");
         else new File(dir, "backups.txt");
+    }
+
+    public static void setServerRoot(File file) {
+        serverRoot = file;
     }
 }

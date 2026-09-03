@@ -1,6 +1,7 @@
 package org.diskium;
 
 import org.bukkit.plugin.java.JavaPlugin;
+import org.diskium.utils.TasksUtils;
 
 import java.util.logging.Level;
 
@@ -12,6 +13,7 @@ public final class Diskium extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
         instance = this;
+        TasksUtils.setServerRoot(getServer().getWorldContainer());
 
         MultiplatformLogger.setLogger(new MultiplatformLogger.Logger() {
             @Override
