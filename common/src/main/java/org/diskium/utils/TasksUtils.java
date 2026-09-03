@@ -143,7 +143,7 @@ public class TasksUtils {
         }
     }
 
-    public static void remove(BackupObj backup, File pluginFolder) { // TODO: Finish this
+    public static void remove(BackupObj backup, File pluginFolder) {
         Path backupFile = new File(pluginFolder, "backups.txt").toPath();
 
         try {

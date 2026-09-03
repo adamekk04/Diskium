@@ -13,7 +13,6 @@ Goal: stable version
 
 ## TODOs in code
 ### Common module
-- Finish removing single task and backup (TasksUtils:105) & (TasksUtils:109)
 - Fix edge case, when radius is the same as region border (WorldUtils:37)
 ### Paper module
 - Prevent duplicated code (BackupCommand:21)
