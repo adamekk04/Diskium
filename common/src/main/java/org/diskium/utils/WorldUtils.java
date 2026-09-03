@@ -17,7 +17,7 @@ public class WorldUtils {
     }
 
     public static int blockToRegion(int radius) {
-        return (radius / 1024) + 1;
+        return radius / 512;
     }
 
     public static String getSalt() {
@@ -34,11 +34,10 @@ public class WorldUtils {
     public static boolean isRegionSafeToDelete(int radius, int x, int z, boolean in) {
         int max = Arrays.stream(chunkToRegion(x, z)).max().getAsInt();
 
-        // TODO: Fix edge-case, when radius is same as region border
         if (in) {
-            return !(max >= blockToRegion(radius));
+            return max < blockToRegion(radius);
         } else {
-            return !(max <= blockToRegion(radius));
+            return max >= blockToRegion(radius);
         }
     }
 }

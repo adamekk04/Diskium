@@ -12,8 +12,6 @@ Goal: stable version
 ---
 
 ## TODOs in code
-### Common module
-- Fix edge case, when radius is the same as region border (WorldUtils:37)
 ### Paper module
 - Prevent duplicated code (BackupCommand:21)
 - Add filtering options (LogsCommand:70)
