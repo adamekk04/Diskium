@@ -36,10 +36,12 @@ public class TasksUtils {
             }
 
             return tasks.toArray(new TaskObj[0]);
+        } catch (SecurityException e) {
+            MultiplatformLogger.error("Cannot access tasks.txt due to security reasons.");
         } catch (IOException e) {
-            MultiplatformLogger.error("Couldn't read 'tasks.txt', something went wrong", e);
-            return null;
+            MultiplatformLogger.error("Something went wrong while adding tasks to tasks.txt");
         }
+        return null;
     }
 
     public static BackupObj[] getBackups(File folder) {
@@ -57,10 +59,12 @@ public class TasksUtils {
             }
 
             return backups.toArray(new BackupObj[0]);
+        } catch (SecurityException e) {
+            MultiplatformLogger.error("Cannot access tasks.txt due to security reasons.");
         } catch (IOException e) {
-            MultiplatformLogger.error("Couldn't read 'backups.txt', something went wrong", e);
-            return null;
+            MultiplatformLogger.error("Something went wrong while adding tasks to tasks.txt");
         }
+        return null;
     }
 
     public static boolean add(File pluginFolder, TaskObj task) {
@@ -100,43 +104,16 @@ public class TasksUtils {
     public static void complete(TaskObj[] tasks) {
         for (TaskObj task : tasks) {
             if (task.getDelete()) {
-                File file = task.getFile();
-                try {
-                    Files.delete(file.toPath());
-                } catch (NoSuchFileException e) {
-                    MultiplatformLogger.error("Couldn't delete file " + file.getName() + ", because it doesn't exist.");
-                } catch (IOException e) {
-                    MultiplatformLogger.error("Something went wrong." + e);
-                }
+                FileUtils.del(task.getFile());
             } else {
-                try {
-                    Files.move(Path.of(task.getFile().toURI()), Path.of(task.getReplacementFile().toURI()), StandardCopyOption.REPLACE_EXISTING);
-                } catch (FileAlreadyExistsException e) {
-                    MultiplatformLogger.error("Couldn't move file while completing tasks, because it already exists,");
-                } catch (NoSuchFileException e) {
-                    MultiplatformLogger.error("Couldn't move file while completing tasks, because it doesn't exist.");
-                } catch (SecurityException e) {
-                    MultiplatformLogger.error("Couldn't move file while completing tasks, due to file move permissions.");
-                } catch (IOException e) {
-                    MultiplatformLogger.error("Something went wrong while moving files in tasks completing.", e);
-                }
+                FileUtils.move(task.getFile(), task.getReplacementFile());
             }
         }
     }
 
     public static void complete(BackupObj[] backups) { // TODO: Make methods for those long try catch blocks
         for (BackupObj backup : backups) {
-            try {
-                Files.move(Path.of(backup.getItself().toURI()), Path.of(backup.getFile().toURI()), StandardCopyOption.REPLACE_EXISTING);
-            } catch (FileAlreadyExistsException e) {
-                MultiplatformLogger.error("Couldn't move file while completing tasks, because it already exists,");
-            } catch (NoSuchFileException e) {
-                MultiplatformLogger.error("Couldn't move file while completing tasks, because it doesn't exist.");
-            } catch (SecurityException e) {
-                MultiplatformLogger.error("Couldn't move file while completing tasks, due to file move permissions.");
-            } catch (IOException e) {
-                MultiplatformLogger.error("Something went wrong while moving files in tasks completing.", e);
-            }
+            FileUtils.move(backup.getItself(), backup.getFile());
         }
     }
 

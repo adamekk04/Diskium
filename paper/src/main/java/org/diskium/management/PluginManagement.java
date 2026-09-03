@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.diskium.MultiplatformLogger;
+import org.diskium.utils.FileUtils;
 
 import java.io.*;
 import java.net.URISyntaxException;
@@ -67,14 +68,7 @@ public class PluginManagement {
 
     public static boolean deleteFolder(Plugin pl) {
         if (Arrays.asList(getPlugins()).contains(pl)) {
-            File file = pl.getDataFolder();
-            try {
-                Files.delete(file.toPath());
-            } catch (NoSuchFileException e) {
-                MultiplatformLogger.error("Couldn't delete file " + file.getName() + ", because it doesn't exist.");
-            } catch (IOException e) {
-                MultiplatformLogger.error("Something went wrong." + e);
-            }
+            FileUtils.del(pl.getDataFolder());
         }
         return false;
     }
@@ -83,13 +77,7 @@ public class PluginManagement {
         if (Arrays.asList(getPlugins()).contains(pl)) {
             try {
                 File file = new File(pl.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
-                try {
-                    Files.delete(file.toPath());
-                } catch (NoSuchFileException e) {
-                    MultiplatformLogger.error("Couldn't delete file " + file.getName() + ", because it doesn't exist.");
-                } catch (IOException e) {
-                    MultiplatformLogger.error("Something went wrong." + e);
-                }
+                FileUtils.del(file);
             } catch (URISyntaxException e) {
                 MultiplatformLogger.error("Couldn't make URI while deleting plugin.");
             }

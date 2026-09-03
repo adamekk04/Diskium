@@ -38,14 +38,7 @@ public class WorldManagement {
 
     public static void delWorld(World world) {
         Bukkit.unloadWorld(world, false); // TODO: Check for side effects that unloading world midtick can have: https://jd.papermc.io/paper/26.2/org/bukkit/Bukkit.html#unloadWorld(org.bukkit.World,boolean)
-        File file =  world.getWorldFolder();
-        try {
-            Files.delete(file.toPath());
-        } catch (NoSuchFileException e) {
-            MultiplatformLogger.error("Couldn't delete file " + file.getName() + ", because it doesn't exist.");
-        } catch (IOException e) {
-            MultiplatformLogger.error("Something went wrong." + e);
-        }
+        FileUtils.del(world.getWorldFolder());
     }
 
     public static void del(World world, boolean in, int radius, boolean checkForBuilds) {
@@ -62,7 +55,7 @@ public class WorldManagement {
             } else {
                 // TODO: Use List<List<Chunks>>: all: List<regions: List<Chunks>>, for better management with deleting whole regions
                 if (WorldUtils.isRegionSafeToDelete(radius, chunk.getX(), chunk.getZ(), in)) {
-                    FileUtils.del(
+                    FileUtils.safeDel(
                             FileManagement.getRegionFile(chunk.getX(), chunk.getZ(), world),
                             (boolean) ConfigManagement.getSingleConfig("delete-world-while-running"),
                             Diskium.getInstance().getDataFolder(), "world");
