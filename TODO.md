@@ -13,7 +13,6 @@ Goal: stable version
 
 ## TODOs in code
 ### Paper module
-- Prevent duplicated code (BackupCommand:21)
 - Add filtering options (LogsCommand:70)
 - List all plugins (PluginsCommand:44)
 - Prevent duplicated code (TaskCommand:34)

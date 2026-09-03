@@ -3,6 +3,7 @@ package org.diskium.commands;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.Bukkit;
@@ -18,36 +19,16 @@ public class BackupCommand {
 
         return Commands.literal("backup")
                 .then(
-                        Commands.literal("list") // TODO: Merge all list subcommands to prevent duped code
+                        Commands.literal("list")
                                 .executes(context -> {
-                                    int counter = 1;
-                                    BackupObj[] backups = TasksUtils.getBackups(dir);
-
-                                    if (backups != null) {
-                                        context.getSource().getSender().sendMessage("ID | File | Type");
-                                        for (BackupObj backup : backups) {
-                                            context.getSource().getSender().sendMessage(counter + "|" + backup.getFile() + "|" + backup.getType());
-                                            counter++;
-                                        }
-                                    }
+                                    lister(dir, context, null);
 
                                     return Command.SINGLE_SUCCESS;
                                 })
                                 .then(
                                         Commands.literal("logs")
                                                 .executes(context -> {
-                                                    int counter = 1;
-                                                    BackupObj[] backups = TasksUtils.getBackups(dir);
-
-                                                    if (backups != null) {
-                                                        context.getSource().getSender().sendMessage("ID | File");
-                                                        for (BackupObj backup : backups) {
-                                                            if (backup.getType().equalsIgnoreCase("logs")) {
-                                                                context.getSource().getSender().sendMessage(counter + "|" + backup.getFile());
-                                                                counter++;
-                                                            }
-                                                        }
-                                                    }
+                                                    lister(dir, context, "logs");
 
                                                     return Command.SINGLE_SUCCESS;
                                                 })
@@ -55,18 +36,7 @@ public class BackupCommand {
                                 .then(
                                         Commands.literal("plugins")
                                                 .executes(context -> {
-                                                    int counter = 1;
-                                                    BackupObj[] backups = TasksUtils.getBackups(dir);
-
-                                                    if (backups != null) {
-                                                        context.getSource().getSender().sendMessage("ID | File");
-                                                        for (BackupObj backup : backups) {
-                                                            if (backup.getType().equalsIgnoreCase("plugins")) {
-                                                                context.getSource().getSender().sendMessage(counter + "|" + backup.getFile());
-                                                                counter++;
-                                                            }
-                                                        }
-                                                    }
+                                                    lister(dir, context, "plugins");
 
                                                     return Command.SINGLE_SUCCESS;
                                                 })
@@ -74,18 +44,7 @@ public class BackupCommand {
                                 .then(
                                         Commands.literal("world")
                                                 .executes(context -> {
-                                                    int counter = 1;
-                                                    BackupObj[] backups = TasksUtils.getBackups(dir);
-
-                                                    if (backups != null) {
-                                                        context.getSource().getSender().sendMessage("ID | File");
-                                                        for (BackupObj backup : backups) {
-                                                            if (backup.getType().equalsIgnoreCase("world")) {
-                                                                context.getSource().getSender().sendMessage(counter + "|" + backup.getFile());
-                                                                counter++;
-                                                            }
-                                                        }
-                                                    }
+                                                    lister(dir, context, "world");
 
                                                     return Command.SINGLE_SUCCESS;
                                                 })
@@ -120,5 +79,24 @@ public class BackupCommand {
                                                 })
                                 )
                 );
+    }
+
+    private static void lister(File dir, CommandContext<CommandSourceStack> context, String type) {
+        int counter = 1;
+        boolean all = type == null;
+        BackupObj[] backups = TasksUtils.getBackups(dir);
+
+        if (backups != null) {
+            if (all) context.getSource().getSender().sendMessage("ID | File | Type");
+            else  context.getSource().getSender().sendMessage("ID | File");;
+            for (BackupObj backup : backups) {
+                if (backup.getType().equalsIgnoreCase(type)) {
+                    context.getSource().getSender().sendMessage(counter + "|" + backup.getFile());
+                } else {
+                    context.getSource().getSender().sendMessage(counter + "|" + backup.getFile() + "|" + backup.getType());
+                }
+                counter++;
+            }
+        }
     }
 }
