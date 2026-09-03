@@ -59,7 +59,7 @@ public class TasksUtils {
         }
     }
 
-    public static boolean add(File pluginFolder, TaskObj task) { // TODO: add# provides more info, if something fails
+    public static boolean add(File pluginFolder, TaskObj task) {
         File taskFile = new File(pluginFolder, "tasks.txt");
 
         try (FileWriter fw = new FileWriter(taskFile, true)) {
@@ -70,9 +70,12 @@ public class TasksUtils {
                 fw.write(task.getReplacementFile().toString());
             }
             return true;
-        } catch (Exception e) {
-            return false;
+        } catch (SecurityException e) {
+            MultiplatformLogger.error("Cannot access tasks.txt due to security reasons.");
+        } catch (IOException e) {
+            MultiplatformLogger.error("Something went wrong while adding tasks to tasks.txt");
         }
+        return false;
     }
 
     public static boolean add(File pluginFolder, BackupObj backup) {
@@ -82,9 +85,12 @@ public class TasksUtils {
             fw.write(backup.getFile().toString());
             fw.write(backup.getItself().toString());
             return true;
-        } catch (Exception e) {
-            return false;
+        } catch (SecurityException e) {
+            MultiplatformLogger.error("Cannot access tasks.txt due to security reasons.");
+        } catch (IOException e) {
+            MultiplatformLogger.error("Something went wrong while adding tasks to tasks.txt");
         }
+        return false;
     }
 
     public static void complete(TaskObj[] tasks) {
