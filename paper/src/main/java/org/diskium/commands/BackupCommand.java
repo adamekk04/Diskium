@@ -98,7 +98,7 @@ public class BackupCommand {
                                                 .executes(context -> {
                                                     BackupObj[] backups = TasksUtils.getBackups(dir);
 
-                                                    if (backups != null) TasksUtils.remove(backups[IntegerArgumentType.getInteger(context, "id")]);
+                                                    if (backups != null) TasksUtils.remove(backups[IntegerArgumentType.getInteger(context, "id")], Bukkit.getPluginsFolder());
 
                                                     return Command.SINGLE_SUCCESS;
                                                 })
