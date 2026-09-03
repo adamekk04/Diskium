@@ -6,9 +6,9 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.Bukkit;
-import org.diskium.BackupObj;
-import org.diskium.TaskObj;
-import org.diskium.TasksUtils;
+import org.diskium.objects.BackupObj;
+import org.diskium.objects.TaskObj;
+import org.diskium.utils.TasksUtils;
 
 import java.io.File;
 

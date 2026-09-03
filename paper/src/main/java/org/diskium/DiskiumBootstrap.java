@@ -4,6 +4,8 @@ import io.papermc.paper.plugin.bootstrap.BootstrapContext;
 import io.papermc.paper.plugin.bootstrap.PluginBootstrap;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.diskium.commands.MainCommand;
+import org.diskium.objects.TaskObj;
+import org.diskium.utils.TasksUtils;
 
 class DiskiumBootstrap implements PluginBootstrap {
 

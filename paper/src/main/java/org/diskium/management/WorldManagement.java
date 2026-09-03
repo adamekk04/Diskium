@@ -3,9 +3,9 @@ package org.diskium.management;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.diskium.Diskium;
-import org.diskium.FileUtils;
+import org.diskium.utils.FileUtils;
 import org.diskium.MultiplatformLogger;
-import org.diskium.WorldUtils;
+import org.diskium.utils.WorldUtils;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package org.diskium;
+package org.diskium.utils;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;

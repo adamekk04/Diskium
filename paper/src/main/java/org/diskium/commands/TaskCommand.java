@@ -3,12 +3,11 @@ package org.diskium.commands;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.sun.jdi.IntegerType;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.Bukkit;
-import org.diskium.TaskObj;
-import org.diskium.TasksUtils;
+import org.diskium.objects.TaskObj;
+import org.diskium.utils.TasksUtils;
 
 import java.io.File;
 

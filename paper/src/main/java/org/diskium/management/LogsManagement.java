@@ -1,6 +1,6 @@
 package org.diskium.management;
 
-import org.diskium.DateUtils;
+import org.diskium.utils.DateUtils;
 import org.diskium.Diskium;
 import org.diskium.MultiplatformLogger;
 

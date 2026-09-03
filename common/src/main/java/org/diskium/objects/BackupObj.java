@@ -1,4 +1,6 @@
-package org.diskium;
+package org.diskium.objects;
+
+import org.diskium.utils.TasksUtils;
 
 import java.io.File;
 

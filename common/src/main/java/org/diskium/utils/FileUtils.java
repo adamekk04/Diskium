@@ -1,4 +1,7 @@
-package org.diskium;
+package org.diskium.utils;
+
+import org.diskium.MultiplatformLogger;
+import org.diskium.objects.TaskObj;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package org.diskium;
+package org.diskium.utils;
 
 import java.util.Arrays;
 import java.util.Random;

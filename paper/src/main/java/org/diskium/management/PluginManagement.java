@@ -4,9 +4,7 @@ import io.papermc.paper.plugin.configuration.PluginMeta;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginManager;
 import org.diskium.MultiplatformLogger;
-import org.diskium.TasksUtils;
 
 import java.io.*;
 import java.net.URISyntaxException;

@@ -1,4 +1,8 @@
-package org.diskium;
+package org.diskium.utils;
+
+import org.diskium.objects.BackupObj;
+import org.diskium.MultiplatformLogger;
+import org.diskium.objects.TaskObj;
 
 import java.io.*;
 import java.nio.file.*;

@@ -1,4 +1,4 @@
-package org.diskium;
+package org.diskium.objects;
 
 import java.io.File;
 
