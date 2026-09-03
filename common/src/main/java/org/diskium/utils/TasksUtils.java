@@ -119,12 +119,52 @@ public class TasksUtils {
         }
     }
 
-    public static void remove(TaskObj task) { // TODO: Finish this
+    public static void remove(TaskObj task, File pluginFolder) {
+        Path taskFile = new File(pluginFolder, "tasks.txt").toPath();
 
+        try {
+            List<String> lines = Files.readAllLines(taskFile);
+
+            for (int i = 0; i < lines.size(); i++) {
+                if (lines.get(i).equals(task.getFile().toString())) {
+                    lines.remove(i);
+                    if (i < lines.size()) {
+                        lines.remove(i);
+                    }
+                    break;
+                }
+            }
+
+            Files.write(taskFile, lines);
+        } catch (SecurityException e) {
+            MultiplatformLogger.error("Cannot remove task from tasks.txt, due to security reasons.");
+        } catch (IOException e) {
+            MultiplatformLogger.error("Something went wrong while removing task from tasks.txt.", e);
+        }
     }
 
-    public static void remove(BackupObj backup) { // TODO: Finish this
+    public static void remove(BackupObj backup, File pluginFolder) { // TODO: Finish this
+        Path backupFile = new File(pluginFolder, "backups.txt").toPath();
 
+        try {
+            List<String> lines = Files.readAllLines(backupFile);
+
+            for (int i = 0; i < lines.size(); i++) {
+                if (lines.get(i).equals(backup.getFile().toString())) {
+                    lines.remove(i);
+                    if (i < lines.size()) {
+                        lines.remove(i);
+                    }
+                    break;
+                }
+            }
+
+            Files.write(backupFile, lines);
+        } catch (SecurityException e) {
+            MultiplatformLogger.error("Cannot remove backup from backups.txt, due to security reasons.");
+        } catch (IOException e) {
+            MultiplatformLogger.error("Something went wrong while removing backup from backups.txt.", e);
+        }
     }
 
     public static String getType(File file) {
