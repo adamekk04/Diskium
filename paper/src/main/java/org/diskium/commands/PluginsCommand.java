@@ -1,6 +1,7 @@
 package org.diskium.commands;
 
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -41,7 +42,18 @@ public class PluginsCommand {
                 )
                 .then(
                         Commands.literal("info")
-                        // TODO: list all plugins as literals
+                                .then(
+                                        Commands.argument("plugin", StringArgumentType.word())
+                                                .suggests((context, builder) -> {
+                                                    Plugin[] plugins = Bukkit.getPluginManager().getPlugins();
+
+                                                    for (Plugin plugin : plugins) {
+                                                        builder.suggest(plugin.getName());
+                                                    }
+
+                                                    return builder.buildFuture();
+                                                })
+                                )
                 )
                 .then(
                         Commands.literal("list")

@@ -14,7 +14,6 @@ Goal: stable version
 ## TODOs in code
 ### Paper module
 - Add filtering options (LogsCommand:70)
-- List all plugins (PluginsCommand:44)
 - Prevent duplicated code (TaskCommand:34)
 - Make method for only check/don't check for builds (WorldCommand:16)
 - Add some world border options (WorldCommand:39)
@@ -30,6 +29,7 @@ Goal: stable version
 - Finish behavior (WorldManagement:101) & (WorldManagement:104) & (WorldManagement:108)
 - Make custom .mca parser (WorldManagement:169)
 - Create 'delete' subcategory (config.yml:7)
+- Add command suggestion
 
 ## 🐛 Bugs
 
