@@ -163,7 +163,14 @@ public class CommandManagement { // TODO: Delete this class and put all methods 
         for (Plugin pl : plugins) {
             root.then(
                     Commands.literal(pl.getName()).executes(context -> {
-                        context.getSource().getSender().sendMessage(PluginManagement.info(pl)); // TODO: Fix possible NPE
+                        String info = PluginManagement.info(pl);
+
+                        if (info != null) {
+                            context.getSource().getSender().sendMessage(info);
+                        } else {
+                            context.getSource().getSender().sendMessage("Something went wrong while obtaining plugin info");
+                        }
+
                         return Command.SINGLE_SUCCESS;
                     })
             );

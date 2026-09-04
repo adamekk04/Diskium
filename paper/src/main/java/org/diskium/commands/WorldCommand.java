@@ -60,7 +60,7 @@ public class WorldCommand { // TODO: Make method for only check/don't check for 
 
     public static LiteralArgumentBuilder<CommandSourceStack> range(LiteralArgumentBuilder<CommandSourceStack> root, boolean in) {
         return root.then(
-                Commands.argument("radius", IntegerArgumentType.integer()) // TODO: Add int limitation
+                Commands.argument("radius", IntegerArgumentType.integer(1))
                         .then(
                                 Commands.literal("checkForBuilds")
                                         .executes(context -> {
