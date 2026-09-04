@@ -20,7 +20,6 @@ Goal: stable version
 - Prevent duplicated code (CommandManagement:141)
 - Finish behavior (FileManagement:28) & (FileManagement:32)
 - Add 'Is on tasklist' in plugin info (PluginManagement:120)
-- Provide more info when something fails (PluginManagement:139)
 - Check for side effects (WorldManagement:40)
 - Use nested lists for better management (WorldManagement:63)
 - Finish behavior (WorldManagement:101) & (WorldManagement:104) & (WorldManagement:108)

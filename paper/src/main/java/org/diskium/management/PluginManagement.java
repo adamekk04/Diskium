@@ -122,7 +122,7 @@ public class PluginManagement {
             try (JarFile jar = new JarFile(file)) {
                 ZipEntry entry = jar.getJarEntry("plugin.yml");
                 if (entry == null) entry = jar.getJarEntry("paper-plugin.yml");
-                if (entry == null) continue; // TODO: Provide more info
+                if (entry == null) MultiplatformLogger.error("Couldn't find plugin.yml/paper-plugin.yml in " + file.getName());
                 try (InputStream input = jar.getInputStream(entry); InputStreamReader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
                     YamlConfiguration config = YamlConfiguration.loadConfiguration(reader);
                     plugins.add(config.getString("name"));
