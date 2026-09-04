@@ -14,7 +14,6 @@ Goal: stable version
 ## TODOs in code
 ### Paper module
 - Add filtering options (LogsCommand:70)
-- Prevent duplicated code (TaskCommand:34)
 - Make method for only check/don't check for builds (WorldCommand:16)
 - Add some world border options (WorldCommand:39)
 - Add argument maximum (WorldCommand:63)

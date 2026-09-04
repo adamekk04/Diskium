@@ -3,6 +3,7 @@ package org.diskium.commands;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.Bukkit;
@@ -17,30 +18,14 @@ public class TaskCommand {
                 .then(
                         Commands.literal("list")
                                 .executes(context -> {
-                                    TaskObj[] tasks = TasksUtils.getTasks(Bukkit.getPluginsFolder());
-                                    if (tasks != null) {
-                                        context.getSource().getSender().sendMessage("ID|Type|Delete|Path|ReplacementPath");
-
-                                        for (int i = 0; i < tasks.length; i++) {
-                                            context.getSource().getSender().sendMessage(i + "|" + tasks[i].getType() + "|" + tasks[i].getDelete() + "|" + tasks[i].getFile() + "|" + tasks[i].getReplacementFile());
-                                        }
-                                    }
+                                    lister(null, context);
 
                                     return Command.SINGLE_SUCCESS;
                                 })
                                 .then(
                                         Commands.literal("logs")
-                                                .executes(context -> { // TODO: Prevent exec duplicating code
-                                                    TaskObj[] tasks = TasksUtils.getTasks(Bukkit.getPluginsFolder());
-                                                    if (tasks != null) {
-                                                        context.getSource().getSender().sendMessage("ID|Delete|Path|ReplacementPath");
-
-                                                        for (int i = 0; i < tasks.length; i++) {
-                                                            if (tasks[i].getType().equalsIgnoreCase("Log")) {
-                                                                context.getSource().getSender().sendMessage(i + "|" + tasks[i].getDelete() + "|" + tasks[i].getFile() + "|" + tasks[i].getReplacementFile());
-                                                            }
-                                                        }
-                                                    }
+                                                .executes(context -> {
+                                                    lister("Logs", context);
 
                                                     return Command.SINGLE_SUCCESS;
                                                 })
@@ -48,16 +33,7 @@ public class TaskCommand {
                                 .then(
                                         Commands.literal("plugins")
                                                 .executes(context -> {
-                                                    TaskObj[] tasks = TasksUtils.getTasks(Bukkit.getPluginsFolder());
-                                                    if (tasks != null) {
-                                                        context.getSource().getSender().sendMessage("ID|Delete|Path|ReplacementPath");
-
-                                                        for (int i = 0; i < tasks.length; i++) {
-                                                            if (tasks[i].getType().equalsIgnoreCase("Plugin")) {
-                                                                context.getSource().getSender().sendMessage(i + "|" + tasks[i].getDelete() + "|" + tasks[i].getFile() + "|" + tasks[i].getReplacementFile());
-                                                            }
-                                                        }
-                                                    }
+                                                    lister("Plugins", context);
 
                                                     return Command.SINGLE_SUCCESS;
                                                 })
@@ -65,16 +41,7 @@ public class TaskCommand {
                                 .then(
                                         Commands.literal("world")
                                                 .executes(context -> {
-                                                    TaskObj[] tasks = TasksUtils.getTasks(Bukkit.getPluginsFolder());
-                                                    if (tasks != null) {
-                                                        context.getSource().getSender().sendMessage("ID|Delete|Path|ReplacementPath");
-
-                                                        for (int i = 0; i < tasks.length; i++) {
-                                                            if (tasks[i].getType().equalsIgnoreCase("World")) {
-                                                                context.getSource().getSender().sendMessage(i + "|" + tasks[i].getDelete() + "|" + tasks[i].getFile() + "|" + tasks[i].getReplacementFile());
-                                                            }
-                                                        }
-                                                    }
+                                                    lister("World", context);
 
                                                     return Command.SINGLE_SUCCESS;
                                                 })
@@ -118,5 +85,23 @@ public class TaskCommand {
                                                 })
                                 )
                 );
+    }
+
+    private static void lister(String type, CommandContext<CommandSourceStack> context) {
+        TaskObj[] tasks = TasksUtils.getTasks(Bukkit.getPluginsFolder());
+
+        if (tasks != null) {
+            context.getSource().getSender().sendMessage("ID|Delete|Path|ReplacementPath");
+
+            for (int i = 0; i < tasks.length; i++) {
+                if (type != null) {
+                    if (tasks[i].getType().equalsIgnoreCase(type)) {
+                        context.getSource().getSender().sendMessage(i + "|" + tasks[i].getDelete() + "|" + tasks[i].getFile() + "|" + tasks[i].getReplacementFile());
+                    }
+                } else {
+                    context.getSource().getSender().sendMessage(i + "|" + tasks[i].getDelete() + "|" + tasks[i].getFile() + "|" + tasks[i].getReplacementFile());
+                }
+            }
+        }
     }
 }
