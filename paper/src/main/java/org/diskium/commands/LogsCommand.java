@@ -67,7 +67,6 @@ public class LogsCommand {
                                                     return Command.SINGLE_SUCCESS;
                                                 })
                                 )
-                        // TODO: add filtering options: starting date, ending date, size, lines, etc
                 );
     }
 }

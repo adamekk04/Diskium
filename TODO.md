@@ -13,9 +13,7 @@ Goal: stable version
 
 ## TODOs in code
 ### Paper module
-- Add filtering options (LogsCommand:70)
 - Make method for only check/don't check for builds (WorldCommand:16)
-- Add some world border options (WorldCommand:39)
 - Delete whole class and put its methods into individual command classes (CommandManagement:17)
 - Prevent duplicated code (CommandManagement:141)
 - Finish behavior (FileManagement:28) & (FileManagement:32)
@@ -28,7 +26,7 @@ Goal: stable version
 
 ## 🐛 Bugs
 
-
 ---
 
 ## 💡 Ideas
+- Add filtering options for logs commands

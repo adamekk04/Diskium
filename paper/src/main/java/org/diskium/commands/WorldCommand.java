@@ -36,7 +36,7 @@ public class WorldCommand { // TODO: Make method for only check/don't check for 
                                 })
                 )
                 .then(
-                        Commands.literal("delete") // TODO: Add some WorldBorder options
+                        Commands.literal("delete")
                                 .then(range(Commands.literal("in"), true))
                                 .then(range(Commands.literal("out"), false))
                                 .then(wholeWorld(Commands.literal("wholeWorld")))
@@ -74,8 +74,28 @@ public class WorldCommand { // TODO: Make method for only check/don't check for 
                                             WorldManagement.del(context.getArgument("world", World.class), in, IntegerArgumentType.getInteger(context, "radius"), false);
                                             return Command.SINGLE_SUCCESS;
                                         })
-                        )
-        );
+                        ))
+                .then(
+                        Commands.literal("border")
+                                .then(
+                                        Commands.literal("checkForBuilds")
+                                                .executes(context -> {
+                                                    World world = context.getArgument("world", World.class);
+
+                                                    WorldManagement.del(world, in, (int) world.getWorldBorder().getSize(), true);
+                                                    return Command.SINGLE_SUCCESS;
+                                                })
+                                )
+                                .then(
+                                        Commands.literal("dontCheckForBuilds")
+                                                .executes(context -> {
+                                                    World world = context.getArgument("world", World.class);
+
+                                                    WorldManagement.del(world, in, (int) world.getWorldBorder().getSize(), false);
+                                                    return Command.SINGLE_SUCCESS;
+                                                })
+                                )
+                );
     }
 
     public static LiteralArgumentBuilder<CommandSourceStack> wholeWorld(LiteralArgumentBuilder<CommandSourceStack> root) {
