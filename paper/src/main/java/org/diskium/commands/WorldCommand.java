@@ -14,7 +14,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.diskium.management.WorldManagement;
 
-public class WorldCommand { // TODO: Make method for only check/don't check for builds
+public class WorldCommand {
 
     public static LiteralArgumentBuilder<CommandSourceStack> entry() {
         LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("world");
