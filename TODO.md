@@ -14,7 +14,6 @@ Goal: stable version
 ## TODOs in code
 ### Paper module
 - Delete whole class and put its methods into individual command classes (CommandManagement:17)
-- Prevent duplicated code (CommandManagement:141)
 - Finish behavior (FileManagement:28) & (FileManagement:32)
 - Add 'Is on tasklist' in plugin info (PluginManagement:120)
 - Use nested lists for better management (WorldManagement:63)

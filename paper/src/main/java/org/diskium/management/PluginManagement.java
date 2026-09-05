@@ -66,15 +66,11 @@ public class PluginManagement {
         return false;
     }
 
-    public static boolean deleteFolder(Plugin pl) {
-        if (Arrays.asList(getPlugins()).contains(pl)) {
+    public static void del(Plugin pl, boolean plFile, boolean folder) {
+        if (plFile) {
             FileUtils.del(pl.getDataFolder());
         }
-        return false;
-    }
-
-    public static boolean deletePlugin(Plugin pl) {
-        if (Arrays.asList(getPlugins()).contains(pl)) {
+        if (folder && hasFolder(pl)) {
             try {
                 File file = new File(pl.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
                 FileUtils.del(file);
@@ -82,11 +78,10 @@ public class PluginManagement {
                 MultiplatformLogger.error("Couldn't make URI while deleting plugin.");
             }
         }
-        return false;
     }
 
-    public static boolean hasFolder(String pl, File dir) {
-        return new File(dir.getParentFile(), pl).exists();
+    public static boolean hasFolder(Plugin pl) {
+        return pl.getDataFolder().exists();
     }
 
     public static String info(Plugin pl) {

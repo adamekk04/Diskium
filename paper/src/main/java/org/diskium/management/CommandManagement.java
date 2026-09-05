@@ -123,34 +123,13 @@ public class CommandManagement { // TODO: Delete this class and put all methods 
         String[] plugins = PluginManagement.getPluginNames(dir);
 
         for (String pl : plugins) {
-            if (delPlugin && !delFolder) {
-                root.then(
-                        Commands.literal(pl).executes(context -> {
-                            PluginManagement.deletePlugin(Bukkit.getPluginManager().getPlugin(pl));
-                            return Command.SINGLE_SUCCESS;
-                        })
-                );
-            } else if (!delPlugin && delFolder) {
-                if (PluginManagement.hasFolder(pl, dir)) {
-                    root.then(
-                            Commands.literal(pl).executes(context -> {
-                                PluginManagement.deleteFolder(Bukkit.getPluginManager().getPlugin(pl));
-                                return Command.SINGLE_SUCCESS;
-                            })
-                    );
-                } // TODO: Edit those two else if blocks to prevent duplicate code
-            } else if (delPlugin) {
-                if (PluginManagement.hasFolder(pl, dir)) {
-                    root.then(
-                            Commands.literal(pl).executes(context -> {
-                                Plugin plugin = Bukkit.getPluginManager().getPlugin(pl);
-                                PluginManagement.deleteFolder(plugin);
-                                PluginManagement.deletePlugin(plugin);
-                                return Command.SINGLE_SUCCESS;
-                            })
-                    );
-                }
-            }
+            root.then(
+                    Commands.literal(pl).executes(context -> {
+                        PluginManagement.del(Bukkit.getPluginManager().getPlugin(pl), delPlugin, delFolder);
+
+                        return Command.SINGLE_SUCCESS;
+                    })
+            );
         }
 
         return root;
