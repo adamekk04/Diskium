@@ -7,9 +7,12 @@ import org.diskium.utils.FileUtils;
 import org.diskium.utils.WorldUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class WorldManagement {
+
     public static String getBlock(Location loc, boolean existing) {
         if (existing) {
             return loc.getWorld().getName() + ": " + loc.getBlock().getType().toString();
@@ -38,17 +41,16 @@ public class WorldManagement {
 
     public static void del(World world, boolean in, int radius, boolean checkForBuilds) {
         Chunk[] chunks = getAllChunks(world, radius, in);
-        List<Chunk> chunksQueue = new ArrayList<>();
+        Map<Chunk, Boolean> chunksQueue = new HashMap<>();
 
-        for (Chunk chunk : chunks) {
-            if (checkForBuilds) {
-                World tempWorld = genWorld(world);
+        if (checkForBuilds) {
+            World tempWorld = genWorld(world);
 
-                if (compareChunks(chunk, tempWorld.getChunkAt(chunk.getX(), chunk.getZ()))) {
-                    chunksQueue.add(chunk);
-                }
-            } else {
-                // TODO: Use List<List<Chunks>>: all: List<regions: List<Chunks>>, for better management with deleting whole regions
+            for (Chunk chunk : chunks) {
+                chunksQueue.put(chunk, compareChunks(chunk, tempWorld.getChunkAt(chunk.getX(), chunk.getZ())));
+            }
+        } else {
+            for (Chunk chunk : chunks) {
                 if (WorldUtils.isRegionSafeToDelete(radius, chunk.getX(), chunk.getZ(), in)) {
                     FileUtils.safeDel(
                             FileManagement.getRegionFile(chunk.getX(), chunk.getZ(), world),
@@ -63,15 +65,17 @@ public class WorldManagement {
 
     public static void del(World world, boolean checkForBuilds) {
         Chunk[] chunks = getAllChunks(world);
-        List<Chunk> chunksQueue = new ArrayList<>();
+        Map<Chunk, Boolean> chunksQueue = new HashMap<>();
 
-        for (Chunk chunk : chunks) {
-            if (checkForBuilds) {
-                World tempWorld = genWorld(world);
+        if (checkForBuilds) {
+            World tempWorld = genWorld(world);
 
-                if (compareChunks(chunk, tempWorld.getChunkAt(chunk.getX(), chunk.getZ()))) {
-                    chunksQueue.add(chunk);
-                }
+            for (Chunk chunk : chunks) {
+                chunksQueue.put(chunk, compareChunks(chunk, tempWorld.getChunkAt(chunk.getX(), chunk.getZ())));
+            }
+        } else {
+            for (Chunk chunk : chunks) {
+                chunksQueue.put(chunk, true);
             }
         }
 
@@ -149,24 +153,22 @@ public class WorldManagement {
         return chunks;
     }
 
-
     private static Chunk[] getAllChunks(World world, int radius, boolean in) {
-        int chunkRadius = WorldUtils.blockToChunk(radius);
+        int regionRadius = WorldUtils.blockToRegion(radius);
         List<Chunk> allChunks = new ArrayList<>();
 
-        // TODO: Use custom chunk getter from region files and don't use API, which is extremely slow
         if (in) {
-            for (int x = -chunkRadius; x < chunkRadius; x++) {
-                for (int z = -chunkRadius; z < chunkRadius; z++) {
-                    if (world.isChunkGenerated(x, z)) allChunks.add(world.getChunkAt(x, z));
+            for (int x = -regionRadius; x < regionRadius; x++) {
+                for (int z = -regionRadius; z < regionRadius; z++) {
+                    allChunks.addAll(RegionManagement.getRegion(x, z, world).toChunks());
                 }
             }
         } else {
             int border = (WorldUtils.blockToChunk(world.getWorldBorder().getSize()) + 1) / 2;
             for (int x = -border; x < border; x++) {
                 for (int z = -border; z < border; z++) {
-                    if (Math.min(Math.abs(x), Math.abs(z)) > radius) {
-                        allChunks.add(world.getChunkAt(x, z));
+                    if (Math.max(Math.abs(x), Math.abs(z)) > radius) {
+                        allChunks.addAll(RegionManagement.getRegion(x, z, world).toChunks());
                     }
                 }
             }
@@ -175,7 +177,7 @@ public class WorldManagement {
         return allChunks.toArray(Chunk[]::new);
     }
 
-    private static Chunk[] getAllChunks(World world) {
+    private static Chunk[] getAllChunks(World world) { // TODO: Optimize, with mca parser
         int border = (int) world.getWorldBorder().getSize() / 2;
         List<Chunk> chunks = new ArrayList<>();
 

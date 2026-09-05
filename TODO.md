@@ -15,7 +15,6 @@ Goal: stable version
 ## TODOs in code
 ### Paper module
 - Finish behavior (FileManagement:28) & (FileManagement:32)
-- Use nested lists for better management (WorldManagement:63)
 - Finish behavior (WorldManagement:101) & (WorldManagement:104) & (WorldManagement:108)
 - Make custom .mca parser (WorldManagement:169)
 
