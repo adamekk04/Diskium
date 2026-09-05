@@ -4,6 +4,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
@@ -39,8 +40,9 @@ public class WorldCommand { // TODO: Make method for only check/don't check for 
                         Commands.literal("delete")
                                 .then(range(Commands.literal("in"), true))
                                 .then(range(Commands.literal("out"), false))
-                                .then(wholeWorld(Commands.literal("wholeWorld")))
+                                .then(buildChecker(Commands.literal("wholeWorld"), Checker.WHOLE_WORLD, false))
                                 .then(sector(Commands.literal("region"), false))
+                                .then(sector(Commands.literal("chunk"), true))
                 );
     }
 
@@ -59,91 +61,92 @@ public class WorldCommand { // TODO: Make method for only check/don't check for 
     }
 
     public static LiteralArgumentBuilder<CommandSourceStack> range(LiteralArgumentBuilder<CommandSourceStack> root, boolean in) {
-        return root.then(
-                Commands.argument("radius", IntegerArgumentType.integer(1))
-                        .then(
-                                Commands.literal("checkForBuilds")
-                                        .executes(context -> {
-                                            WorldManagement.del(context.getArgument("world", World.class), in, IntegerArgumentType.getInteger(context, "radius"), true);
-                                            return Command.SINGLE_SUCCESS;
-                                        })
-                        )
-                        .then(
-                                Commands.literal("dontCheckForBuilds")
-                                        .executes(context -> {
-                                            WorldManagement.del(context.getArgument("world", World.class), in, IntegerArgumentType.getInteger(context, "radius"), false);
-                                            return Command.SINGLE_SUCCESS;
-                                        })
-                        ))
+        return root
                 .then(
-                        Commands.literal("border")
-                                .then(
-                                        Commands.literal("checkForBuilds")
-                                                .executes(context -> {
-                                                    World world = context.getArgument("world", World.class);
-
-                                                    WorldManagement.del(world, in, (int) world.getWorldBorder().getSize(), true);
-                                                    return Command.SINGLE_SUCCESS;
-                                                })
-                                )
-                                .then(
-                                        Commands.literal("dontCheckForBuilds")
-                                                .executes(context -> {
-                                                    World world = context.getArgument("world", World.class);
-
-                                                    WorldManagement.del(world, in, (int) world.getWorldBorder().getSize(), false);
-                                                    return Command.SINGLE_SUCCESS;
-                                                })
-                                )
+                        buildChecker(Commands.argument("radius", IntegerArgumentType.integer(1)), Checker.RANGE, in)
+                ).then(
+                        buildChecker(Commands.literal("border"), Checker.BORDER, in)
                 );
-    }
-
-    public static LiteralArgumentBuilder<CommandSourceStack> wholeWorld(LiteralArgumentBuilder<CommandSourceStack> root) {
-        return root.then(
-                Commands.literal("checkForBuilds")
-                        .executes(context -> {
-                            WorldManagement.del(context.getArgument("world", World.class), true);
-                            return Command.SINGLE_SUCCESS;
-                        })
-                        .then(
-                                Commands.literal("dontCheckForBuilds")
-                                        .executes(context -> {
-                                            WorldManagement.delWorld(context.getArgument("world", World.class));
-                                            return Command.SINGLE_SUCCESS;
-                                        })
-                        )
-        );
     }
 
     public static LiteralArgumentBuilder<CommandSourceStack> sector(LiteralArgumentBuilder<CommandSourceStack> root, boolean isChunk) {
         return root.then(
-                Commands.argument("coords", ArgumentTypes.blockPosition())
-                        .then(
-                                Commands.literal("checkForBuilds")
-                                        .executes(context -> {
-                                            BlockPosition blockPosition = context.getArgument("coords", BlockPositionResolver.class).resolve(context.getSource());
-                                            World world = context.getArgument("world", World.class);
-                                            int x = blockPosition.blockX();
-                                            int z = blockPosition.blockZ();
-
-                                            WorldManagement.delSector(x, z, isChunk, true, world);
-
-                                            return Command.SINGLE_SUCCESS;
-                                        })
-                        )
-                        .then(
-                                Commands.literal("dontCheckForBuilds")
-                                        .executes(context -> {
-                                            BlockPosition blockPosition = context.getArgument("coords", BlockPositionResolver.class).resolve(context.getSource());
-                                            World world = context.getArgument("world", World.class);
-                                            int x = blockPosition.blockX();
-                                            int z = blockPosition.blockZ();
-
-                                            WorldManagement.delSector(x, z, isChunk, false, world);
-
-                                            return Command.SINGLE_SUCCESS;
-                                        })
-                        )
+                buildChecker(Commands.argument("coords", ArgumentTypes.blockPosition()), Checker.SECTOR, isChunk)
         );
+    }
+
+    private static ArgumentBuilder<CommandSourceStack, ?> buildChecker(RequiredArgumentBuilder<CommandSourceStack, ?> root, Checker checker, boolean in) {
+        return root.then(
+                        Commands.literal("checkForBuilds")
+                                .executes(context -> {
+                                    if (checker == Checker.RANGE) {
+                                        WorldManagement.del(context.getArgument("world", World.class), in, IntegerArgumentType.getInteger(context, "radius"), true);
+                                    } else if (checker == Checker.SECTOR) {
+                                        BlockPosition blockPosition = context.getArgument("coords", BlockPositionResolver.class).resolve(context.getSource());
+                                        World world = context.getArgument("world", World.class);
+                                        int x = blockPosition.blockX();
+                                        int z = blockPosition.blockZ();
+
+                                        WorldManagement.delSector(x, z, in, true, world);
+                                    }
+
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                )
+                .then(
+                        Commands.literal("dontCheckForBuilds")
+                                .executes(context -> {
+                                    if (checker == Checker.RANGE) {
+                                        WorldManagement.del(context.getArgument("world", World.class), in, IntegerArgumentType.getInteger(context, "radius"), false);
+                                    } else if (checker == Checker.SECTOR) {
+                                        BlockPosition blockPosition = context.getArgument("coords", BlockPositionResolver.class).resolve(context.getSource());
+                                        World world = context.getArgument("world", World.class);
+                                        int x = blockPosition.blockX();
+                                        int z = blockPosition.blockZ();
+
+                                        WorldManagement.delSector(x, z, in, false, world);
+                                    }
+
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                );
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> buildChecker(LiteralArgumentBuilder<CommandSourceStack> root, Checker checker, boolean in) {
+        return root.then(
+                        Commands.literal("checkForBuilds")
+                                .executes(context -> {
+                                    if (checker == Checker.BORDER) {
+                                        World world = context.getArgument("world", World.class);
+
+                                        WorldManagement.del(world, in, (int) world.getWorldBorder().getSize(), true);
+                                    } else if (checker == Checker.WHOLE_WORLD) {
+                                        WorldManagement.del(context.getArgument("world", World.class), true);
+                                    }
+
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                )
+                .then(
+                        Commands.literal("dontCheckForBuilds")
+                                .executes(context -> {
+                                    if (checker == Checker.BORDER) {
+                                        World world = context.getArgument("world", World.class);
+
+                                        WorldManagement.del(world, in, (int) world.getWorldBorder().getSize(), false);
+                                    } else if (checker == Checker.WHOLE_WORLD) {
+                                        WorldManagement.delWorld(context.getArgument("world", World.class));
+                                    }
+
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                );
+    }
+
+    enum Checker {
+        RANGE,
+        BORDER,
+        WHOLE_WORLD,
+        SECTOR
     }
 }
