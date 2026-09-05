@@ -7,7 +7,7 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
-import org.diskium.management.CommandManagement;
+import org.diskium.management.PluginManagement;
 
 import java.io.File;
 
@@ -19,25 +19,25 @@ public class PluginsCommand {
                 .then(
                         Commands.literal("disable")
                                 .then(
-                                        CommandManagement.pluginSwitcher("thisInstance", true, true, dir)
+                                        pluginSwitcher("thisInstance", true, true, dir)
                                 )
                                 .then(
-                                        CommandManagement.pluginSwitcher("untilManualyEnabled", true, false, dir)
+                                        pluginSwitcher("untilManualyEnabled", true, false, dir)
                                 )
                 )
                 .then(
-                        CommandManagement.pluginSwitcher("enable", false, null, dir)
+                        pluginSwitcher("enable", false, null, dir)
                 )
                 .then(
                         Commands.literal("delete")
                                 .then(
-                                        CommandManagement.pluginDeleter("folder", false, true, dir)
+                                        pluginDeleter("folder", false, true, dir)
                                 )
                                 .then(
-                                        CommandManagement.pluginDeleter("plugin", true, false, dir)
+                                        pluginDeleter("plugin", true, false, dir)
                                 )
                                 .then(
-                                        CommandManagement.pluginDeleter("both", true, true, dir)
+                                        pluginDeleter("both", true, true, dir)
                                 )
                 )
                 .then(
@@ -53,6 +53,18 @@ public class PluginsCommand {
 
                                                     return builder.buildFuture();
                                                 })
+                                                .executes(context -> {
+                                                    Plugin pl = Bukkit.getPluginManager().getPlugin(StringArgumentType.getString(context, "plugin"));
+                                                    String info = PluginManagement.info(pl);
+
+                                                    if (info != null) {
+                                                        context.getSource().getSender().sendMessage(info);
+                                                    } else {
+                                                        context.getSource().getSender().sendMessage("Something went wrong while obtaining plugin info");
+                                                    }
+
+                                                    return Command.SINGLE_SUCCESS;
+                                                })
                                 )
                 )
                 .then(
@@ -66,5 +78,58 @@ public class PluginsCommand {
                                     return Command.SINGLE_SUCCESS;
                                 })
                 );
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> pluginSwitcher(String literal, boolean enabled, Boolean thisInstance, File dir) {
+        LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal(literal);
+        String[] plugins = PluginManagement.getPluginNames(dir);
+
+        for (String pl : plugins) {
+            if (enabled && thisInstance) {
+                root.then(
+                        Commands.literal(pl).executes(context -> {
+                            PluginManagement.tempDisablePlugin(Bukkit.getPluginManager().getPlugin(pl));
+                            return Command.SINGLE_SUCCESS;
+                        })
+                );
+            } else if (enabled) {
+                root.then(
+                        Commands.literal(pl).executes(context -> {
+                            PluginManagement.permDisablePlugin(Bukkit.getPluginManager().getPlugin(pl));
+                            return Command.SINGLE_SUCCESS;
+                        })
+                );
+            } else {
+                root.then(
+                        Commands.literal(pl).executes(context -> {
+                            Plugin plugin = Bukkit.getPluginManager().getPlugin(pl);
+
+                            if (!PluginManagement.tempEnablePlugin(plugin)) {
+                                PluginManagement.permEnablePlugin(plugin);
+                            }
+                            return Command.SINGLE_SUCCESS;
+                        })
+                );
+            }
+        }
+
+        return root;
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> pluginDeleter(String literal, boolean delPlugin, boolean delFolder, File dir) {
+        LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal(literal);
+        String[] plugins = PluginManagement.getPluginNames(dir);
+
+        for (String pl : plugins) {
+            root.then(
+                    Commands.literal(pl).executes(context -> {
+                        PluginManagement.del(Bukkit.getPluginManager().getPlugin(pl), delPlugin, delFolder);
+
+                        return Command.SINGLE_SUCCESS;
+                    })
+            );
+        }
+
+        return root;
     }
 }
