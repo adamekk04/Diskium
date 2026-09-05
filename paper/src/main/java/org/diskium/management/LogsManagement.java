@@ -2,7 +2,6 @@ package org.diskium.management;
 
 import org.diskium.utils.DateUtils;
 import org.diskium.Diskium;
-import org.diskium.MultiplatformLogger;
 import org.diskium.utils.FileUtils;
 
 import java.io.File;
@@ -10,7 +9,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;

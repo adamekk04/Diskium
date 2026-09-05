@@ -1,7 +1,8 @@
 # TODO
 
 ## Release 1.0-dev.6
-Goal: Complete all todos
+- Complete all todos
+- Add command suggestion
 
 ## Release 1.0-dev.7
 Add better design
@@ -18,7 +19,6 @@ Goal: stable version
 - Use nested lists for better management (WorldManagement:63)
 - Finish behavior (WorldManagement:101) & (WorldManagement:104) & (WorldManagement:108)
 - Make custom .mca parser (WorldManagement:169)
-- Add command suggestion
 
 ## 🐛 Bugs
 
