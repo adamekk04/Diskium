@@ -4,8 +4,12 @@ import io.papermc.paper.plugin.configuration.PluginMeta;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
+import org.diskium.Diskium;
 import org.diskium.MultiplatformLogger;
+import org.diskium.objects.BackupObj;
+import org.diskium.objects.TaskObj;
 import org.diskium.utils.FileUtils;
+import org.diskium.utils.TasksUtils;
 
 import java.io.*;
 import java.net.URISyntaxException;
@@ -13,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -83,22 +88,63 @@ public class PluginManagement {
     }
 
     public static String info(Plugin pl) {
-        if (Arrays.asList(getPlugins()).contains(pl)) {
-            PluginMeta meta = pl.getPluginMeta();
-            StringBuilder authors = new StringBuilder();
-            if (meta.getAuthors().size() == 1) authors.append("Author: ");
-            else authors.append("Authors: ");
-            for (String author : meta.getAuthors()) {
-                authors.append(author).append(", ");
-            }
-            authors.delete(authors.length() - 2, authors.length());
-            return "Name: " + meta.getName() +
-                    "\nVersion: " + meta.getVersion() + "\n" +
-                    authors +
-                    "\nWebsite: " + meta.getWebsite() +
-                    "\nIs on tasklist: "; // TODO: Add "Is on tasklist: true/false" & "Is enabled: ture/false"
+        if (!Arrays.asList(getPlugins()).contains(pl)) {
+            return null;
         }
-        return null;
+
+        PluginMeta meta = pl.getPluginMeta();
+        StringBuilder authors = new StringBuilder();
+
+        if (meta.getAuthors().size() == 1) authors.append("Author: ");
+        else authors.append("Authors: ");
+
+        for (String author : meta.getAuthors()) {
+            authors.append(author).append(", ");
+        }
+
+        authors.delete(authors.length() - 2, authors.length());
+
+        StringBuilder builder = new StringBuilder("Name: " + meta.getName() +
+                "\nVersion: " + meta.getVersion() + "\n" +
+                authors +
+                "\nWebsite: " + meta.getWebsite() +
+                "\nIs on tasklist: ");
+
+        TaskObj[] tasks = TasksUtils.getTasks(Diskium.getInstance().getDataFolder());
+
+        if (tasks != null) {
+            try {
+                File file = new File(pl.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
+                tasks = Arrays.stream(tasks).filter(task -> task.getFile() == file).toArray(TaskObj[]::new);
+                if (tasks.length == 1) builder.append("true");
+            } catch (URISyntaxException e) {
+                MultiplatformLogger.error("Couldn't make URI while getting plugin's file.");
+                builder.append("false");
+            }
+        } else {
+            builder.append("false");
+        }
+
+        builder.append("\nIs on backuplist: ");
+
+        BackupObj[] backups = TasksUtils.getBackups(Diskium.getInstance().getDataFolder());
+
+        if (backups != null) {
+            try {
+                File file = new File(pl.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
+                backups = Arrays.stream(backups).filter(backup -> backup.getFile() == file).toArray(BackupObj[]::new);
+                if (backups.length == 1) builder.append("true");
+            } catch (URISyntaxException e) {
+                MultiplatformLogger.error("Couldn't make URI while deleting plugin's file.");
+                builder.append("false");
+            }
+        } else {
+            builder.append("false");
+        }
+
+        builder.append("\nIs enabled: ").append(pl.isEnabled());
+
+        return builder.toString();
     }
 
     public static Plugin[] getPlugins() {
