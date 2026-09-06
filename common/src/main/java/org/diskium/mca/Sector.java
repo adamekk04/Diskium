@@ -5,7 +5,6 @@ import org.diskium.MultiplatformLogger;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,19 +32,6 @@ public class Sector {
 
             this.x = Integer.parseInt(regionCoords[0]);
             this.z = Integer.parseInt(regionCoords[1]);
-        } catch (IOException e) {
-            MultiplatformLogger.error("Something went wrong while trying to read " + file.getName(), e);
-        }
-    }
-
-    public Sector(File file, int index) {
-        try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
-            byte[] data = new byte[SECTOR_SIZE];
-
-            raf.seek(index * 4L);
-            raf.readFully(data);
-
-            this.data = data;
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong while trying to read " + file.getName(), e);
         }
