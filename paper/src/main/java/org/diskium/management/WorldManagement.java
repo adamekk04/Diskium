@@ -84,21 +84,27 @@ public class WorldManagement {
     }
 
     public static void delSector(int x, int z, boolean isChunk, boolean checkForBuilds, World world) {
-        World newWorld = genWorld(world);
+        if (checkForBuilds) {
+            World newWorld = genWorld(world);
 
-        if (isChunk) {
-            Chunk chunk = world.getChunkAt(x, z);
-            if (checkForBuilds) {
+            if (isChunk) {
+                Chunk chunk = world.getChunkAt(x, z);
                 Chunk freshChunk = newWorld.getChunkAt(x, z);
                 if (compareChunks(chunk, freshChunk)) {
-                    // TODO: somehow delete single chunk
+                    FileManagement.makeFiles(x, z, world, true);
                 }
             } else {
-                // TODO: somehow delete single chunk
+                List<Chunk> chunks = getGeneratedChunksInRegion(new Region(x, z, world));
+
+                for (Chunk chunk : chunks) {
+                    if (compareChunks(chunk, newWorld.getChunkAt(chunk.getX(), chunk.getZ()))) {
+                        FileManagement.makeFiles(x, z, world, false);
+                    }
+                }
             }
         } else {
-            if (checkForBuilds) {
-                // TODO: Finish this
+            if (isChunk) {
+                FileManagement.makeFiles(x, z, world, true);
             } else {
                 FileManagement.makeFiles(x, z, world, false);
             }
