@@ -100,7 +100,6 @@ public class WorldManagement {
             if (checkForBuilds) {
                 // TODO: Finish this
             } else {
-                FileManagement.getRegionFile(x, z, world);
                 FileManagement.makeFiles(x, z, world, false);
             }
         }

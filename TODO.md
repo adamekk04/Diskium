@@ -14,7 +14,7 @@ Goal: stable version
 
 ## TODOs in code
 ### Paper module
-- Finish behavior (FileManagement:28) & (FileManagement:32)
+- Create mca parser for modifying single chunk (FileManagement:54)
 - Finish behavior (WorldManagement:101) & (WorldManagement:104) & (WorldManagement:108)
 
 ## 🐛 Bugs

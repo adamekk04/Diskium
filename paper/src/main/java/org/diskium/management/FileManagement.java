@@ -22,7 +22,6 @@ public class FileManagement {
     }
 
     public static void makeFiles(Map<Chunk, Boolean> chunks) {
-        Map<Integer, Integer> regions = new HashMap<>();
         Map<Region, Boolean> del = new HashMap<>(); // true: unsafe; false: safe
 
         for (Map.Entry<Chunk, Boolean> entry : chunks.entrySet()) {
@@ -51,6 +50,14 @@ public class FileManagement {
     }
 
     public static void makeFiles(int x, int z, World world, boolean isChunk) {
-        // TODO: Finish this
+        if (isChunk) {
+            // TODO: Use mca parser for modifying single chunk
+        } else {
+            if ((boolean) ConfigManagement.getSingleConfig("delete-while-running.world")) {
+                FileUtils.del(getRegionFile(x, z, world));
+            } else {
+                TasksUtils.add(Diskium.getInstance().getDataFolder(), new TaskObj(true, getRegionFile(x, z, world), null, "World"));
+            }
+        }
     }
 }
