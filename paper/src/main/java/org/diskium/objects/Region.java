@@ -31,6 +31,10 @@ public class Region {
         return this.world;
     }
 
+    public List<Chunk> getChunks() {
+        return this.chunks;
+    }
+
     public void addChunks(List<Chunk> chunks) {
         this.chunks.addAll(chunks);
     }

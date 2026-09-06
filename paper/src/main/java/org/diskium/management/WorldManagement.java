@@ -3,13 +3,14 @@ package org.diskium.management;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.diskium.Diskium;
+import org.diskium.mca.Parser;
+import org.diskium.mca.Sector;
+import org.diskium.objects.Region;
 import org.diskium.utils.FileUtils;
 import org.diskium.utils.WorldUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.File;
+import java.util.*;
 
 public class WorldManagement {
 
@@ -129,67 +130,75 @@ public class WorldManagement {
     }
 
     public static List<Chunk> getGeneratedChunksInRegion(Chunk ch) {
-        int chunkX = ch.getX();
-        int chunkZ = ch.getZ();
+        File file = FileManagement.getRegionFile(ch.getX(), ch.getZ(), ch.getWorld());
+        int[][] chunks = Parser.parse(file);
 
-        int regionX = Math.floorDiv(chunkX, 32);
-        int regionZ = Math.floorDiv(chunkZ, 32);
+        return coordsToChunk(chunks, ch.getWorld());
+    }
 
-        List<Chunk> chunks = new ArrayList<>();
+    public static List<Chunk> getGeneratedChunksInRegion(Region region) {
+        File file = FileManagement.getRegionFile(region.getX(), region.getZ(), region.getWorld());
+        int[][] chunks = Parser.parse(file);
 
-        for (int x = 0; x < 32; x++) {
-            for (int z = 0; z < 32; z++) {
-                int targetX = regionX * 32 + x;
-                int targetZ = regionZ * 32 + z;
-
-                Chunk chunk = ch.getWorld().getChunkAt(targetX, targetZ);
-
-                if (chunk.isGenerated()) {
-                    chunks.add(chunk);
-                }
-            }
-        }
-
-        return chunks;
+        return coordsToChunk(chunks, region.getWorld());
     }
 
     private static Chunk[] getAllChunks(World world, int radius, boolean in) {
-        int regionRadius = WorldUtils.blockToRegion(radius);
         List<Chunk> allChunks = new ArrayList<>();
-        // TODO: Use mca parser
-        if (in) {
-            for (int x = -regionRadius; x < regionRadius; x++) {
-                for (int z = -regionRadius; z < regionRadius; z++) {
-                    allChunks.addAll(RegionManagement.getRegion(x, z, world).toChunks());
-                }
-            }
-        } else {
-            int border = (WorldUtils.blockToChunk(world.getWorldBorder().getSize()) + 1) / 2;
-            for (int x = -border; x < border; x++) {
-                for (int z = -border; z < border; z++) {
-                    if (Math.max(Math.abs(x), Math.abs(z)) > radius) {
-                        allChunks.addAll(RegionManagement.getRegion(x, z, world).toChunks());
-                    }
-                }
-            }
+        File[] files = getRegionFiles(world, radius, in);
+
+        for (File file : files) {
+            allChunks.addAll(RegionManagement.getRegion(file, world).getChunks());
         }
 
         return allChunks.toArray(Chunk[]::new);
     }
 
-    private static Chunk[] getAllChunks(World world) { // TODO: Optimize, with mca parser
-        int border = (int) world.getWorldBorder().getSize() / 2;
+    private static Chunk[] getAllChunks(World world) {
         List<Chunk> chunks = new ArrayList<>();
+        File[] files = getRegionFiles(world);
 
-        for (int x = -border; x < border; x++) {
-            for (int z = -border; z < border; z++) {
-                Chunk ch = world.getChunkAt(x, z);
-                if (ch.isGenerated()) {
-                    chunks.add(ch);
-                }
-            }
+        for (File file : files) {
+            Sector sector = new Sector(file);
+            chunks.addAll(coordsToChunk(sector.getChunks(), world));
         }
 
         return chunks.toArray(Chunk[]::new);
+    }
+
+    private static File[] getRegionFiles(World world) {
+        File dir = new File(world.getWorldFolder(), "region");
+
+        return dir.listFiles(file -> !file.isDirectory() && file.toPath().endsWith(".mca"));
+    }
+
+    private static File[] getRegionFiles(World world, int radius, boolean in) {
+        File dir = new File(world.getWorldFolder(), "region");
+        return dir.listFiles(file -> {
+            if (file.isDirectory() || !file.getName().endsWith(".mca")) {
+                return false;
+            }
+
+            String[] parts = file.getName().replace("r.", "").replace(".mca", "").split("\\.");
+
+            int x = Integer.parseInt(parts[0]);
+            int z = Integer.parseInt(parts[1]);
+
+            if (in) {
+                return Math.max(x, z) < WorldUtils.blockToRegion(radius);
+            } else {
+                return Math.max(x, z) > WorldUtils.blockToRegion(radius);
+            }
+        });
+    }
+
+    private static List<Chunk> coordsToChunk(int[][] coords, World world) {
+        List<Chunk> chunks = new ArrayList<>();
+
+        for (int[] chunk : coords) {
+            chunks.add(world.getChunkAt(chunk[0], chunk[1]));
+        }
+
+        return chunks;
     }
 }
