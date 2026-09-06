@@ -16,7 +16,6 @@ Goal: stable version
 ### Paper module
 - Finish behavior (FileManagement:28) & (FileManagement:32)
 - Finish behavior (WorldManagement:101) & (WorldManagement:104) & (WorldManagement:108)
-- Make custom .mca parser (WorldManagement:169)
 
 ## 🐛 Bugs
 
