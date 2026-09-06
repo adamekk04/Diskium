@@ -103,11 +103,7 @@ public class WorldManagement {
                 }
             }
         } else {
-            if (isChunk) {
-                FileManagement.makeFiles(x, z, world, true);
-            } else {
-                FileManagement.makeFiles(x, z, world, false);
-            }
+            FileManagement.makeFiles(x, z, world, isChunk);
         }
     }
 
