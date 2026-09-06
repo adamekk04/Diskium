@@ -156,7 +156,7 @@ public class WorldManagement {
     private static Chunk[] getAllChunks(World world, int radius, boolean in) {
         int regionRadius = WorldUtils.blockToRegion(radius);
         List<Chunk> allChunks = new ArrayList<>();
-
+        // TODO: Use mca parser
         if (in) {
             for (int x = -regionRadius; x < regionRadius; x++) {
                 for (int z = -regionRadius; z < regionRadius; z++) {
