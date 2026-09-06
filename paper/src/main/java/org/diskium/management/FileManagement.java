@@ -3,10 +3,13 @@ package org.diskium.management;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.diskium.Diskium;
+import org.diskium.mca.Parser;
+import org.diskium.mca.Sector;
 import org.diskium.objects.Region;
 import org.diskium.objects.TaskObj;
 import org.diskium.utils.FileUtils;
 import org.diskium.utils.TasksUtils;
+import org.diskium.utils.WorldUtils;
 
 import java.io.File;
 import java.util.HashMap;
@@ -51,7 +54,16 @@ public class FileManagement {
 
     public static void makeFiles(int x, int z, World world, boolean isChunk) {
         if (isChunk) {
-            // TODO: Use mca parser for modifying single chunk
+            if ((boolean) ConfigManagement.getSingleConfig("delete-while-running.world")) {
+                File regionFile = getRegionFile(x, z, world);
+                File taskSource = createTaskSource(regionFile);
+
+                Parser.removeChunk(x, z, taskSource);
+                TasksUtils.add(Diskium.getInstance().getDataFolder(), new TaskObj(false, taskSource, regionFile, "World"));
+            } else {
+                int[] coords = WorldUtils.chunkToRegion(x, z);
+                Parser.removeChunk(x, z, getRegionFile(coords[0], coords[1], world));
+            }
         } else {
             if ((boolean) ConfigManagement.getSingleConfig("delete-while-running.world")) {
                 FileUtils.del(getRegionFile(x, z, world));
@@ -59,5 +71,14 @@ public class FileManagement {
                 TasksUtils.add(Diskium.getInstance().getDataFolder(), new TaskObj(true, getRegionFile(x, z, world), null, "World"));
             }
         }
+    }
+
+    private static File createTaskSource(File file) {
+        File dir = new File(Diskium.getInstance().getDataFolder(), "taskSource");
+        File taskSource = new File(dir, file.getName());
+        if (!taskSource.exists()) {
+            FileUtils.move(file, taskSource);
+        }
+        return taskSource;
     }
 }
