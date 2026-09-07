@@ -53,7 +53,14 @@ public class BackupCommand {
                 .then(
                         Commands.literal("remove")
                                 .then(
-                                        Commands.argument("id", IntegerArgumentType.integer(1))
+                                        Commands.argument("id", IntegerArgumentType.integer())
+                                                .suggests((context, builder) -> {
+                                                    for (int i = 0; i < TasksUtils.getTasks(dir).length; i++) {
+                                                        builder.suggest(i);
+                                                    }
+
+                                                    return builder.buildFuture();
+                                                })
                                                 .executes(context -> {
                                                     BackupObj[] backups = TasksUtils.getBackups(dir);
 
@@ -66,7 +73,14 @@ public class BackupCommand {
                 .then(
                         Commands.literal("restore")
                                 .then(
-                                        Commands.argument("id", IntegerArgumentType.integer(1))
+                                        Commands.argument("id", IntegerArgumentType.integer())
+                                                .suggests((context, builder) -> {
+                                                    for (int i = 0; i < TasksUtils.getTasks(dir).length; i++) {
+                                                        builder.suggest(i);
+                                                    }
+
+                                                    return builder.buildFuture();
+                                                })
                                                 .executes(context -> {
                                                     BackupObj[] backups = TasksUtils.getBackups(dir);
 

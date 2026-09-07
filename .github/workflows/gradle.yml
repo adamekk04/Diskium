@@ -31,6 +31,13 @@ jobs:
       - name: Build
         run: ./gradlew :paper:shadowJar
 
+      - name: Rename JAR
+        if: github.ref_type == 'tag'
+        run: |
+          for file in paper/build/libs/*-all.jar; do
+            mv "$file" "${file%-all.jar}.jar"
+          done
+
       - name: Release
         if: github.ref_type == 'tag'
         uses: softprops/action-gh-release@v3
