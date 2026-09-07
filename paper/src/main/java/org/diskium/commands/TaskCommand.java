@@ -7,6 +7,7 @@ import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.Bukkit;
+import org.diskium.Diskium;
 import org.diskium.objects.TaskObj;
 import org.diskium.utils.TasksUtils;
 
@@ -51,6 +52,13 @@ public class TaskCommand {
                         Commands.literal("remove")
                                 .then(
                                         Commands.argument("id", IntegerArgumentType.integer(0))
+                                                .suggests((context, builder) -> {
+                                                    for (int i = 0; i < TasksUtils.getTasks(dir).length; i++) {
+                                                        builder.suggest(i);
+                                                    }
+
+                                                    return builder.buildFuture();
+                                                })
                                                 .executes(context -> {
                                                     int index = IntegerArgumentType.getInteger(context, "id");
                                                     TaskObj[] tasks = TasksUtils.getTasks(dir);
@@ -66,6 +74,13 @@ public class TaskCommand {
                         Commands.literal("info")
                                 .then(
                                         Commands.argument("id", IntegerArgumentType.integer(0))
+                                                .suggests((context, builder) -> {
+                                                    for (int i = 0; i < TasksUtils.getTasks(dir).length; i++) {
+                                                        builder.suggest(i);
+                                                    }
+
+                                                    return builder.buildFuture();
+                                                })
                                                 .executes(context -> {
                                                     TaskObj task;
                                                     int index = IntegerArgumentType.getInteger(context, "id");

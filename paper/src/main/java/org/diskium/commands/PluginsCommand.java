@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.diskium.management.PluginManagement;
@@ -81,55 +82,52 @@ public class PluginsCommand {
     }
 
     private static LiteralArgumentBuilder<CommandSourceStack> pluginSwitcher(String literal, boolean enabled, Boolean thisInstance, File dir) {
-        LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal(literal);
-        String[] plugins = PluginManagement.getPluginNames(dir);
+        return Commands.literal(literal)
+                .then(
+                        Commands.argument("plugin", StringArgumentType.word())
+                                .suggests((context, builder) -> {
+                                    for (Plugin pl : Bukkit.getPluginManager().getPlugins()) {
+                                        builder.suggest(pl.getName());
+                                    }
 
-        for (String pl : plugins) {
-            if (enabled && thisInstance) {
-                root.then(
-                        Commands.literal(pl).executes(context -> {
-                            PluginManagement.tempDisablePlugin(Bukkit.getPluginManager().getPlugin(pl));
-                            return Command.SINGLE_SUCCESS;
-                        })
-                );
-            } else if (enabled) {
-                root.then(
-                        Commands.literal(pl).executes(context -> {
-                            PluginManagement.permDisablePlugin(Bukkit.getPluginManager().getPlugin(pl));
-                            return Command.SINGLE_SUCCESS;
-                        })
-                );
-            } else {
-                root.then(
-                        Commands.literal(pl).executes(context -> {
-                            Plugin plugin = Bukkit.getPluginManager().getPlugin(pl);
+                                    return builder.buildFuture();
+                                })
+                                .executes(context -> {
+                                    Plugin pl = Bukkit.getPluginManager().getPlugin(StringArgumentType.getString(context, "plugin"));
 
-                            if (!PluginManagement.tempEnablePlugin(plugin)) {
-                                PluginManagement.permEnablePlugin(plugin);
-                            }
-                            return Command.SINGLE_SUCCESS;
-                        })
-                );
-            }
-        }
+                                    if (enabled && thisInstance) {
+                                        PluginManagement.tempDisablePlugin(pl);
+                                    } else if (enabled) {
+                                        PluginManagement.permDisablePlugin(pl);
+                                    } else {
+                                        if (!PluginManagement.tempEnablePlugin(pl)) {
+                                            PluginManagement.permEnablePlugin(pl);
+                                        }
+                                    }
 
-        return root;
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                );
     }
 
     private static LiteralArgumentBuilder<CommandSourceStack> pluginDeleter(String literal, boolean delPlugin, boolean delFolder, File dir) {
-        LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal(literal);
-        String[] plugins = PluginManagement.getPluginNames(dir);
+        return Commands.literal(literal)
+                .then(
+                        Commands.argument("plugin", StringArgumentType.word())
+                                .suggests((context, builder) -> {
+                                    for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
+                                        builder.suggest(plugin.getName());
+                                    }
 
-        for (String pl : plugins) {
-            root.then(
-                    Commands.literal(pl).executes(context -> {
-                        PluginManagement.del(Bukkit.getPluginManager().getPlugin(pl), delPlugin, delFolder);
+                                    return builder.buildFuture();
+                                })
+                                .executes(context -> {
+                                    Plugin pl = Bukkit.getPluginManager().getPlugin(context.getArgument("plugin", String.class));
 
-                        return Command.SINGLE_SUCCESS;
-                    })
-            );
-        }
+                                    PluginManagement.del(pl, delPlugin, delFolder);
 
-        return root;
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                );
     }
 }
