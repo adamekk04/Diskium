@@ -42,7 +42,7 @@ jobs:
         if: github.ref_type == 'tag'
         uses: softprops/action-gh-release@v3
         with:
-          files: paper/build/libs/*-all.jar
+          files: paper/build/libs/*.jar
 
   dependency-submission:
     runs-on: ubuntu-latest
