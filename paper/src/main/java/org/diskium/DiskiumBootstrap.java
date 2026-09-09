@@ -1,5 +1,6 @@
 package org.diskium;
 
+import io.papermc.paper.ServerBuildInfo;
 import io.papermc.paper.plugin.bootstrap.BootstrapContext;
 import io.papermc.paper.plugin.bootstrap.PluginBootstrap;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
@@ -16,7 +17,7 @@ class DiskiumBootstrap implements PluginBootstrap {
             commands.registrar().register(MainCommand.register(context.getDataDirectory().toFile()));
         });
 
-        ASCII.printASCII("Paper", context.getPluginMeta().getVersion(), createPlugin(context).getServer().getMinecraftVersion());
+        ASCII.printASCII("Paper", context.getPluginMeta().getVersion(), ServerBuildInfo.buildInfo().minecraftVersionName());
 
         context.getLogger().info("Checking for tasks to do before server startup");
 
