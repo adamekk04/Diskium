@@ -5,6 +5,7 @@ import io.papermc.paper.plugin.bootstrap.PluginBootstrap;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.diskium.commands.MainCommand;
 import org.diskium.objects.TaskObj;
+import org.diskium.utils.ASCII;
 import org.diskium.utils.TasksUtils;
 
 class DiskiumBootstrap implements PluginBootstrap {
@@ -15,7 +16,8 @@ class DiskiumBootstrap implements PluginBootstrap {
             commands.registrar().register(MainCommand.register(context.getDataDirectory().toFile()));
         });
 
-        context.getLogger().info("Diskium is entering bootstrap");
+        ASCII.printASCII("Paper", context.getPluginMeta().getVersion(), createPlugin(context).getServer().getMinecraftVersion());
+
         context.getLogger().info("Checking for tasks to do before server startup");
 
         if (!TasksUtils.fileExists(context.getDataDirectory().toFile(), true)) {
