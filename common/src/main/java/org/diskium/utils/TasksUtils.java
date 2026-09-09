@@ -40,6 +40,9 @@ public class TasksUtils {
             return tasks.toArray(new TaskObj[0]);
         } catch (SecurityException e) {
             MultiplatformLogger.error("Cannot access tasks.txt due to security reasons.");
+        } catch (FileNotFoundException e) {
+            MultiplatformLogger.error("File tasks.txt do not exist, creating a new one");
+            FileUtils.mkTasks(serverRoot);
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong while getting tasks from tasks.txt", e);
         }
@@ -63,6 +66,9 @@ public class TasksUtils {
             return backups.toArray(new BackupObj[0]);
         } catch (SecurityException e) {
             MultiplatformLogger.error("Cannot access backups.txt due to security reasons.");
+        } catch (FileNotFoundException e) {
+            MultiplatformLogger.error("File backups.txt do not exist, creating a new one");
+            FileUtils.mkBackups(serverRoot);
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong while getting backups from backups.txt", e);
         }
@@ -82,6 +88,9 @@ public class TasksUtils {
             return true;
         } catch (SecurityException e) {
             MultiplatformLogger.error("Cannot access backups.txt due to security reasons.");
+        } catch (FileNotFoundException e) {
+            MultiplatformLogger.error("File tasks.txt do not exist, creating a new one");
+            FileUtils.mkTasks(serverRoot);
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong while adding backups to backups.txt", e);
         }
@@ -97,6 +106,9 @@ public class TasksUtils {
             return true;
         } catch (SecurityException e) {
             MultiplatformLogger.error("Cannot access tasks.txt due to security reasons.");
+        } catch (FileNotFoundException e) {
+            MultiplatformLogger.error("File backups.txt do not exist, creating a new one");
+            FileUtils.mkBackups(serverRoot);
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong while adding tasks to tasks.txt", e);
         }
@@ -138,6 +150,9 @@ public class TasksUtils {
             Files.write(taskFile, lines);
         } catch (SecurityException e) {
             MultiplatformLogger.error("Cannot remove task from tasks.txt, due to security reasons.");
+        } catch (FileNotFoundException e) {
+            MultiplatformLogger.error("File tasks.txt do not exist, creating a new one");
+            FileUtils.mkTasks(serverRoot);
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong while removing task from tasks.txt.", e);
         }
@@ -162,6 +177,9 @@ public class TasksUtils {
             Files.write(backupFile, lines);
         } catch (SecurityException e) {
             MultiplatformLogger.error("Cannot remove backup from backups.txt, due to security reasons.");
+        } catch (FileNotFoundException e) {
+            MultiplatformLogger.error("File backups.txt do not exist, creating a new one");
+            FileUtils.mkBackups(serverRoot);
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong while removing backup from backups.txt.", e);
         }
