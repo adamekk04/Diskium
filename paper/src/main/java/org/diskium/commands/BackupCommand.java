@@ -103,6 +103,10 @@ public class BackupCommand {
         if (backups != null) {
             if (all) context.getSource().getSender().sendMessage("ID | File | Type");
             else  context.getSource().getSender().sendMessage("ID | File");;
+            if (backups.length == 0) {
+                context.getSource().getSender().sendMessage("Found 0 backups");
+                return;
+            }
             for (BackupObj backup : backups) {
                 if (backup.getType().equalsIgnoreCase(type)) {
                     context.getSource().getSender().sendMessage(counter + "|" + backup.getFile());
