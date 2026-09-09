@@ -17,7 +17,7 @@ class DiskiumBootstrap implements PluginBootstrap {
             commands.registrar().register(MainCommand.register(context.getDataDirectory().toFile()));
         });
 
-        ASCII.printASCII("Paper", context.getPluginMeta().getVersion(), ServerBuildInfo.buildInfo().minecraftVersionName());
+        context.getLogger().info(ASCII.printASCII("Paper", context.getPluginMeta().getVersion(), ServerBuildInfo.buildInfo().minecraftVersionName()));
 
         context.getLogger().info("Checking for tasks to do before server startup");
 
