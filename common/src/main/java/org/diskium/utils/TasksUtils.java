@@ -42,7 +42,7 @@ public class TasksUtils {
             MultiplatformLogger.error("Cannot access tasks.txt due to security reasons.");
         } catch (FileNotFoundException e) {
             MultiplatformLogger.error("File tasks.txt do not exist, creating a new one");
-            FileUtils.mkTasks(serverRoot);
+            create(folder, true);
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong while getting tasks from tasks.txt", e);
         }
@@ -68,7 +68,7 @@ public class TasksUtils {
             MultiplatformLogger.error("Cannot access backups.txt due to security reasons.");
         } catch (FileNotFoundException e) {
             MultiplatformLogger.error("File backups.txt do not exist, creating a new one");
-            FileUtils.mkBackups(serverRoot);
+            create(folder, false);
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong while getting backups from backups.txt", e);
         }
@@ -90,7 +90,7 @@ public class TasksUtils {
             MultiplatformLogger.error("Cannot access backups.txt due to security reasons.");
         } catch (FileNotFoundException e) {
             MultiplatformLogger.error("File tasks.txt do not exist, creating a new one");
-            FileUtils.mkTasks(serverRoot);
+            create(pluginFolder, true);
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong while adding backups to backups.txt", e);
         }
@@ -108,7 +108,7 @@ public class TasksUtils {
             MultiplatformLogger.error("Cannot access tasks.txt due to security reasons.");
         } catch (FileNotFoundException e) {
             MultiplatformLogger.error("File backups.txt do not exist, creating a new one");
-            FileUtils.mkBackups(serverRoot);
+            create(pluginFolder, false);
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong while adding tasks to tasks.txt", e);
         }
@@ -152,7 +152,7 @@ public class TasksUtils {
             MultiplatformLogger.error("Cannot remove task from tasks.txt, due to security reasons.");
         } catch (FileNotFoundException e) {
             MultiplatformLogger.error("File tasks.txt do not exist, creating a new one");
-            FileUtils.mkTasks(serverRoot);
+            create(pluginFolder, true);
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong while removing task from tasks.txt.", e);
         }
@@ -179,7 +179,7 @@ public class TasksUtils {
             MultiplatformLogger.error("Cannot remove backup from backups.txt, due to security reasons.");
         } catch (FileNotFoundException e) {
             MultiplatformLogger.error("File backups.txt do not exist, creating a new one");
-            FileUtils.mkBackups(serverRoot);
+            create(pluginFolder, false);
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong while removing backup from backups.txt.", e);
         }
@@ -193,8 +193,12 @@ public class TasksUtils {
     }
 
     public static void create(File dir, boolean task) {
-        if (task) new File(dir, "tasks.txt");
-        else new File(dir, "backups.txt");
+        try {
+            if (task) new File(dir, "tasks.txt").createNewFile();
+            else new File(dir, "backups.txt").createNewFile();
+        } catch (IOException e) {
+            MultiplatformLogger.error("Something went wrong while creating new file.", e);
+        }
     }
 
     public static void setServerRoot(File file) {

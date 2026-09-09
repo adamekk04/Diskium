@@ -46,12 +46,4 @@ public class FileUtils {
             MultiplatformLogger.error("Something went wrong while moving files in tasks completing.", e);
         }
     }
-
-    public static void mkTasks(File root) {
-        new File(root, "plugins/Diskium/tasks.txt").mkdirs();
-    }
-
-    public static void mkBackups(File root) {
-        new File(root, "plugins/Diskium/backups.txt").mkdirs();
-    }
 }
