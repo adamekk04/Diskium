@@ -6,7 +6,13 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import net.kyori.adventure.Adventure;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.diskium.objects.BackupObj;
 import org.diskium.objects.TaskObj;
 import org.diskium.utils.TasksUtils;
@@ -86,7 +92,7 @@ public class BackupCommand {
 
                                                     if (backups != null) {
                                                         BackupObj backup = backups[IntegerArgumentType.getInteger(context, "id")];
-                                                        TasksUtils.add(Bukkit.getPluginsFolder(), new TaskObj(false, backup.getItself() ,backup.getFile(), "backup"));
+                                                        TasksUtils.add(Bukkit.getPluginsFolder(), new TaskObj(false, backup.getItself(), backup.getFile(), "backup"));
                                                     }
 
                                                     return Command.SINGLE_SUCCESS;
@@ -101,20 +107,50 @@ public class BackupCommand {
         BackupObj[] backups = TasksUtils.getBackups(dir);
 
         if (backups != null) {
-            if (all) context.getSource().getSender().sendMessage("ID | File | Type");
-            else  context.getSource().getSender().sendMessage("ID | File");;
-            if (backups.length == 0) {
-                context.getSource().getSender().sendMessage("Found 0 backups");
-                return;
-            }
+            context.getSource().getSender().sendMessage(Component.text("Found ")
+                    .append(Component.text(backups.length, NamedTextColor.DARK_GREEN)).
+                    append(Component.text(" backups")));
+            if (backups.length == 0) return;
+
+            context.getSource().getSender().sendMessage(tableHeader(all));
+            
             for (BackupObj backup : backups) {
-                if (backup.getType().equalsIgnoreCase(type)) {
-                    context.getSource().getSender().sendMessage(counter + "|" + backup.getFile());
-                } else {
-                    context.getSource().getSender().sendMessage(counter + "|" + backup.getFile() + "|" + backup.getType());
+                TextComponent component = backupOutput(all, backup, type, counter);
+
+                if (component != null) {
+                    context.getSource().getSender().sendMessage(component);
                 }
+
                 counter++;
             }
         }
+    }
+
+    private static TextComponent tableHeader(boolean all) {
+        TextComponent component =  Component.text("ID", NamedTextColor.DARK_GREEN)
+                .append(Component.text(" | "))
+                .append(Component.text("File", NamedTextColor.DARK_GREEN));
+        if (all) {
+            return component.append(Component.text(" | "))
+                    .append(Component.text("Type", NamedTextColor.DARK_GREEN));
+        }
+        return component;
+    }
+
+    private static TextComponent backupOutput(boolean all, BackupObj backup, String type, int counter) {
+        TextComponent component = Component.text(counter, NamedTextColor.GREEN)
+                .append(Component.text(" | "))
+                .append(Component.text(backup.getFile().toString(), NamedTextColor.GREEN));
+
+        if (all) {
+            return component.append(Component.text(" | "))
+                    .append(Component.text(backup.getType(), NamedTextColor.GREEN));
+        }
+
+        if (backup.getType().equalsIgnoreCase(type)) {
+            return component;
+        }
+
+        return null;
     }
 }
