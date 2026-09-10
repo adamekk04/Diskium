@@ -68,7 +68,7 @@ public class BackupCommand {
                                                     BackupObj[] backups = TasksUtils.getBackups(dir);
 
                                                     if (backups != null) {
-                                                        TasksUtils.remove(backups[IntegerArgumentType.getInteger(context, "id")], Bukkit.getPluginsFolder());
+                                                        TasksUtils.remove(backups[IntegerArgumentType.getInteger(context, "id") - 1], Bukkit.getPluginsFolder());
                                                     }
 
                                                     return Command.SINGLE_SUCCESS;
@@ -90,7 +90,7 @@ public class BackupCommand {
                                                     BackupObj[] backups = TasksUtils.getBackups(dir);
 
                                                     if (backups != null) {
-                                                        BackupObj backup = backups[IntegerArgumentType.getInteger(context, "id")];
+                                                        BackupObj backup = backups[IntegerArgumentType.getInteger(context, "id") - 1];
                                                         TasksUtils.add(Bukkit.getPluginsFolder(), new TaskObj(false, backup.getItself(), backup.getFile(), "backup"));
                                                     }
 
