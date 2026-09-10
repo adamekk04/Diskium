@@ -15,6 +15,7 @@ import org.diskium.objects.TaskObj;
 import org.diskium.utils.TasksUtils;
 
 import java.io.File;
+import java.util.Arrays;
 
 public class BackupCommand {
 
@@ -109,7 +110,7 @@ public class BackupCommand {
             context.getSource().getSender().sendMessage(Component.text("Found ")
                     .append(Component.text(backups.length, NamedTextColor.DARK_GREEN))
                     .append(Component.text(" backups")));
-            if (backups.length == 0) return;
+            if (backups.length == 0 || Arrays.stream(backups).filter(backupObj -> backupObj.getType().equalsIgnoreCase(type)).toArray(BackupObj[]::new).length == 0) return;
 
             context.getSource().getSender().sendMessage(tableHeader(all));
 
