@@ -104,26 +104,24 @@ public class BackupCommand {
     private static void lister(File dir, CommandContext<CommandSourceStack> context, String type) {
         int counter = 1;
         boolean all = type == null;
-        BackupObj[] backups = TasksUtils.getBackups(dir);
+        BackupObj[] backups = Arrays.stream(TasksUtils.getBackups(dir)).filter(backup -> backup.getType().equalsIgnoreCase(type) || type == null).toArray(BackupObj[]::new);
 
-        if (backups != null) {
-            context.getSource().getSender().sendMessage(Component.text("Found ")
-                    .append(Component.text(backups.length, NamedTextColor.DARK_GREEN))
-                    .append(Component.text(backups.length == 1 ? " backup" : " backups")));
+        context.getSource().getSender().sendMessage(Component.text("Found ")
+                .append(Component.text(backups.length, NamedTextColor.DARK_GREEN))
+                .append(Component.text(backups.length == 1 ? " backup" : " backups")));
 
-            if (backups.length == 0 || Arrays.stream(backups).filter(backupObj -> backupObj.getType().equalsIgnoreCase(type)).toArray(BackupObj[]::new).length == 0 && !all) return;
+        if (backups.length == 0) return;
 
-            context.getSource().getSender().sendMessage(tableHeader(all));
+        context.getSource().getSender().sendMessage(tableHeader(all));
 
-            for (BackupObj backup : backups) {
-                TextComponent component = backupOutput(all, backup, type, counter);
+        for (BackupObj backup : backups) {
+            TextComponent component = backupOutput(all, backup, type, counter);
 
-                if (component != null) {
-                    context.getSource().getSender().sendMessage(component);
-                }
-
-                counter++;
+            if (component != null) {
+                context.getSource().getSender().sendMessage(component);
             }
+
+            counter++;
         }
     }
 
