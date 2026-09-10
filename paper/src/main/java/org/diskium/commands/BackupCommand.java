@@ -107,13 +107,9 @@ public class BackupCommand {
         BackupObj[] backups = TasksUtils.getBackups(dir);
 
         if (backups != null) {
-            TextComponent backupsFound = Component.text("Found ")
-                    .append(Component.text(backups.length, NamedTextColor.DARK_GREEN));
-
-            if (backups.length == 1) backupsFound.append(Component.text(" backup"));
-            else backupsFound.append(Component.text("backups"));
-
-            context.getSource().getSender().sendMessage(backupsFound);
+            context.getSource().getSender().sendMessage(Component.text("Found ")
+                    .append(Component.text(backups.length, NamedTextColor.DARK_GREEN))
+                    .append(Component.text(backups.length == 1 ? " backup" : " backups")));
 
             if (backups.length == 0 || Arrays.stream(backups).filter(backupObj -> backupObj.getType().equalsIgnoreCase(type)).toArray(BackupObj[]::new).length == 0 && !all) return;
 
