@@ -6,13 +6,10 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
-import net.kyori.adventure.Adventure;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
 import org.diskium.objects.BackupObj;
 import org.diskium.objects.TaskObj;
 import org.diskium.utils.TasksUtils;
@@ -70,7 +67,9 @@ public class BackupCommand {
                                                 .executes(context -> {
                                                     BackupObj[] backups = TasksUtils.getBackups(dir);
 
-                                                    if (backups != null) TasksUtils.remove(backups[IntegerArgumentType.getInteger(context, "id")], Bukkit.getPluginsFolder());
+                                                    if (backups != null) {
+                                                        TasksUtils.remove(backups[IntegerArgumentType.getInteger(context, "id")], Bukkit.getPluginsFolder());
+                                                    }
 
                                                     return Command.SINGLE_SUCCESS;
                                                 })
@@ -108,12 +107,12 @@ public class BackupCommand {
 
         if (backups != null) {
             context.getSource().getSender().sendMessage(Component.text("Found ")
-                    .append(Component.text(backups.length, NamedTextColor.DARK_GREEN)).
-                    append(Component.text(" backups")));
+                    .append(Component.text(backups.length, NamedTextColor.DARK_GREEN))
+                    .append(Component.text(" backups")));
             if (backups.length == 0) return;
 
             context.getSource().getSender().sendMessage(tableHeader(all));
-            
+
             for (BackupObj backup : backups) {
                 TextComponent component = backupOutput(all, backup, type, counter);
 
@@ -127,11 +126,11 @@ public class BackupCommand {
     }
 
     private static TextComponent tableHeader(boolean all) {
-        TextComponent component =  Component.text("ID", NamedTextColor.DARK_GREEN)
-                .append(Component.text(" | "))
+        TextComponent component = Component.text("ID", NamedTextColor.DARK_GREEN)
+                .append(Component.text(" | ", NamedTextColor.WHITE))
                 .append(Component.text("File", NamedTextColor.DARK_GREEN));
         if (all) {
-            return component.append(Component.text(" | "))
+            return component.append(Component.text(" | ", NamedTextColor.WHITE))
                     .append(Component.text("Type", NamedTextColor.DARK_GREEN));
         }
         return component;
@@ -139,11 +138,11 @@ public class BackupCommand {
 
     private static TextComponent backupOutput(boolean all, BackupObj backup, String type, int counter) {
         TextComponent component = Component.text(counter, NamedTextColor.GREEN)
-                .append(Component.text(" | "))
+                .append(Component.text(" | ", NamedTextColor.WHITE))
                 .append(Component.text(backup.getFile().toString(), NamedTextColor.GREEN));
 
         if (all) {
-            return component.append(Component.text(" | "))
+            return component.append(Component.text(" | ", NamedTextColor.WHITE))
                     .append(Component.text(backup.getType(), NamedTextColor.GREEN));
         }
 
