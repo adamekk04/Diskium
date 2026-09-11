@@ -159,16 +159,8 @@ public class BackupCommand {
     }
 
     private static TextComponent backupOutput(boolean all, BackupObj backup, String type, int counter, int idLength, int backupLength) {
-        String idOffset = "";
-        String backupOffset = "";
-
-        if (idLength > 2) {
-            idOffset = " ".repeat(idLength - 2);
-        }
-
-        if (backupLength > 4) {
-            backupOffset = " ".repeat(backupLength - 4);
-        }
+        String idOffset = " ".repeat(idLength - String.valueOf(counter).length());
+        String backupOffset = " ".repeat(backupLength - String.valueOf(backup.getFile().toString()).length());
 
         TextComponent component = Component.text(counter + idOffset, NamedTextColor.GREEN)
                 .append(Component.text(" | ", NamedTextColor.WHITE))
