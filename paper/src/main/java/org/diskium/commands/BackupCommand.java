@@ -10,6 +10,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
+import org.diskium.Diskium;
 import org.diskium.objects.BackupObj;
 import org.diskium.objects.TaskObj;
 import org.diskium.utils.TasksUtils;
@@ -70,7 +71,7 @@ public class BackupCommand {
                                                     int arg = IntegerArgumentType.getInteger(context, "id") - 1;
 
                                                     if (backups != null && arg < backups.length) {
-                                                        TasksUtils.remove(backups[arg], Bukkit.getPluginsFolder());
+                                                        TasksUtils.remove(backups[arg], Diskium.getInstance().getDataFolder());
                                                         context.getSource().getSender().sendMessage("Removed backup " + (arg + 1));
                                                     } else {
                                                         context.getSource().getSender().sendMessage(backups == null ? "backups is null." : "backup with id " + (arg + 1) + " is out of index.");
@@ -85,7 +86,7 @@ public class BackupCommand {
                                 .then(
                                         Commands.argument("id", IntegerArgumentType.integer())
                                                 .suggests((context, builder) -> {
-                                                    for (int i = 0; i < TasksUtils.getTasks(dir).length; i++) {
+                                                    for (int i = 0; i < TasksUtils.getBackups(dir).length; i++) {
                                                         builder.suggest(i);
                                                     }
 

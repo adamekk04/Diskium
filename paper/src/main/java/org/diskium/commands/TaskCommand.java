@@ -63,7 +63,7 @@ public class TaskCommand {
                                                     int index = IntegerArgumentType.getInteger(context, "id");
                                                     TaskObj[] tasks = TasksUtils.getTasks(dir);
                                                     if (tasks != null) {
-                                                        if (tasks.length >= index) TasksUtils.remove(tasks[index], Bukkit.getPluginsFolder());
+                                                        if (tasks.length >= index) TasksUtils.remove(tasks[index], Diskium.getInstance().getDataFolder());
                                                     }
 
                                                     return Command.SINGLE_SUCCESS;
