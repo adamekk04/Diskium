@@ -201,6 +201,10 @@ public class TasksUtils {
         }
     }
 
+    public static int nonNegative(int x) {
+        return Math.max(x, 0);
+    }
+
     public static void setServerRoot(File file) {
         serverRoot = file;
     }

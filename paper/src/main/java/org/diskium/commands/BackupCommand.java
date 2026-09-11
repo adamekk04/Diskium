@@ -112,11 +112,11 @@ public class BackupCommand {
 
         if (backups.length == 0) return;
 
-        int idLength = String.valueOf(backups.length).length();
-        int backupLength = 0;
+        int idLength = Math.max(String.valueOf(backups.length).length(), 2);
+        int backupLength = "File".length();
 
         for (BackupObj backup : backups) {
-            int tempBackupLen = (int) backup.getFile().length();
+            int tempBackupLen = backup.getFile().toString().length();
 
             if (tempBackupLen > backupLength) {
                 backupLength = tempBackupLen;
@@ -137,16 +137,8 @@ public class BackupCommand {
     }
 
     private static TextComponent tableHeader(boolean all, int idLength, int backupLength) {
-        String id = "";
-        String backup = "";
-
-        if (idLength > 2) {
-            id = " ".repeat(idLength - 2);
-        }
-
-        if (backupLength > 4) {
-            backup = " ".repeat(backupLength - 4);
-        }
+        String id = " ".repeat(TasksUtils.nonNegative(idLength - 2));
+        String backup = " ".repeat(TasksUtils.nonNegative(backupLength - 4));
 
         TextComponent component = Component.text("ID" + id, NamedTextColor.DARK_GREEN)
                 .append(Component.text(" | ", NamedTextColor.WHITE))
@@ -159,10 +151,10 @@ public class BackupCommand {
     }
 
     private static TextComponent backupOutput(boolean all, BackupObj backup, String type, int counter, int idLength, int backupLength) {
-        String idOffset = " ".repeat(idLength - String.valueOf(counter).length());
-        String backupOffset = " ".repeat(backupLength - String.valueOf(backup.getFile().toString()).length());
+        String idOffset = " ".repeat(TasksUtils.nonNegative(idLength - String.valueOf(counter).length()));
+        String backupOffset = " ".repeat(TasksUtils.nonNegative(backupLength - backup.getFile().toPath().toString().length()));
 
-        TextComponent component = Component.text(counter + idOffset, NamedTextColor.GREEN)
+        TextComponent component = Component.text(idOffset + counter, NamedTextColor.GREEN)
                 .append(Component.text(" | ", NamedTextColor.WHITE))
                 .append(Component.text(backup.getFile().toString() + backupOffset, NamedTextColor.GREEN));
 
