@@ -112,10 +112,21 @@ public class BackupCommand {
 
         if (backups.length == 0) return;
 
-        context.getSource().getSender().sendMessage(tableHeader(all));
+        int idLength = String.valueOf(backups.length).length();
+        int backupLength = 0;
 
         for (BackupObj backup : backups) {
-            TextComponent component = backupOutput(all, backup, type, counter);
+            int tempBackupLen = (int) backup.getFile().length();
+
+            if (tempBackupLen > backupLength) {
+                backupLength = tempBackupLen;
+            }
+        }
+
+        context.getSource().getSender().sendMessage(tableHeader(all, idLength, backupLength));
+
+        for (BackupObj backup : backups) {
+            TextComponent component = backupOutput(all, backup, type, counter, idLength, backupLength);
 
             if (component != null) {
                 context.getSource().getSender().sendMessage(component);
@@ -125,10 +136,21 @@ public class BackupCommand {
         }
     }
 
-    private static TextComponent tableHeader(boolean all) {
-        TextComponent component = Component.text("ID", NamedTextColor.DARK_GREEN)
+    private static TextComponent tableHeader(boolean all, int idLength, int backupLength) {
+        String id = "";
+        String backup = "";
+
+        if (idLength > 2) {
+            id = " ".repeat(idLength - 2);
+        }
+
+        if (backupLength > 4) {
+            backup = " ".repeat(backupLength - 4);
+        }
+
+        TextComponent component = Component.text("ID" + id, NamedTextColor.DARK_GREEN)
                 .append(Component.text(" | ", NamedTextColor.WHITE))
-                .append(Component.text("File", NamedTextColor.DARK_GREEN));
+                .append(Component.text("File" + backup, NamedTextColor.DARK_GREEN));
         if (all) {
             return component.append(Component.text(" | ", NamedTextColor.WHITE))
                     .append(Component.text("Type", NamedTextColor.DARK_GREEN));
@@ -136,10 +158,21 @@ public class BackupCommand {
         return component;
     }
 
-    private static TextComponent backupOutput(boolean all, BackupObj backup, String type, int counter) {
-        TextComponent component = Component.text(counter, NamedTextColor.GREEN)
+    private static TextComponent backupOutput(boolean all, BackupObj backup, String type, int counter, int idLength, int backupLength) {
+        String idOffset = "";
+        String backupOffset = "";
+
+        if (idLength > 2) {
+            idOffset = " ".repeat(idLength - 2);
+        }
+
+        if (backupLength > 4) {
+            backupOffset = " ".repeat(backupLength - 4);
+        }
+
+        TextComponent component = Component.text(counter + idOffset, NamedTextColor.GREEN)
                 .append(Component.text(" | ", NamedTextColor.WHITE))
-                .append(Component.text(backup.getFile().toString(), NamedTextColor.GREEN));
+                .append(Component.text(backup.getFile().toString() + backupOffset, NamedTextColor.GREEN));
 
         if (all) {
             return component.append(Component.text(" | ", NamedTextColor.WHITE))
