@@ -57,9 +57,9 @@ public class BackupCommand {
                 .then(
                         Commands.literal("remove")
                                 .then(
-                                        Commands.argument("id", IntegerArgumentType.integer())
+                                        Commands.argument("id", IntegerArgumentType.integer(1))
                                                 .suggests((context, builder) -> {
-                                                    for (int i = 0; i < TasksUtils.getTasks(dir).length; i++) {
+                                                    for (int i = 1; i <= TasksUtils.getBackups(dir).length; i++) {
                                                         builder.suggest(i);
                                                     }
 
@@ -67,9 +67,13 @@ public class BackupCommand {
                                                 })
                                                 .executes(context -> {
                                                     BackupObj[] backups = TasksUtils.getBackups(dir);
+                                                    int arg = IntegerArgumentType.getInteger(context, "id") - 1;
 
-                                                    if (backups != null) {
-                                                        TasksUtils.remove(backups[IntegerArgumentType.getInteger(context, "id") - 1], Bukkit.getPluginsFolder());
+                                                    if (backups != null && arg < backups.length) {
+                                                        TasksUtils.remove(backups[arg], Bukkit.getPluginsFolder());
+                                                        context.getSource().getSender().sendMessage("Removed backup " + (arg + 1));
+                                                    } else {
+                                                        context.getSource().getSender().sendMessage(backups == null ? "backups is null." : "backup with id " + (arg + 1) + " is out of index.");
                                                     }
 
                                                     return Command.SINGLE_SUCCESS;
