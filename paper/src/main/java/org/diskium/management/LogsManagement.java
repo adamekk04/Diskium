@@ -1,5 +1,6 @@
 package org.diskium.management;
 
+import org.diskium.MultiplatformLogger;
 import org.diskium.utils.DateUtils;
 import org.diskium.Diskium;
 import org.diskium.utils.FileUtils;
@@ -55,7 +56,7 @@ public class LogsManagement {
                 gzip.close();
                 map.put(log, searchLog(unzipped, keyword));
             } catch (IOException e) {
-                return null;
+                MultiplatformLogger.error("Something went wrong while searching in logs.", e);
             }
         }
         return map;

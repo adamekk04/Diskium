@@ -68,6 +68,7 @@ public class LogsCommand {
                                                 .executes(context -> {
                                                     String keywords = StringArgumentType.getString(context, "keywords");
                                                     Map<File, Integer> results = LogsManagement.search(keywords);
+
                                                     for (Map.Entry<File, Integer> entry : results.entrySet()) {
                                                         File key = entry.getKey();
                                                         int value = entry.getValue();
