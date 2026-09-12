@@ -5,6 +5,9 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.diskium.management.ConfigManagement;
 
 import java.io.File;
@@ -36,7 +39,7 @@ public class ConfigCommand {
                     Commands.literal(config.getKey())
                             .executes(context -> {
                                 Object value = ConfigManagement.getSingleConfig(config.getKey());
-                                context.getSource().getSender().sendMessage("Configuration '" + config.getKey() + " = " + value + "'");
+                                context.getSource().getSender().sendMessage(Component.text(config.getKey(), NamedTextColor.DARK_GREEN).append(Component.text(" = ", NamedTextColor.WHITE)).append(Component.text(value.toString(), NamedTextColor.GREEN)));
                                 return Command.SINGLE_SUCCESS;
                             })
                             .then(
@@ -44,9 +47,9 @@ public class ConfigCommand {
                                             .executes(context -> {
                                                 boolean value = BoolArgumentType.getBool(context, "value");
                                                 if (ConfigManagement.setSingleConfig(config.getKey(), value)) {
-                                                    context.getSource().getSender().sendMessage("Set configuration '" + config.getKey() + "' to " + value);
+                                                    context.getSource().getSender().sendMessage(Component.text("Set configuration ").append(Component.text(config.getKey(), NamedTextColor.DARK_GREEN)).append(Component.text(" to ")).append(Component.text(value, NamedTextColor.GREEN)));
                                                 } else {
-                                                    context.getSource().getSender().sendMessage("Unable to set configuration '" + config.getKey() + "'");
+                                                    context.getSource().getSender().sendMessage("Cannot set config, because something went wrong." + NamedTextColor.RED);
                                                 }
                                                 return Command.SINGLE_SUCCESS;
                                             })
