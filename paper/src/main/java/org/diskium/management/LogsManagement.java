@@ -43,7 +43,7 @@ public class LogsManagement {
     }
 
     public static Map<File, Integer> search(String keyword) {
-        List<File> logs = Arrays.stream(getLogs(null, null)).toList();
+        List<File> logs = new ArrayList<>(Arrays.stream(getLogs(null, null)).toList());
         logs.add(getLatestLog());
         Map<File, Integer> map = new HashMap<>();
 

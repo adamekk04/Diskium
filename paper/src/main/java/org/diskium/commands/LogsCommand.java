@@ -25,7 +25,7 @@ public class LogsCommand {
                                     context.getSource().getSender().sendMessage(
                                             Component.text("Found ")
                                                     .append(Component.text(logs.length, NamedTextColor.DARK_GREEN))
-                                                    .append(Component.text(" logs")));
+                                                    .append(Component.text(logs.length == 1 ? " log" : " logs")));
 
                                     for (File log : logs) {
                                         context.getSource().getSender().sendMessage(log.getName());
@@ -47,8 +47,8 @@ public class LogsCommand {
                                     context.getSource().getSender().sendMessage(
                                             Component.text("Found ")
                                                     .append(Component.text(logs.length, NamedTextColor.DARK_GREEN))
-                                                    .append(Component.text(" logs, "))
-                                                    .append(Component.text("DELETING THEM ALL!", NamedTextColor.RED))
+                                                    .append(Component.text(logs.length == 1 ? " log, " : " logs, "))
+                                                    .append(Component.text("DELETING!", NamedTextColor.RED))
                                     );
 
                                     LogsManagement.delete(null, null);
