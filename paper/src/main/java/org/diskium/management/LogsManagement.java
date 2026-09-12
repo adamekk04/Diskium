@@ -7,11 +7,13 @@ import org.diskium.utils.FileUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.ZipException;
 
 public class LogsManagement {
 
@@ -45,7 +47,6 @@ public class LogsManagement {
 
     public static Map<File, Integer> search(String keyword) {
         List<File> logs = new ArrayList<>(Arrays.stream(getLogs(null, null)).toList());
-        logs.add(getLatestLog());
         Map<File, Integer> map = new HashMap<>();
 
         for (File log : logs) {
@@ -55,9 +56,20 @@ public class LogsManagement {
                 String unzipped = new String(gzip.readAllBytes(), StandardCharsets.UTF_8);
                 gzip.close();
                 map.put(log, searchLog(unzipped, keyword));
+            } catch (ZipException e) {
+                MultiplatformLogger.error("Cannot unzip file " + log.getName());
             } catch (IOException e) {
                 MultiplatformLogger.error("Something went wrong while searching in logs.", e);
             }
+        }
+
+        try (FileInputStream fis = new FileInputStream(getLatestLog())) {
+            String content = new String(fis.readAllBytes(), StandardCharsets.UTF_8);
+            map.put(getLatestLog(), searchLog(content, keyword));
+        } catch (FileNotFoundException e) {
+            MultiplatformLogger.error("latest.log not found.");
+        } catch (IOException e) {
+            MultiplatformLogger.error("Something went wrong while reading latest.log.", e);
         }
         return map;
     }
