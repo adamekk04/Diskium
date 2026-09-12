@@ -7,6 +7,7 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import org.diskium.management.LogsManagement;
 
+import java.io.File;
 import java.util.Map;
 
 public class LogsCommand {
@@ -17,10 +18,10 @@ public class LogsCommand {
                 .then(
                         Commands.literal("list")
                                 .executes(context -> {
-                                    String[] logs = LogsManagement.getLogs(null, null);
+                                    File[] logs = LogsManagement.getLogs(null, null);
                                     context.getSource().getSender().sendMessage("Found " + logs.length + " logs");
-                                    for (String log : logs) {
-                                        context.getSource().getSender().sendMessage(log);
+                                    for (File log : logs) {
+                                        context.getSource().getSender().sendMessage(log.getName());
                                     }
                                     return Command.SINGLE_SUCCESS;
                                 })
@@ -34,7 +35,7 @@ public class LogsCommand {
                 .then(
                         Commands.literal("delete")
                                 .executes(context -> {
-                                    String[] logs = LogsManagement.getLogs(null, null);
+                                    File[] logs = LogsManagement.getLogs(null, null);
                                     context.getSource().getSender().sendMessage("Found " + logs.length + " logs, deleting them all");
                                     LogsManagement.delete(null, null);
                                     return Command.SINGLE_SUCCESS;
@@ -56,12 +57,12 @@ public class LogsCommand {
                                         Commands.argument("keywords", StringArgumentType.greedyString())
                                                 .executes(context -> {
                                                     String keywords = StringArgumentType.getString(context, "keywords");
-                                                    Map<String, Integer> results = LogsManagement.search(keywords);
-                                                    for (Map.Entry<String, Integer> entry : results.entrySet()) {
-                                                        String key = entry.getKey();
+                                                    Map<File, Integer> results = LogsManagement.search(keywords);
+                                                    for (Map.Entry<File, Integer> entry : results.entrySet()) {
+                                                        File key = entry.getKey();
                                                         int value = entry.getValue();
 
-                                                        context.getSource().getSender().sendMessage("Found " + value + " matches in " + key);
+                                                        context.getSource().getSender().sendMessage("Found " + value + " matches in " + key.getName());
                                                     }
                                                     return Command.SINGLE_SUCCESS;
                                                 })

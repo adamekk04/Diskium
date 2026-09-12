@@ -8,29 +8,25 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.zip.GZIPInputStream;
 
 public class LogsManagement {
 
     private static final File logsDir = new File(Diskium.getInstance().getDataFolder().getParentFile().getParentFile(), "logs");
 
-    public static String[] getLogs(LocalDate startDate, LocalDate endDate) {
-        String[] dir = logsDir.list((File directory, String s) -> s.endsWith(".log.gz"));
+    public static File[] getLogs(LocalDate startDate, LocalDate endDate) {
+        File[] dir = logsDir.listFiles((file, s) -> s.endsWith(".log.gz"));
         if (startDate == null && endDate == null) return dir;
         return filter(dir, startDate, endDate);
     }
 
     public static boolean delete(String start, String end) {
-        String[] logs;
+        File[] logs;
 
         if (!DateUtils.isValidDate(start, end)) return false;
-        if (start == null || end == null) {
+        if (start == null && end == null) {
             logs = getLogs(null, null);
         } else if (start == null) {
             logs = getLogs(getOldest(), LocalDate.parse(end));
@@ -39,42 +35,35 @@ public class LogsManagement {
         }
         if (logs == null) return false;
 
-        for (String name : logs) {
-            FileUtils.del(new File(name));
+        for (File name : logs) {
+            FileUtils.del(name);
         }
 
         return true;
     }
 
-    public static Map<String, Integer> search(String keyword) {
-        String[] logs = getLogs(null, null);
-        Map<String, Integer> map = new HashMap<>();
-        for (String log : logs) {
-            File zipped = new File(Diskium.getInstance().getServer().getWorldContainer(), "logs/" + log);
+    public static Map<File, Integer> search(String keyword) {
+        List<File> logs = Arrays.stream(getLogs(null, null)).toList();
+        logs.add(getLatestLog());
+        Map<File, Integer> map = new HashMap<>();
+
+        for (File log : logs) {
             try {
-                FileInputStream fis = new FileInputStream(zipped);
+                FileInputStream fis = new FileInputStream(log);
                 GZIPInputStream gzip = new GZIPInputStream(fis);
                 String unzipped = new String(gzip.readAllBytes(), StandardCharsets.UTF_8);
                 gzip.close();
-                map.put(zipped.getName(), searchLog(unzipped, keyword));
+                map.put(log, searchLog(unzipped, keyword));
             } catch (IOException e) {
                 return null;
             }
         }
-        String latest = getLatestLog();
-        if (latest == null) return map;
-        map.put("latest.log", searchLog(latest, keyword));
         return map;
     }
 
 
-    private static String getLatestLog() {
-        File file = new File(Diskium.getInstance().getServer().getWorldContainer(), "logs/latest.log");
-        try {
-            return Files.readString(file.toPath());
-        } catch (IOException e) {
-            return null;
-        }
+    private static File getLatestLog() {
+        return new File(Diskium.getInstance().getServer().getWorldContainer(), "logs/latest.log");
     }
 
     private static int searchLog(String unzipped, String keyword) {
@@ -87,37 +76,37 @@ public class LogsManagement {
         return count;
     }
 
-    private static String[] filter(String[] original, LocalDate start, LocalDate end) {
-        List<String> list = new ArrayList<>();
+    private static File[] filter(File[] original, LocalDate start, LocalDate end) {
+        List<File> list = new ArrayList<>();
         if (start == null) {
-            for (String i : original) {
+            for (File i : original) {
                 if (supposedToAdd(i, null, end)) {
                     list.add(i);
                 }
             }
         }
-        return list.toArray(String[]::new);
+        return list.toArray(File[]::new);
     }
 
-    private static boolean supposedToAdd(String fileName, LocalDate start, LocalDate end) {
+    private static boolean supposedToAdd(File file, LocalDate start, LocalDate end) {
         if (start == null) {
-            return end.isAfter(LocalDate.parse(fileName.substring(0, 10)));
+            return end.isAfter(LocalDate.parse(file.getName().substring(0, 10)));
         } else if (end == null) {
-            return end.isBefore(LocalDate.parse(fileName.substring(0, 10)));
+            return end.isBefore(LocalDate.parse(file.getName().substring(0, 10)));
         }
-        return start.isBefore(LocalDate.parse(fileName.substring(0, 10))) && end.isAfter(LocalDate.parse(fileName.substring(0, 10)));
+        return start.isBefore(LocalDate.parse(file.getName().substring(0, 10))) && end.isAfter(LocalDate.parse(file.getName().substring(0, 10)));
     }
 
     private static LocalDate getOldest() {
-        String[] logs = getLogs(null, null);
-        String date = logs[0].substring(0, 10);
+        File[] logs = getLogs(null, null);
+        String date = logs[0].getName().substring(0, 10);
 
         return LocalDate.parse(date);
     }
 
     private static LocalDate getNewest() {
-        String[] logs = getLogs(null, null);
-        String date = logs[logs.length - 1].substring(0, 10);
+        File[] logs = getLogs(null, null);
+        String date = logs[logs.length - 1].getName().substring(0, 10);
 
         return LocalDate.parse(date);
     }
