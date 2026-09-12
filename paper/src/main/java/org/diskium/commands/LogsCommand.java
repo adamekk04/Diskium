@@ -28,7 +28,7 @@ public class LogsCommand {
                                                     .append(Component.text(logs.length == 1 ? " log" : " logs")));
 
                                     for (File log : logs) {
-                                        context.getSource().getSender().sendMessage(log.getName());
+                                        context.getSource().getSender().sendMessage(Component.text(log.getName(), NamedTextColor.GREEN));
                                     }
                                     return Command.SINGLE_SUCCESS;
                                 })

@@ -19,7 +19,7 @@ public class ConfigManagement {
     }
 
     public static Object getSingleConfig(String name) {
-        return Diskium.getInstance().getConfig().getBoolean(name);
+        return Diskium.getInstance().getConfig().get(name);
     }
 
     public static boolean setSingleConfig(String configName, Object input) {
