@@ -5,6 +5,8 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.diskium.management.LogsManagement;
 
 import java.io.File;
@@ -19,7 +21,12 @@ public class LogsCommand {
                         Commands.literal("list")
                                 .executes(context -> {
                                     File[] logs = LogsManagement.getLogs(null, null);
-                                    context.getSource().getSender().sendMessage("Found " + logs.length + " logs");
+
+                                    context.getSource().getSender().sendMessage(
+                                            Component.text("Found ")
+                                                    .append(Component.text(logs.length, NamedTextColor.DARK_GREEN))
+                                                    .append(Component.text(" logs")));
+
                                     for (File log : logs) {
                                         context.getSource().getSender().sendMessage(log.getName());
                                     }
@@ -36,7 +43,14 @@ public class LogsCommand {
                         Commands.literal("delete")
                                 .executes(context -> {
                                     File[] logs = LogsManagement.getLogs(null, null);
-                                    context.getSource().getSender().sendMessage("Found " + logs.length + " logs, deleting them all");
+
+                                    context.getSource().getSender().sendMessage(
+                                            Component.text("Found ")
+                                                    .append(Component.text(logs.length, NamedTextColor.DARK_GREEN))
+                                                    .append(Component.text(" logs, "))
+                                                    .append(Component.text("DELETING THEM ALL!", NamedTextColor.RED))
+                                    );
+
                                     LogsManagement.delete(null, null);
                                     return Command.SINGLE_SUCCESS;
                                 })
@@ -49,10 +63,6 @@ public class LogsCommand {
                 )
                 .then(
                         Commands.literal("search")
-                                .executes(context -> {
-                                    context.getSource().getSender().sendMessage("You need to enter keywords (/diskium logs search <keywords>)");
-                                    return Command.SINGLE_SUCCESS;
-                                })
                                 .then(
                                         Commands.argument("keywords", StringArgumentType.greedyString())
                                                 .executes(context -> {
