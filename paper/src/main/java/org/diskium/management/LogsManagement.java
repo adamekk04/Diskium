@@ -21,18 +21,28 @@ public class LogsManagement {
     private static final File logsDir = new File(Diskium.getInstance().getDataFolder().getParentFile().getParentFile(), "logs");
 
     public static String[] getLogs(LocalDate startDate, LocalDate endDate) {
-        String[] dir = logsDir.list((File directory, String s) -> s.matches(".log.gz"));
+        String[] dir = logsDir.list((File directory, String s) -> s.endsWith(".log.gz"));
         if (startDate == null && endDate == null) return dir;
         return filter(dir, startDate, endDate);
     }
 
     public static boolean delete(String start, String end) {
+        String[] logs;
+
         if (!DateUtils.isValidDate(start, end)) return false;
-        String[] logs = getLogs(LocalDate.parse(start), LocalDate.parse(end));
+        if (start == null || end == null) {
+            logs = getLogs(null, null);
+        } else if (start == null) {
+            logs = getLogs(getOldest(), LocalDate.parse(end));
+        } else {
+            logs = getLogs(LocalDate.parse(start), getNewest());
+        }
         if (logs == null) return false;
+
         for (String name : logs) {
             FileUtils.del(new File(name));
         }
+
         return true;
     }
 
@@ -96,5 +106,19 @@ public class LogsManagement {
             return end.isBefore(LocalDate.parse(fileName.substring(0, 10)));
         }
         return start.isBefore(LocalDate.parse(fileName.substring(0, 10))) && end.isAfter(LocalDate.parse(fileName.substring(0, 10)));
+    }
+
+    private static LocalDate getOldest() {
+        String[] logs = getLogs(null, null);
+        String date = logs[0].substring(0, 10);
+
+        return LocalDate.parse(date);
+    }
+
+    private static LocalDate getNewest() {
+        String[] logs = getLogs(null, null);
+        String date = logs[logs.length - 1].substring(0, 10);
+
+        return LocalDate.parse(date);
     }
 }
