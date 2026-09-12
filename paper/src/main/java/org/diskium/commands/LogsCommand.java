@@ -73,7 +73,12 @@ public class LogsCommand {
                                                         File key = entry.getKey();
                                                         int value = entry.getValue();
 
-                                                        context.getSource().getSender().sendMessage("Found " + value + " matches in " + key.getName());
+                                                        context.getSource().getSender().sendMessage(
+                                                                Component.text("Found ")
+                                                                        .append(Component.text(value, NamedTextColor.DARK_GREEN))
+                                                                        .append(Component.text(" matches in "))
+                                                                        .append(Component.text(key.getName(), NamedTextColor.GREEN))
+                                                        );
                                                     }
                                                     return Command.SINGLE_SUCCESS;
                                                 })
