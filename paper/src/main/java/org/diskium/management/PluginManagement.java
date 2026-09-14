@@ -98,7 +98,8 @@ public class PluginManagement {
                 .append(Component.text(pl.getName(), NamedTextColor.WHITE))
                 .append(Component.text("\nVersion: ", NamedTextColor.DARK_GREEN))
                 .append(Component.text(meta.getVersion(), NamedTextColor.WHITE))
-                .append(Component.text(meta.getAuthors().size() == 1 ? "\nAuthor: " : "\nAuthors: "));
+                .append(Component.text(meta.getAuthors().size() == 1 ? "\nAuthor: " : "\nAuthors: ", NamedTextColor.DARK_GREEN))
+                .append(Component.text(meta.getAuthors().getFirst(), NamedTextColor.WHITE));
 
         List<String> authors = meta.getAuthors();
         authors.removeFirst();
