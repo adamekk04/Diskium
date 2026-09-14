@@ -5,8 +5,8 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
-import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
@@ -58,7 +58,7 @@ public class PluginsCommand {
                                                 })
                                                 .executes(context -> {
                                                     Plugin pl = Bukkit.getPluginManager().getPlugin(StringArgumentType.getString(context, "plugin"));
-                                                    String info = PluginManagement.info(pl);
+                                                    TextComponent info = PluginManagement.info(pl);
 
                                                     if (info != null) {
                                                         context.getSource().getSender().sendMessage(info);
