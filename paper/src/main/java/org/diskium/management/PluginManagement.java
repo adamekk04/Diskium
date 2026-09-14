@@ -105,13 +105,13 @@ public class PluginManagement {
         authors.removeFirst();
 
         for (String author : authors) {
-            textComponent.append(Component.text(", ", NamedTextColor.WHITE))
+            textComponent = textComponent.append(Component.text(", ", NamedTextColor.WHITE))
                     .append(Component.text(author, NamedTextColor.WHITE));
         }
 
         String website = meta.getWebsite();
 
-        textComponent.append(Component.text("\nWebsite: ", NamedTextColor.DARK_GREEN))
+        textComponent = textComponent.append(Component.text("\nWebsite: ", NamedTextColor.DARK_GREEN))
                 .append(Component.text(website == null ? "None" : website, NamedTextColor.WHITE))
                 .append(Component.text("\nIs on tasklist: ", NamedTextColor.DARK_GREEN));
 
@@ -122,16 +122,16 @@ public class PluginManagement {
                 File file = new File(pl.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
                 tasks = Arrays.stream(tasks).filter(task -> task.getFile() == file).toArray(TaskObj[]::new);
 
-                textComponent.append(Component.text(tasks.length == 1, NamedTextColor.WHITE));
+                textComponent = textComponent.append(Component.text(tasks.length == 1, NamedTextColor.WHITE));
             } catch (URISyntaxException e) {
                 MultiplatformLogger.error("Couldn't make URI while getting plugin's file.");
-                textComponent.append(Component.text(false, NamedTextColor.WHITE));
+                textComponent = textComponent.append(Component.text(false, NamedTextColor.WHITE));
             }
         } else {
-            textComponent.append(Component.text(false, NamedTextColor.WHITE));
+            textComponent = textComponent.append(Component.text(false, NamedTextColor.WHITE));
         }
 
-        textComponent.append(Component.text("\nIs on backuplist: ", NamedTextColor.DARK_GREEN));
+        textComponent = textComponent.append(Component.text("\nIs on backuplist: ", NamedTextColor.DARK_GREEN));
 
         BackupObj[] backups = TasksUtils.getBackups(Diskium.getInstance().getDataFolder());
 
@@ -140,16 +140,17 @@ public class PluginManagement {
                 File file = new File(pl.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
                 backups = Arrays.stream(backups).filter(backup -> backup.getFile() == file).toArray(BackupObj[]::new);
 
-                textComponent.append(Component.text(backups.length == 1, NamedTextColor.WHITE));
+                textComponent = textComponent.append(Component.text(backups.length == 1, NamedTextColor.WHITE));
             } catch (URISyntaxException e) {
                 MultiplatformLogger.error("Couldn't make URI while deleting plugin's file.");
-                textComponent.append(Component.text(false, NamedTextColor.WHITE));
+                textComponent = textComponent.append(Component.text(false, NamedTextColor.WHITE));
             }
         } else {
-            textComponent.append(Component.text(false, NamedTextColor.WHITE));
+            textComponent = textComponent.append(Component.text(false, NamedTextColor.WHITE));
         }
 
-        textComponent.append(Component.text("\nIs enabled: ", NamedTextColor.DARK_GREEN));
+        textComponent = textComponent.append(Component.text("\nIs enabled: ", NamedTextColor.DARK_GREEN))
+                .append(Component.text(pl.isEnabled(), NamedTextColor.WHITE));
 
         return textComponent;
     }
