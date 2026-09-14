@@ -1,6 +1,9 @@
 package org.diskium.management;
 
 import io.papermc.paper.plugin.configuration.PluginMeta;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -14,10 +17,7 @@ import org.diskium.utils.TasksUtils;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -87,28 +87,30 @@ public class PluginManagement {
         return pl.getDataFolder().exists();
     }
 
-    public static String info(Plugin pl) {
+    public static TextComponent info(Plugin pl) {
         if (!Arrays.asList(getPlugins()).contains(pl)) {
             return null;
         }
 
         PluginMeta meta = pl.getPluginMeta();
-        StringBuilder authors = new StringBuilder();
 
-        if (meta.getAuthors().size() == 1) authors.append("Author: ");
-        else authors.append("Authors: ");
+        TextComponent textComponent = Component.text("Name: ", NamedTextColor.DARK_GREEN)
+                .append(Component.text(pl.getName(), NamedTextColor.WHITE))
+                .append(Component.text("\nVersion: ", NamedTextColor.DARK_GREEN))
+                .append(Component.text(meta.getVersion(), NamedTextColor.WHITE))
+                .append(Component.text(meta.getAuthors().size() == 1 ? "\nAuthor: " : "\nAuthors: "));
 
-        for (String author : meta.getAuthors()) {
-            authors.append(author).append(", ");
+        List<String> authors = meta.getAuthors();
+        authors.removeFirst();
+
+        for (String author : authors) {
+            textComponent.append(Component.text(", ", NamedTextColor.WHITE))
+                    .append(Component.text(author, NamedTextColor.WHITE));
         }
 
-        authors.delete(authors.length() - 2, authors.length());
-
-        StringBuilder builder = new StringBuilder("Name: " + meta.getName() +
-                "\nVersion: " + meta.getVersion() + "\n" +
-                authors +
-                "\nWebsite: " + meta.getWebsite() +
-                "\nIs on tasklist: ");
+        textComponent.append(Component.text("\nWebsite: ", NamedTextColor.DARK_GREEN))
+                .append(Component.text(meta.getWebsite(), NamedTextColor.WHITE))
+                .append(Component.text("\nIs on tasklist: ", NamedTextColor.DARK_GREEN));
 
         TaskObj[] tasks = TasksUtils.getTasks(Diskium.getInstance().getDataFolder());
 
@@ -116,16 +118,17 @@ public class PluginManagement {
             try {
                 File file = new File(pl.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
                 tasks = Arrays.stream(tasks).filter(task -> task.getFile() == file).toArray(TaskObj[]::new);
-                if (tasks.length == 1) builder.append("true");
+
+                textComponent.append(Component.text(tasks.length == 1, NamedTextColor.WHITE));
             } catch (URISyntaxException e) {
                 MultiplatformLogger.error("Couldn't make URI while getting plugin's file.");
-                builder.append("false");
+                textComponent.append(Component.text(false, NamedTextColor.WHITE));
             }
         } else {
-            builder.append("false");
+            textComponent.append(Component.text(false, NamedTextColor.WHITE));
         }
 
-        builder.append("\nIs on backuplist: ");
+        textComponent.append(Component.text("\nIs on backuplist: ", NamedTextColor.DARK_GREEN));
 
         BackupObj[] backups = TasksUtils.getBackups(Diskium.getInstance().getDataFolder());
 
@@ -133,18 +136,19 @@ public class PluginManagement {
             try {
                 File file = new File(pl.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
                 backups = Arrays.stream(backups).filter(backup -> backup.getFile() == file).toArray(BackupObj[]::new);
-                if (backups.length == 1) builder.append("true");
+
+                textComponent.append(Component.text(backups.length == 1, NamedTextColor.WHITE));
             } catch (URISyntaxException e) {
                 MultiplatformLogger.error("Couldn't make URI while deleting plugin's file.");
-                builder.append("false");
+                textComponent.append(Component.text(false, NamedTextColor.WHITE));
             }
         } else {
-            builder.append("false");
+            textComponent.append(Component.text(false, NamedTextColor.WHITE));
         }
 
-        builder.append("\nIs enabled: ").append(pl.isEnabled());
+        textComponent.append(Component.text("\nIs enabled: ", NamedTextColor.DARK_GREEN));
 
-        return builder.toString();
+        return textComponent;
     }
 
     public static Plugin[] getPlugins() {

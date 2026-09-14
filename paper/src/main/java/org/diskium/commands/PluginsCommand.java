@@ -6,6 +6,8 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.diskium.management.PluginManagement;
@@ -72,10 +74,15 @@ public class PluginsCommand {
                         Commands.literal("list")
                                 .executes(context -> {
                                     Plugin[] plugins = Bukkit.getPluginManager().getPlugins();
-                                    context.getSource().getSender().sendMessage("Found " + plugins.length + " plugins:");
+
+                                    context.getSource().getSender().sendMessage(Component.text("Found ")
+                                            .append(Component.text(plugins.length, NamedTextColor.DARK_GREEN))
+                                            .append(Component.text(" plugins")));
+
                                     for (Plugin pl : plugins) {
-                                        context.getSource().getSender().sendMessage(pl.getName());
+                                        context.getSource().getSender().sendMessage(Component.text(pl.getName(), NamedTextColor.GREEN));
                                     }
+
                                     return Command.SINGLE_SUCCESS;
                                 })
                 );
