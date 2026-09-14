@@ -108,8 +108,10 @@ public class PluginManagement {
                     .append(Component.text(author, NamedTextColor.WHITE));
         }
 
+        String website = meta.getWebsite();
+
         textComponent.append(Component.text("\nWebsite: ", NamedTextColor.DARK_GREEN))
-                .append(Component.text(meta.getWebsite(), NamedTextColor.WHITE))
+                .append(Component.text(website == null ? "None" : website, NamedTextColor.WHITE))
                 .append(Component.text("\nIs on tasklist: ", NamedTextColor.DARK_GREEN));
 
         TaskObj[] tasks = TasksUtils.getTasks(Diskium.getInstance().getDataFolder());

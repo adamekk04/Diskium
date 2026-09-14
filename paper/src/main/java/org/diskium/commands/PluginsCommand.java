@@ -77,7 +77,7 @@ public class PluginsCommand {
 
                                     context.getSource().getSender().sendMessage(Component.text("Found ")
                                             .append(Component.text(plugins.length, NamedTextColor.DARK_GREEN))
-                                            .append(Component.text(" plugins")));
+                                            .append(Component.text(plugins.length == 1 ? " plugin" : " plugins")));
 
                                     for (Plugin pl : plugins) {
                                         context.getSource().getSender().sendMessage(Component.text(pl.getName(), NamedTextColor.GREEN));
