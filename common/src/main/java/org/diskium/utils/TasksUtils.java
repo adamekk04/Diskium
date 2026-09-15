@@ -30,14 +30,16 @@ public class TasksUtils {
                 File path = new File(pathLine);
                 String mode = br.readLine();
 
-                if (mode.equals("1")) {
+                if (mode == null) {
+                    return tasks.toArray(TaskObj[]::new);
+                } else if (mode.equals("1")) {
                     tasks.add(new TaskObj(true, path, null, getType(path)));
                 } else {
                     tasks.add(new TaskObj(false, path, new File(mode), getType(path)));
                 }
             }
 
-            return tasks.toArray(new TaskObj[0]);
+            return tasks.toArray(TaskObj[]::new);
         } catch (SecurityException e) {
             MultiplatformLogger.error("Cannot access tasks.txt due to security reasons.");
         } catch (NoSuchFileException e) {
@@ -63,7 +65,7 @@ public class TasksUtils {
                 backups.add(new BackupObj(path, itself));
             }
 
-            return backups.toArray(new BackupObj[0]);
+            return backups.toArray(BackupObj[]::new);
         } catch (SecurityException e) {
             MultiplatformLogger.error("Cannot access backups.txt due to security reasons.");
         } catch (NoSuchFileException e) {
