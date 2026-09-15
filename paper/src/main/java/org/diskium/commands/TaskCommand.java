@@ -6,12 +6,15 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
-import org.bukkit.Bukkit;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.diskium.Diskium;
 import org.diskium.objects.TaskObj;
 import org.diskium.utils.TasksUtils;
 
 import java.io.File;
+import java.util.Arrays;
 
 public class TaskCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> entry(File dir) {
@@ -63,7 +66,8 @@ public class TaskCommand {
                                                     int index = IntegerArgumentType.getInteger(context, "id");
                                                     TaskObj[] tasks = TasksUtils.getTasks(dir);
                                                     if (tasks != null) {
-                                                        if (tasks.length >= index) TasksUtils.remove(tasks[index], Diskium.getInstance().getDataFolder());
+                                                        if (tasks.length >= index)
+                                                            TasksUtils.remove(tasks[index], Diskium.getInstance().getDataFolder());
                                                     }
 
                                                     return Command.SINGLE_SUCCESS;
@@ -92,7 +96,8 @@ public class TaskCommand {
                                                             context.getSource().getSender().sendMessage("Type: " + task.getType());
                                                             context.getSource().getSender().sendMessage("Delete: " + task.getDelete());
                                                             context.getSource().getSender().sendMessage("Path: " + task.getFile().toPath());
-                                                            if (!task.getDelete()) context.getSource().getSender().sendMessage("Replacement path: " + task.getReplacementFile().toPath());
+                                                            if (!task.getDelete())
+                                                                context.getSource().getSender().sendMessage("Replacement path: " + task.getReplacementFile().toPath());
                                                         }
                                                     }
 
@@ -102,21 +107,65 @@ public class TaskCommand {
                 );
     }
 
-    private static void lister(String type, CommandContext<CommandSourceStack> context) {
-        TaskObj[] tasks = TasksUtils.getTasks(Bukkit.getPluginsFolder());
+    private static void lister(File dir, String type, CommandContext<CommandSourceStack> context) {
+        TaskObj[] tasks = Arrays.stream(TasksUtils.getBackups(dir)).filter(task -> task.getType().equalsIgnoreCase(type) || type == null).toArray(TaskObj[]::new);
 
-        if (tasks != null) {
-            context.getSource().getSender().sendMessage("ID|Delete|Path|ReplacementPath");
+        context.getSource().getSender().sendMessage(Component.text("Found ")
+                .append(Component.text(tasks.length, NamedTextColor.DARK_GREEN))
+                .append(Component.text(tasks.length == 1 ? " task" : " tasks")));
 
-            for (int i = 0; i < tasks.length; i++) {
-                if (type != null) {
-                    if (tasks[i].getType().equalsIgnoreCase(type)) {
-                        context.getSource().getSender().sendMessage(i + "|" + tasks[i].getDelete() + "|" + tasks[i].getFile() + "|" + tasks[i].getReplacementFile());
-                    }
-                } else {
-                    context.getSource().getSender().sendMessage(i + "|" + tasks[i].getDelete() + "|" + tasks[i].getFile() + "|" + tasks[i].getReplacementFile());
+        if (tasks.length == 0) return;
+
+        int longestID = Math.max(Integer.toString(tasks.length).length(), 2);
+        int longestFile = 4;
+        int longestReplacementFile = 16;
+        int longestType = type == null ? 0 : 4;
+
+        for (TaskObj task : tasks) {
+            if (task.getFile().toString().length() > longestFile) {
+                longestFile = task.getFile().toString().length();
+            }
+
+            if (task.getReplacementFile().toString().length() > longestReplacementFile) {
+                longestReplacementFile = task.getReplacementFile().toString().length();
+            }
+
+            if (type != null) {
+                if (task.getType().length() > longestType) {
+                    longestType = task.getType().length();
                 }
             }
+        }
+
+        TextComponent header = Component.text("ID" + " ".repeat(longestID - 2), NamedTextColor.DARK_GREEN)
+                .append(Component.text(" | ", NamedTextColor.WHITE))
+                .append(Component.text("Delete", NamedTextColor.DARK_GREEN)) // longest boolean (false) is shorter than "delete"
+                .append(Component.text(" | ", NamedTextColor.WHITE))
+                .append(Component.text("File" + " ".repeat(longestFile - 4), NamedTextColor.DARK_GREEN))
+                .append(Component.text(" | ", NamedTextColor.WHITE))
+                .append(Component.text("Replacement File" + " ".repeat(longestReplacementFile - 16), NamedTextColor.DARK_GREEN));
+
+        if (type != null) {
+            header = header.append(Component.text(" | ", NamedTextColor.WHITE)
+                    .append(Component.text("Type" + " ".repeat(longestType - 4), NamedTextColor.DARK_GREEN)));
+        }
+
+        context.getSource().getSender().sendMessage(header);
+
+        for (int i = 0; i < tasks.length; i++) {
+            TextComponent text = Component.text((i + 1) + " ".repeat(longestID - (i + 1)), NamedTextColor.DARK_GREEN)
+                    .append(Component.text(" | ", NamedTextColor.WHITE))
+                    .append(Component.text(tasks[i].getFile().toString() + " ".repeat(longestFile - (i + 1)), NamedTextColor.DARK_GREEN))
+                    .append(Component.text(" | ", NamedTextColor.WHITE))
+                    .append(Component.text(tasks[i].getReplacementFile().toString() + " ".repeat(longestReplacementFile - (i + 1)), NamedTextColor.DARK_GREEN))
+                    .append(Component.text(" | ", NamedTextColor.WHITE));
+
+            if (type != null) {
+                text = text.append(Component.text(" | ", NamedTextColor.WHITE))
+                        .append(Component.text(type + " ".repeat(longestType - (i + 1)), NamedTextColor.DARK_GREEN));
+            }
+
+            context.getSource().getSender().sendMessage(text);
         }
     }
 }
