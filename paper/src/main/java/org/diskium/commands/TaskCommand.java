@@ -22,14 +22,14 @@ public class TaskCommand {
                 .then(
                         Commands.literal("list")
                                 .executes(context -> {
-                                    lister(null, context);
+                                    lister(dir,null, context);
 
                                     return Command.SINGLE_SUCCESS;
                                 })
                                 .then(
                                         Commands.literal("logs")
                                                 .executes(context -> {
-                                                    lister("Logs", context);
+                                                    lister(dir,"Logs", context);
 
                                                     return Command.SINGLE_SUCCESS;
                                                 })
@@ -37,7 +37,7 @@ public class TaskCommand {
                                 .then(
                                         Commands.literal("plugins")
                                                 .executes(context -> {
-                                                    lister("Plugins", context);
+                                                    lister(dir,"Plugins", context);
 
                                                     return Command.SINGLE_SUCCESS;
                                                 })
@@ -45,7 +45,7 @@ public class TaskCommand {
                                 .then(
                                         Commands.literal("world")
                                                 .executes(context -> {
-                                                    lister("World", context);
+                                                    lister(dir,"World", context);
 
                                                     return Command.SINGLE_SUCCESS;
                                                 })
