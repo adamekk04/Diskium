@@ -12,4 +12,8 @@ public class DateUtils {
             return false;
         }
     }
+
+    public static boolean isValidString(String date) {
+        return date.chars().filter(c -> c == 'd').count() == 2 && date.chars().filter(c -> c == 'm').count() == 2 && date.chars().filter(c -> c == 'y').count() == 4;
+    }
 }
