@@ -48,7 +48,7 @@ public class TasksUtils {
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong while getting tasks from tasks.txt", e);
         }
-        return null;
+        return new TaskObj[0];
     }
 
     public static BackupObj[] getBackups(File folder) {
@@ -74,7 +74,7 @@ public class TasksUtils {
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong while getting backups from backups.txt", e);
         }
-        return null;
+        return new BackupObj[0];
     }
 
     public static boolean add(File pluginFolder, TaskObj task) {

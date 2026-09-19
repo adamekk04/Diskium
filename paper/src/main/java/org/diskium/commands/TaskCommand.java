@@ -108,7 +108,7 @@ public class TaskCommand {
     }
 
     private static void lister(File dir, String type, CommandContext<CommandSourceStack> context) {
-        TaskObj[] tasks = Arrays.stream(TasksUtils.getBackups(dir)).filter(task -> task.getType().equalsIgnoreCase(type) || type == null).toArray(TaskObj[]::new);
+        TaskObj[] tasks = Arrays.stream(TasksUtils.getTasks(dir)).filter(task -> task.getType().equalsIgnoreCase(type) || type == null).toArray(TaskObj[]::new);
 
         context.getSource().getSender().sendMessage(Component.text("Found ")
                 .append(Component.text(tasks.length, NamedTextColor.DARK_GREEN))

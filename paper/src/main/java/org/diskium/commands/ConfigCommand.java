@@ -31,7 +31,7 @@ public class ConfigCommand {
         return configRoot;
     }
 
-    private static <T> List<LiteralArgumentBuilder<CommandSourceStack>> configs(File dir) {
+    private static List<LiteralArgumentBuilder<CommandSourceStack>> configs(File dir) {
         List<LiteralArgumentBuilder<CommandSourceStack>> literals = new ArrayList<>();
         Map<String, Object> configs = ConfigManagement.getConfig(dir);
 
