@@ -1,7 +1,11 @@
 package org.diskium.management;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Player;
 import org.diskium.Diskium;
 import org.diskium.mca.Parser;
 import org.diskium.mca.Sector;
@@ -31,8 +35,28 @@ public class WorldManagement {
         return creator.createWorld();
     }
 
-    public static String info(World world) {
-        return "Name: " + world.getName() + "\nPlayers: " + world.getPlayers() + " (" + world.getPlayerCount() + ")\nSeed: " + world.getSeed() + "\nWorld border radius: " + world.getWorldBorder().getSize();
+    public static TextComponent info(World world) {
+        TextComponent component = Component.text("Name: ", NamedTextColor.DARK_GREEN)
+                .append(Component.text(world.getName(), NamedTextColor.WHITE))
+                .append(Component.text("\nPlayers: ", NamedTextColor.DARK_GREEN));
+
+        List<Player> players = world.getPlayers();
+
+        if (players.isEmpty()) {
+            component = component.append(Component.text("None", NamedTextColor.WHITE));
+        } else {
+            for (Player p : players) {
+                component = component.append(Component.text(p.getName(), NamedTextColor.GREEN))
+                        .append(Component.text(", ", NamedTextColor.WHITE));
+            }
+            component = component.append(Component.text(players.size(), NamedTextColor.GREEN))
+                    .append(Component.text(" total", NamedTextColor.WHITE));
+        }
+
+        return component.append(Component.text("\nSeed: ", NamedTextColor.DARK_GREEN))
+                .append(Component.text(world.getSeed(), NamedTextColor.WHITE))
+                .append(Component.text("\nBorder radius: ", NamedTextColor.DARK_GREEN))
+                .append(Component.text((int) world.getWorldBorder().getSize(), NamedTextColor.WHITE));
     }
 
     public static void delWorld(World world) {
