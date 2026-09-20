@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
@@ -14,8 +15,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.diskium.Diskium;
+import org.diskium.MultiplatformLogger;
 import org.diskium.management.WorldManagement;
 
+import java.awt.image.MultiPixelPackedSampleModel;
 import java.util.List;
 
 public class WorldCommand {
@@ -66,15 +69,19 @@ public class WorldCommand {
                 Commands.argument("position", ArgumentTypes.blockPosition())
                         .executes(context -> {
                             Bukkit.getScheduler().runTaskAsynchronously(Diskium.getInstance(), () -> {
-                                BlockPosition blockPosition = context.getArgument("position", BlockPositionResolver.class).resolve(context.getSource());
-                                if (all) {
-                                    for (World world : Bukkit.getWorlds()) {
-                                        Location loc = blockPosition.toLocation(world);
+                                try {
+                                    BlockPosition blockPosition = context.getArgument("position", BlockPositionResolver.class).resolve(context.getSource());
+                                    if (all) {
+                                        for (World world : Bukkit.getWorlds()) {
+                                            Location loc = blockPosition.toLocation(world);
+                                            context.getSource().getSender().sendMessage(WorldManagement.getBlock(loc, existing));
+                                        }
+                                    } else {
+                                        Location loc = blockPosition.toLocation(context.getArgument("world", World.class));
                                         context.getSource().getSender().sendMessage(WorldManagement.getBlock(loc, existing));
                                     }
-                                } else {
-                                    Location loc = blockPosition.toLocation(context.getArgument("world", World.class));
-                                    context.getSource().getSender().sendMessage(WorldManagement.getBlock(loc, existing));
+                                } catch (CommandSyntaxException e) {
+                                    MultiplatformLogger.error("Something went wrong while obtaining argument");
                                 }
                             });
 
@@ -112,16 +119,20 @@ public class WorldCommand {
                                                 WorldManagement.del(context.getArgument("world", World.class), in, IntegerArgumentType.getInteger(context, "radius"), true);
                                             }
                                         } else if (checker == Checker.SECTOR) {
-                                            BlockPosition blockPosition = context.getArgument("coords", BlockPositionResolver.class).resolve(context.getSource());
-                                            int x = blockPosition.blockX();
-                                            int z = blockPosition.blockZ();
+                                            try {
+                                                BlockPosition blockPosition = context.getArgument("coords", BlockPositionResolver.class).resolve(context.getSource());
+                                                int x = blockPosition.blockX();
+                                                int z = blockPosition.blockZ();
 
-                                            if (all) {
-                                                for (World world : Bukkit.getWorlds()) {
-                                                    WorldManagement.delSector(x, z, in, true, world);
+                                                if (all) {
+                                                    for (World world : Bukkit.getWorlds()) {
+                                                        WorldManagement.delSector(x, z, in, true, world);
+                                                    }
+                                                } else {
+                                                    WorldManagement.delSector(x, z, in, true, context.getArgument("world", World.class));
                                                 }
-                                            } else {
-                                                WorldManagement.delSector(x, z, in, true, context.getArgument("world", World.class));
+                                            } catch (CommandSyntaxException e) {
+                                                MultiplatformLogger.error("Something went wrong while obtaining argument");
                                             }
                                         }
                                     });
