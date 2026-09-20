@@ -18,7 +18,6 @@ import org.diskium.Diskium;
 import org.diskium.MultiplatformLogger;
 import org.diskium.management.WorldManagement;
 
-import java.awt.image.MultiPixelPackedSampleModel;
 import java.util.List;
 
 public class WorldCommand {
@@ -68,22 +67,16 @@ public class WorldCommand {
         return root.then(
                 Commands.argument("position", ArgumentTypes.blockPosition())
                         .executes(context -> {
-                            Bukkit.getScheduler().runTaskAsynchronously(Diskium.getInstance(), () -> {
-                                try {
-                                    BlockPosition blockPosition = context.getArgument("position", BlockPositionResolver.class).resolve(context.getSource());
-                                    if (all) {
-                                        for (World world : Bukkit.getWorlds()) {
-                                            Location loc = blockPosition.toLocation(world);
-                                            context.getSource().getSender().sendMessage(WorldManagement.getBlock(loc, existing));
-                                        }
-                                    } else {
-                                        Location loc = blockPosition.toLocation(context.getArgument("world", World.class));
-                                        context.getSource().getSender().sendMessage(WorldManagement.getBlock(loc, existing));
-                                    }
-                                } catch (CommandSyntaxException e) {
-                                    MultiplatformLogger.error("Something went wrong while obtaining argument");
+                            BlockPosition blockPosition = context.getArgument("position", BlockPositionResolver.class).resolve(context.getSource());
+                            if (all) {
+                                for (World world : Bukkit.getWorlds()) {
+                                    Location loc = blockPosition.toLocation(world);
+                                    context.getSource().getSender().sendMessage(WorldManagement.getBlock(loc, existing));
                                 }
-                            });
+                            } else {
+                                Location loc = blockPosition.toLocation(context.getArgument("world", World.class));
+                                context.getSource().getSender().sendMessage(WorldManagement.getBlock(loc, existing));
+                            }
 
                             return Command.SINGLE_SUCCESS;
                         })
@@ -109,33 +102,27 @@ public class WorldCommand {
         return root.then(
                         Commands.literal("checkForBuilds")
                                 .executes(context -> {
-                                    Bukkit.getScheduler().runTaskAsynchronously(Diskium.getInstance(), () -> {
-                                        if (checker == Checker.RANGE) {
-                                            if (all) {
-                                                for (World world : Bukkit.getWorlds()) {
-                                                    WorldManagement.del(world, in, IntegerArgumentType.getInteger(context, "radius"), true);
-                                                }
-                                            } else {
-                                                WorldManagement.del(context.getArgument("world", World.class), in, IntegerArgumentType.getInteger(context, "radius"), true);
+                                    if (checker == Checker.RANGE) {
+                                        if (all) {
+                                            for (World world : Bukkit.getWorlds()) {
+                                                WorldManagement.del(world, in, IntegerArgumentType.getInteger(context, "radius"), true);
                                             }
-                                        } else if (checker == Checker.SECTOR) {
-                                            try {
-                                                BlockPosition blockPosition = context.getArgument("coords", BlockPositionResolver.class).resolve(context.getSource());
-                                                int x = blockPosition.blockX();
-                                                int z = blockPosition.blockZ();
-
-                                                if (all) {
-                                                    for (World world : Bukkit.getWorlds()) {
-                                                        WorldManagement.delSector(x, z, in, true, world);
-                                                    }
-                                                } else {
-                                                    WorldManagement.delSector(x, z, in, true, context.getArgument("world", World.class));
-                                                }
-                                            } catch (CommandSyntaxException e) {
-                                                MultiplatformLogger.error("Something went wrong while obtaining argument");
-                                            }
+                                        } else {
+                                            WorldManagement.del(context.getArgument("world", World.class), in, IntegerArgumentType.getInteger(context, "radius"), true);
                                         }
-                                    });
+                                    } else if (checker == Checker.SECTOR) {
+                                        BlockPosition blockPosition = context.getArgument("coords", BlockPositionResolver.class).resolve(context.getSource());
+                                        int x = blockPosition.blockX();
+                                        int z = blockPosition.blockZ();
+
+                                        if (all) {
+                                            for (World world : Bukkit.getWorlds()) {
+                                                WorldManagement.delSector(x, z, in, true, world);
+                                            }
+                                        } else {
+                                            WorldManagement.delSector(x, z, in, true, context.getArgument("world", World.class));
+                                        }
+                                    }
 
                                     return Command.SINGLE_SUCCESS;
                                 })
@@ -175,26 +162,24 @@ public class WorldCommand {
         return root.then(
                         Commands.literal("checkForBuilds")
                                 .executes(context -> {
-                                    Bukkit.getScheduler().runTaskAsynchronously(Diskium.getInstance(), () -> {
-                                        if (checker == Checker.BORDER) {
-                                            if (all) {
-                                                for (World world : Bukkit.getWorlds()) {
-                                                    WorldManagement.del(world, in, (int) world.getWorldBorder().getSize(), true);
-                                                }
-                                            } else {
-                                                World world = context.getArgument("world", World.class);
+                                    if (checker == Checker.BORDER) {
+                                        if (all) {
+                                            for (World world : Bukkit.getWorlds()) {
                                                 WorldManagement.del(world, in, (int) world.getWorldBorder().getSize(), true);
                                             }
-                                        } else if (checker == Checker.WHOLE_WORLD) {
-                                            if (all) {
-                                                for (World world : Bukkit.getWorlds()) {
-                                                    WorldManagement.del(world, true);
-                                                }
-                                            } else {
-                                                WorldManagement.del(context.getArgument("world", World.class), true);
-                                            }
+                                        } else {
+                                            World world = context.getArgument("world", World.class);
+                                            WorldManagement.del(world, in, (int) world.getWorldBorder().getSize(), true);
                                         }
-                                    });
+                                    } else if (checker == Checker.WHOLE_WORLD) {
+                                        if (all) {
+                                            for (World world : Bukkit.getWorlds()) {
+                                                WorldManagement.del(world, true);
+                                            }
+                                        } else {
+                                            WorldManagement.del(context.getArgument("world", World.class), true);
+                                        }
+                                    }
 
                                     return Command.SINGLE_SUCCESS;
                                 })

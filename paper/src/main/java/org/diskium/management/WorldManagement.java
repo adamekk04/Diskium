@@ -1,5 +1,6 @@
 package org.diskium.management;
 
+import io.papermc.paper.math.Position;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -37,6 +38,10 @@ public class WorldManagement {
     public static World genWorld(World template) {
         WorldCreator creator = new WorldCreator(template.getName() + WorldUtils.getSalt());
         creator.copy(template);
+        creator.forcedSpawnPosition(
+                Position.block(0, 100, 0),
+                0,
+                0);
         return creator.createWorld();
     }
 
