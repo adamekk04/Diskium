@@ -10,6 +10,8 @@ import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.resolvers.BlockPositionResolver;
 import io.papermc.paper.math.BlockPosition;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -64,6 +66,10 @@ public class WorldCommand {
         return root.then(
                 Commands.argument("position", ArgumentTypes.blockPosition())
                         .executes(context -> {
+                            if (!existing) {
+                                context.getSource().getSender().sendMessage(Component.text("Command is running, may take a while...", NamedTextColor.YELLOW));
+                            }
+
                             BlockPosition blockPosition = context.getArgument("position", BlockPositionResolver.class).resolve(context.getSource());
                             if (all) {
                                 for (World world : Bukkit.getWorlds()) {
