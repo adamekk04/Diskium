@@ -15,6 +15,8 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.diskium.management.WorldManagement;
 
+import java.util.List;
+
 public class WorldCommand {
 
     public static LiteralArgumentBuilder<CommandSourceStack> entry() {
@@ -34,9 +36,12 @@ public class WorldCommand {
                         Commands.literal("info")
                                 .executes(context -> {
                                     if (all) {
-                                        for (World world : Bukkit.getWorlds()) {
+                                        List<World> worlds = Bukkit.getWorlds();
+                                        for (World world : worlds) {
                                             context.getSource().getSender().sendMessage(WorldManagement.info(world));
-                                            context.getSource().getSender().sendMessage("-----");
+                                            if (worlds.getLast() != world) {
+                                                context.getSource().getSender().sendMessage("-----");
+                                            }
                                         }
                                     } else {
                                         context.getSource().getSender().sendMessage(WorldManagement.info(context.getArgument("world", World.class)));
