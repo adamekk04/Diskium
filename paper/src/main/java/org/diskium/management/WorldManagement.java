@@ -16,23 +16,30 @@ import org.diskium.utils.WorldUtils;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public class WorldManagement {
 
-    public static TextComponent getBlock(Location loc, boolean existing) {
+    public static CompletableFuture<TextComponent> getBlock(Location loc, boolean existing) {
         if (existing) {
-            return Component.text(loc.getWorld().getName(), NamedTextColor.DARK_GREEN)
+            return CompletableFuture.completedFuture(Component.text(loc.getWorld().getName(), NamedTextColor.DARK_GREEN)
                     .append(Component.text(": ", NamedTextColor.WHITE))
-                    .append(Component.text(loc.getBlock().getType().toString(), NamedTextColor.GREEN));
+                    .append(Component.text(loc.getBlock().getType().toString(), NamedTextColor.GREEN)));
         }
 
         World world = genWorld(loc.getWorld());
-        TextComponent component = Component.text(loc.getWorld().getName(), NamedTextColor.DARK_GREEN)
-                .append(Component.text(": ", NamedTextColor.WHITE))
-                .append(Component.text(world.getBlockAt(loc).getType().toString(), NamedTextColor.GREEN));
-        delWorld(world);
+        Location clonedLoc = loc.clone();
+        clonedLoc.setWorld(world);
 
-        return component;
+        return getBlockAsync(clonedLoc).thenApply(block -> {
+            TextComponent component = Component.text(loc.getWorld().getName(), NamedTextColor.DARK_GREEN)
+                    .append(Component.text(": ", NamedTextColor.WHITE))
+                    .append(Component.text(block.toString(), NamedTextColor.GREEN));
+
+            delWorld(world);
+
+            return component;
+        });
     }
 
     public static World genWorld(World template) {
@@ -235,5 +242,10 @@ public class WorldManagement {
         }
 
         return chunks;
+    }
+
+    private static CompletableFuture<String> getBlockAsync(Location loc) {
+        return loc.getWorld().getChunkAtAsync(loc)
+                .thenApply(chunk -> loc.getBlock().getType().toString());
     }
 }
