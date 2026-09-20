@@ -36,6 +36,7 @@ public class WorldCommand {
                                     if (all) {
                                         for (World world : Bukkit.getWorlds()) {
                                             context.getSource().getSender().sendMessage(WorldManagement.info(world));
+                                            context.getSource().getSender().sendMessage("-----");
                                         }
                                     } else {
                                         context.getSource().getSender().sendMessage(WorldManagement.info(context.getArgument("world", World.class)));
@@ -93,27 +94,27 @@ public class WorldCommand {
         return root.then(
                         Commands.literal("checkForBuilds")
                                 .executes(context -> {
-                                        if (checker == Checker.RANGE) {
-                                            if (all) {
-                                                for (World world : Bukkit.getWorlds()) {
-                                                    WorldManagement.del(world, in, IntegerArgumentType.getInteger(context, "radius"), true);
-                                                }
-                                            } else {
-                                                WorldManagement.del(context.getArgument("world", World.class), in, IntegerArgumentType.getInteger(context, "radius"), true);
+                                    if (checker == Checker.RANGE) {
+                                        if (all) {
+                                            for (World world : Bukkit.getWorlds()) {
+                                                WorldManagement.del(world, in, IntegerArgumentType.getInteger(context, "radius"), true);
                                             }
-                                        } else if (checker == Checker.SECTOR) {
-                                            BlockPosition blockPosition = context.getArgument("coords", BlockPositionResolver.class).resolve(context.getSource());
-                                            int x = blockPosition.blockX();
-                                            int z = blockPosition.blockZ();
-
-                                            if (all) {
-                                                for (World world : Bukkit.getWorlds()) {
-                                                    WorldManagement.delSector(x, z, in, true, world);
-                                                }
-                                            } else {
-                                                WorldManagement.delSector(x, z, in, true, context.getArgument("world", World.class));
-                                            }
+                                        } else {
+                                            WorldManagement.del(context.getArgument("world", World.class), in, IntegerArgumentType.getInteger(context, "radius"), true);
                                         }
+                                    } else if (checker == Checker.SECTOR) {
+                                        BlockPosition blockPosition = context.getArgument("coords", BlockPositionResolver.class).resolve(context.getSource());
+                                        int x = blockPosition.blockX();
+                                        int z = blockPosition.blockZ();
+
+                                        if (all) {
+                                            for (World world : Bukkit.getWorlds()) {
+                                                WorldManagement.delSector(x, z, in, true, world);
+                                            }
+                                        } else {
+                                            WorldManagement.delSector(x, z, in, true, context.getArgument("world", World.class));
+                                        }
+                                    }
 
                                     return Command.SINGLE_SUCCESS;
                                 })

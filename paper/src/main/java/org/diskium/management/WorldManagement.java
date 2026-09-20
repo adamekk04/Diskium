@@ -18,21 +18,33 @@ import java.util.*;
 
 public class WorldManagement {
 
-    public static String getBlock(Location loc, boolean existing) {
+    public static TextComponent getBlock(Location loc, boolean existing) {
+        TextComponent component;
+
         if (existing) {
-            return loc.getWorld().getName() + ": " + loc.getBlock().getType().toString();
+            component = Component.text(loc.getWorld().getName(), NamedTextColor.DARK_GREEN)
+                    .append(Component.text(": ", NamedTextColor.WHITE))
+                    .append(Component.text(loc.getBlock().getType().toString(), NamedTextColor.GREEN));
         } else {
             World newWorld = genWorld(loc.getWorld());
-            String toReturn = loc.getWorld().getName() + ": " + newWorld.getBlockAt(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()).getType().toString();
+            component = Component.text(loc.getWorld().getName(), NamedTextColor.DARK_GREEN)
+                    .append(Component.text(": ", NamedTextColor.WHITE))
+                    .append(Component.text(loc.getBlock().getType().toString(), NamedTextColor.GREEN));
             delWorld(newWorld);
-            return toReturn;
         }
+        return component;
     }
 
     public static World genWorld(World template) {
-        WorldCreator creator = new WorldCreator(template.getName() + WorldUtils.getSalt());
-        creator.copy(template);
-        return creator.createWorld();
+        String salt = WorldUtils.getSalt();
+
+        Bukkit.getScheduler().runTaskAsynchronously(Diskium.getInstance(), () -> {
+            WorldCreator creator = new WorldCreator(template.getName() + salt);
+            creator.copy(template);
+            creator.createWorld();
+        });
+
+        return Bukkit.getWorld(template.getName() + salt);
     }
 
     public static TextComponent info(World world) {
