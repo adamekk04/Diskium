@@ -188,11 +188,11 @@ public class TasksUtils {
         }
     }
 
-    public static String getType(File file) {
-        if (file.getPath().startsWith(new File(serverRoot, "plugins").toString())) return "Plugin";
-        if (file.getPath().endsWith(".mca")) return "World";
-        if (file.getPath().startsWith(new File(serverRoot, "logs").toString())) return "Log";
-        else return "N/A";
+    public static TaskObj.Types getType(File file) {
+        if (file.getPath().startsWith(new File(serverRoot, "plugins").toString())) return TaskObj.Types.PLUGINS;
+        if (file.getPath().endsWith(".mca")) return TaskObj.Types.WORLD;
+        if (file.getPath().startsWith(new File(serverRoot, "logs").toString())) return TaskObj.Types.LOGS;
+        else return TaskObj.Types.OTHER;
     }
 
     public static void createDirs(File pluginFile, boolean task) {

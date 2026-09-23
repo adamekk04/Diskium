@@ -19,7 +19,7 @@ public class FileUtils {
         if ((type == DelSpecifier.LOGS && TASKS_LOGS)
         || (type == DelSpecifier.PLUGINS && TASKS_PLUGINS)
         || (type == DelSpecifier.WORLD && TASKS_WORLD)) {
-            TasksUtils.add(new TaskObj(true, file, null, "N/A"));
+            TasksUtils.add(new TaskObj(true, file, null, TasksUtils.getType(file)));
         }
 
         else {

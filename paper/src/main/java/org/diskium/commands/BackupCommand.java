@@ -30,7 +30,7 @@ public class BackupCommand {
                                 .then(
                                         Commands.literal("logs")
                                                 .executes(context -> {
-                                                    lister(context, "logs");
+                                                    lister(context, TaskObj.Types.LOGS);
 
                                                     return Command.SINGLE_SUCCESS;
                                                 })
@@ -38,7 +38,7 @@ public class BackupCommand {
                                 .then(
                                         Commands.literal("plugins")
                                                 .executes(context -> {
-                                                    lister(context, "plugins");
+                                                    lister(context, TaskObj.Types.PLUGINS);
 
                                                     return Command.SINGLE_SUCCESS;
                                                 })
@@ -46,7 +46,7 @@ public class BackupCommand {
                                 .then(
                                         Commands.literal("world")
                                                 .executes(context -> {
-                                                    lister(context, "world");
+                                                    lister(context, TaskObj.Types.WORLD);
 
                                                     return Command.SINGLE_SUCCESS;
                                                 })
@@ -94,7 +94,7 @@ public class BackupCommand {
 
                                                     if (backups != null) {
                                                         BackupObj backup = backups[IntegerArgumentType.getInteger(context, "id") - 1];
-                                                        TasksUtils.add(new TaskObj(false, backup.getItself(), backup.getFile(), "backup"));
+                                                        TasksUtils.add(new TaskObj(false, backup.getItself(), backup.getFile(), TaskObj.Types.BACKUP));
                                                     }
 
                                                     return Command.SINGLE_SUCCESS;
@@ -103,10 +103,10 @@ public class BackupCommand {
                 );
     }
 
-    private static void lister(CommandContext<CommandSourceStack> context, String type) {
+    private static void lister(CommandContext<CommandSourceStack> context, TaskObj.Types type) {
         int counter = 1;
         boolean all = type == null;
-        BackupObj[] backups = Arrays.stream(TasksUtils.getBackups()).filter(backup -> backup.getType().equalsIgnoreCase(type) || type == null).toArray(BackupObj[]::new);
+        BackupObj[] backups = Arrays.stream(TasksUtils.getBackups()).filter(backup -> backup.getType() == type).toArray(BackupObj[]::new);
 
         context.getSource().getSender().sendMessage(Component.text("Found ")
                 .append(Component.text(backups.length, NamedTextColor.DARK_GREEN))
@@ -152,7 +152,7 @@ public class BackupCommand {
         return component;
     }
 
-    private static TextComponent backupOutput(boolean all, BackupObj backup, String type, int counter, int idLength, int backupLength) {
+    private static TextComponent backupOutput(boolean all, BackupObj backup, TaskObj.Types type, int counter, int idLength, int backupLength) {
         String idOffset = " ".repeat(TasksUtils.nonNegative(idLength - String.valueOf(counter).length()));
         String backupOffset = " ".repeat(TasksUtils.nonNegative(backupLength - backup.getFile().toPath().toString().length()));
 
@@ -162,10 +162,10 @@ public class BackupCommand {
 
         if (all) {
             return component.append(Component.text(" | ", NamedTextColor.WHITE))
-                    .append(Component.text(backup.getType(), NamedTextColor.GREEN));
+                    .append(Component.text(backup.getType().toString(), NamedTextColor.GREEN));
         }
 
-        if (backup.getType().equalsIgnoreCase(type)) {
+        if (backup.getType() == type) {
             return component;
         }
 

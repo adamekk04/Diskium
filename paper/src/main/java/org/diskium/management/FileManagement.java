@@ -50,7 +50,7 @@ public class FileManagement {
                 File taskSource = createTaskSource(regionFile);
 
                 Parser.removeChunk(x, z, taskSource);
-                TasksUtils.add(new TaskObj(false, taskSource, regionFile, "World"));
+                TasksUtils.add(new TaskObj(false, taskSource, regionFile, TaskObj.Types.WORLD));
             } else {
                 int[] coords = WorldUtils.chunkToRegion(x, z);
                 Parser.removeChunk(x, z, getRegionFile(coords[0], coords[1], world));

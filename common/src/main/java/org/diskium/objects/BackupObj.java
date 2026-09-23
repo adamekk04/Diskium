@@ -21,7 +21,7 @@ public class BackupObj {
         return itself;
     }
 
-    public String getType() {
+    public TaskObj.Types getType() {
         return TasksUtils.getType(file);
     }
 }

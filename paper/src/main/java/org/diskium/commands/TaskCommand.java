@@ -27,7 +27,7 @@ public class TaskCommand {
                                 .then(
                                         Commands.literal("logs")
                                                 .executes(context -> {
-                                                    lister("Logs", context);
+                                                    lister(TaskObj.Types.LOGS, context);
 
                                                     return Command.SINGLE_SUCCESS;
                                                 })
@@ -35,7 +35,7 @@ public class TaskCommand {
                                 .then(
                                         Commands.literal("plugins")
                                                 .executes(context -> {
-                                                    lister("Plugins", context);
+                                                    lister(TaskObj.Types.PLUGINS, context);
 
                                                     return Command.SINGLE_SUCCESS;
                                                 })
@@ -43,7 +43,7 @@ public class TaskCommand {
                                 .then(
                                         Commands.literal("world")
                                                 .executes(context -> {
-                                                    lister("World", context);
+                                                    lister(TaskObj.Types.WORLD, context);
 
                                                     return Command.SINGLE_SUCCESS;
                                                 })
@@ -105,8 +105,8 @@ public class TaskCommand {
                 );
     }
 
-    private static void lister(String type, CommandContext<CommandSourceStack> context) {
-        TaskObj[] tasks = Arrays.stream(TasksUtils.getTasks()).filter(task -> task.getType().equalsIgnoreCase(type) || type == null).toArray(TaskObj[]::new);
+    private static void lister(TaskObj.Types type, CommandContext<CommandSourceStack> context) {
+        TaskObj[] tasks = Arrays.stream(TasksUtils.getTasks()).filter(task -> task.getType() == type).toArray(TaskObj[]::new);
 
         context.getSource().getSender().sendMessage(Component.text("Found ")
                 .append(Component.text(tasks.length, NamedTextColor.DARK_GREEN))
@@ -129,8 +129,8 @@ public class TaskCommand {
             }
 
             if (type != null) {
-                if (task.getType().length() > longestType) {
-                    longestType = task.getType().length();
+                if (task.getType().toString().length() > longestType) {
+                    longestType = task.getType().toString().length();
                 }
             }
         }

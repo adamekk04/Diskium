@@ -6,9 +6,9 @@ public class TaskObj {
     boolean delete;
     File file;
     File replacementFile;
-    String type;
+    Types type;
 
-    public TaskObj(boolean delete, File file, File replacementFile, String type) {
+    public TaskObj(boolean delete, File file, File replacementFile, Types type) {
         this.delete = delete;
         this.file = file;
         this.replacementFile = replacementFile;
@@ -27,7 +27,15 @@ public class TaskObj {
         return replacementFile;
     }
 
-    public String getType() {
+    public Types getType() {
         return type;
+    }
+
+    public static enum Types {
+        BACKUP,
+        LOGS,
+        PLUGINS,
+        WORLD,
+        OTHER
     }
 }
