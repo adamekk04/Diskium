@@ -4,7 +4,6 @@ import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.diskium.Diskium;
 import org.diskium.mca.Parser;
-import org.diskium.mca.Sector;
 import org.diskium.objects.Region;
 import org.diskium.objects.TaskObj;
 import org.diskium.utils.FileUtils;
@@ -37,17 +36,9 @@ public class FileManagement {
             }
         }
 
-        if ((boolean) ConfigManagement.getSingleConfig("delete-while-running.world")) {
-            for (Map.Entry<Region, Boolean> entry : del.entrySet()) {
-                if (!entry.getValue()) {
-                    FileUtils.del(getRegionFile(entry.getKey()));
-                }
-            }
-        } else {
-            for (Map.Entry<Region, Boolean> entry : del.entrySet()) {
-                if (!entry.getValue()) {
-                    TasksUtils.add(Diskium.getInstance().getDataFolder(), new TaskObj(true, getRegionFile(entry.getKey()), null, "World"));
-                }
+        for (Map.Entry<Region, Boolean> entry : del.entrySet()) {
+            if (!entry.getValue()) {
+                FileUtils.safeDel(getRegionFile(entry.getKey()), FileUtils.DelSpecifier.WORLD);
             }
         }
     }
@@ -59,17 +50,13 @@ public class FileManagement {
                 File taskSource = createTaskSource(regionFile);
 
                 Parser.removeChunk(x, z, taskSource);
-                TasksUtils.add(Diskium.getInstance().getDataFolder(), new TaskObj(false, taskSource, regionFile, "World"));
+                TasksUtils.add(new TaskObj(false, taskSource, regionFile, "World"));
             } else {
                 int[] coords = WorldUtils.chunkToRegion(x, z);
                 Parser.removeChunk(x, z, getRegionFile(coords[0], coords[1], world));
             }
         } else {
-            if ((boolean) ConfigManagement.getSingleConfig("delete-while-running.world")) {
-                FileUtils.del(getRegionFile(x, z, world));
-            } else {
-                TasksUtils.add(Diskium.getInstance().getDataFolder(), new TaskObj(true, getRegionFile(x, z, world), null, "World"));
-            }
+            FileUtils.safeDel(getRegionFile(x, z ,world), FileUtils.DelSpecifier.WORLD);
         }
     }
 

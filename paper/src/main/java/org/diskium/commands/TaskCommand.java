@@ -9,27 +9,25 @@ import io.papermc.paper.command.brigadier.Commands;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.diskium.Diskium;
 import org.diskium.objects.TaskObj;
 import org.diskium.utils.TasksUtils;
 
-import java.io.File;
 import java.util.Arrays;
 
 public class TaskCommand {
-    public static LiteralArgumentBuilder<CommandSourceStack> entry(File dir) {
+    public static LiteralArgumentBuilder<CommandSourceStack> entry() {
         return Commands.literal("task")
                 .then(
                         Commands.literal("list")
                                 .executes(context -> {
-                                    lister(dir,null, context);
+                                    lister(null, context);
 
                                     return Command.SINGLE_SUCCESS;
                                 })
                                 .then(
                                         Commands.literal("logs")
                                                 .executes(context -> {
-                                                    lister(dir,"Logs", context);
+                                                    lister("Logs", context);
 
                                                     return Command.SINGLE_SUCCESS;
                                                 })
@@ -37,7 +35,7 @@ public class TaskCommand {
                                 .then(
                                         Commands.literal("plugins")
                                                 .executes(context -> {
-                                                    lister(dir,"Plugins", context);
+                                                    lister("Plugins", context);
 
                                                     return Command.SINGLE_SUCCESS;
                                                 })
@@ -45,7 +43,7 @@ public class TaskCommand {
                                 .then(
                                         Commands.literal("world")
                                                 .executes(context -> {
-                                                    lister(dir,"World", context);
+                                                    lister("World", context);
 
                                                     return Command.SINGLE_SUCCESS;
                                                 })
@@ -56,7 +54,7 @@ public class TaskCommand {
                                 .then(
                                         Commands.argument("id", IntegerArgumentType.integer(0))
                                                 .suggests((context, builder) -> {
-                                                    for (int i = 0; i < TasksUtils.getTasks(dir).length; i++) {
+                                                    for (int i = 0; i < TasksUtils.getTasks().length; i++) {
                                                         builder.suggest(i);
                                                     }
 
@@ -64,10 +62,10 @@ public class TaskCommand {
                                                 })
                                                 .executes(context -> {
                                                     int index = IntegerArgumentType.getInteger(context, "id");
-                                                    TaskObj[] tasks = TasksUtils.getTasks(dir);
+                                                    TaskObj[] tasks = TasksUtils.getTasks();
                                                     if (tasks != null) {
                                                         if (tasks.length >= index)
-                                                            TasksUtils.remove(tasks[index], Diskium.getInstance().getDataFolder());
+                                                            TasksUtils.remove(tasks[index]);
                                                     }
 
                                                     return Command.SINGLE_SUCCESS;
@@ -79,7 +77,7 @@ public class TaskCommand {
                                 .then(
                                         Commands.argument("id", IntegerArgumentType.integer(0))
                                                 .suggests((context, builder) -> {
-                                                    for (int i = 0; i < TasksUtils.getTasks(dir).length; i++) {
+                                                    for (int i = 0; i < TasksUtils.getTasks().length; i++) {
                                                         builder.suggest(i);
                                                     }
 
@@ -88,7 +86,7 @@ public class TaskCommand {
                                                 .executes(context -> {
                                                     TaskObj task;
                                                     int index = IntegerArgumentType.getInteger(context, "id");
-                                                    TaskObj[] tasks = TasksUtils.getTasks(dir);
+                                                    TaskObj[] tasks = TasksUtils.getTasks();
                                                     if (tasks != null) {
                                                         if (tasks.length >= index) {
                                                             task = tasks[index];
@@ -107,8 +105,8 @@ public class TaskCommand {
                 );
     }
 
-    private static void lister(File dir, String type, CommandContext<CommandSourceStack> context) {
-        TaskObj[] tasks = Arrays.stream(TasksUtils.getTasks(dir)).filter(task -> task.getType().equalsIgnoreCase(type) || type == null).toArray(TaskObj[]::new);
+    private static void lister(String type, CommandContext<CommandSourceStack> context) {
+        TaskObj[] tasks = Arrays.stream(TasksUtils.getTasks()).filter(task -> task.getType().equalsIgnoreCase(type) || type == null).toArray(TaskObj[]::new);
 
         context.getSource().getSender().sendMessage(Component.text("Found ")
                 .append(Component.text(tasks.length, NamedTextColor.DARK_GREEN))

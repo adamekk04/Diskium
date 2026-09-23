@@ -7,7 +7,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
-import org.diskium.Diskium;
 import org.diskium.MultiplatformLogger;
 import org.diskium.objects.BackupObj;
 import org.diskium.objects.TaskObj;
@@ -71,12 +70,12 @@ public class PluginManagement {
 
     public static void del(Plugin pl, boolean plFile, boolean folder) {
         if (plFile) {
-            FileUtils.del(pl.getDataFolder());
+            FileUtils.safeDel(pl.getDataFolder(), FileUtils.DelSpecifier.PLUGINS);
         }
         if (folder && hasFolder(pl)) {
             try {
                 File file = new File(pl.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
-                FileUtils.del(file);
+                FileUtils.safeDel(file, FileUtils.DelSpecifier.PLUGINS);
             } catch (URISyntaxException e) {
                 MultiplatformLogger.error("Couldn't make URI while deleting plugin.");
             }
@@ -115,7 +114,7 @@ public class PluginManagement {
                 .append(Component.text(website == null ? "None" : website, NamedTextColor.WHITE))
                 .append(Component.text("\nIs on tasklist: ", NamedTextColor.DARK_GREEN));
 
-        TaskObj[] tasks = TasksUtils.getTasks(Diskium.getInstance().getDataFolder());
+        TaskObj[] tasks = TasksUtils.getTasks();
 
         if (tasks != null) {
             try {
@@ -133,7 +132,7 @@ public class PluginManagement {
 
         textComponent = textComponent.append(Component.text("\nIs on backuplist: ", NamedTextColor.DARK_GREEN));
 
-        BackupObj[] backups = TasksUtils.getBackups(Diskium.getInstance().getDataFolder());
+        BackupObj[] backups = TasksUtils.getBackups();
 
         if (backups != null) {
             try {

@@ -1,6 +1,7 @@
 package org.diskium;
 
 import org.bukkit.plugin.java.JavaPlugin;
+import org.diskium.utils.FileUtils;
 import org.diskium.utils.TasksUtils;
 
 import java.util.logging.Level;
@@ -13,7 +14,8 @@ public final class Diskium extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
         instance = this;
-        TasksUtils.setServerRoot(getServer().getWorldContainer());
+        TasksUtils.setFiles(getServer().getWorldContainer(), getServer().getPluginsFolder());
+        FileUtils.setUseTasks(getConfig().getBoolean("delete-while-running.logs"), getConfig().getBoolean("delete-while-running.plugins"), getConfig().getBoolean("delete-while-running.world"));
 
         MultiplatformLogger.setLogger(new MultiplatformLogger.Logger() {
             @Override

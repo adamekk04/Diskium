@@ -29,14 +29,14 @@ class DiskiumBootstrap implements PluginBootstrap {
 
         context.getLogger().info("Checking for tasks to do before server startup.");
 
-        if (!TasksUtils.fileExists(context.getDataDirectory().toFile(), true)) {
-            TasksUtils.create(context.getDataDirectory().toFile(), true);
+        if (!TasksUtils.fileExists(true)) {
+            TasksUtils.createDirs(context.getDataDirectory().toFile(), true);
 
             context.getLogger().info("tasks.txt not found, created new one.");
             return;
         }
 
-        TaskObj[] tasks = TasksUtils.getTasks(context.getDataDirectory().toFile());
+        TaskObj[] tasks = TasksUtils.getTasks();
 
         if (tasks == null) {
             context.getLogger().info("No tasks found.");

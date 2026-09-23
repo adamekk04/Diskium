@@ -11,23 +11,23 @@ import java.util.stream.Stream;
 
 public class FileUtils {
 
-    public static void safeDel(File file, boolean useTaskQueue, File pluginFolder, String type) {
-        if (useTaskQueue) {
-            TasksUtils.add(pluginFolder, new TaskObj(true, file, null, type));
-        } else {
-            try {
-                Files.delete(file.toPath());
-            } catch (NoSuchFileException e) {
-                MultiplatformLogger.error("Couldn't delete file " + file.getName() + ", because it doesn't exist");
-            } catch (DirectoryNotEmptyException e) {
-                delWithSubDirs(file);
-            } catch (IOException e) {
-                MultiplatformLogger.error("Something went wrong." + e);
-            }
+    private static boolean TASKS_LOGS;
+    private static boolean TASKS_PLUGINS;
+    private static boolean TASKS_WORLD;
+
+    public static void safeDel(File file, DelSpecifier type) {
+        if ((type == DelSpecifier.LOGS && TASKS_LOGS)
+        || (type == DelSpecifier.PLUGINS && TASKS_PLUGINS)
+        || (type == DelSpecifier.WORLD && TASKS_WORLD)) {
+            TasksUtils.add(new TaskObj(true, file, null, "N/A"));
+        }
+
+        else {
+            forceDel(file);
         }
     }
 
-    public static void del(File file) {
+    public static void forceDel(File file) {
         try {
             Files.delete(file.toPath());
         } catch (NoSuchFileException e) {
@@ -57,10 +57,23 @@ public class FileUtils {
         try (Stream<Path> paths = Files.walk(file.toPath())) {
             paths.sorted(Comparator.reverseOrder())
                     .forEach(path -> {
-                        del(path.toFile());
+                        forceDel(path.toFile());
                     });
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong.", e);
         }
+    }
+
+
+    public static void setUseTasks(boolean logs, boolean plugins, boolean world) {
+        TASKS_LOGS = logs;
+        TASKS_PLUGINS = plugins;
+        TASKS_WORLD = world;
+    }
+
+    public enum DelSpecifier {
+        LOGS,
+        PLUGINS,
+        WORLD
     }
 }

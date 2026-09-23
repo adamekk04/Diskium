@@ -7,7 +7,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
-import org.diskium.Diskium;
 import org.diskium.mca.Parser;
 import org.diskium.mca.Sector;
 import org.diskium.objects.Region;
@@ -78,7 +77,7 @@ public class WorldManagement {
 
     public static void delWorld(World world) {
         Bukkit.unloadWorld(world, false);
-        FileUtils.del(world.getWorldFolder());
+        FileUtils.safeDel(world.getWorldFolder(), FileUtils.DelSpecifier.WORLD);
     }
 
     public static void del(World world, boolean in, int radius, boolean checkForBuilds) {
@@ -94,10 +93,7 @@ public class WorldManagement {
         } else {
             for (Chunk chunk : chunks) {
                 if (WorldUtils.isRegionSafeToDelete(radius, chunk.getX(), chunk.getZ(), in)) {
-                    FileUtils.safeDel(
-                            FileManagement.getRegionFile(chunk.getX(), chunk.getZ(), world),
-                            (boolean) ConfigManagement.getSingleConfig("delete-world-while-running"),
-                            Diskium.getInstance().getDataFolder(), "world");
+                    FileUtils.safeDel(FileManagement.getRegionFile(chunk.getX(), chunk.getZ(), world), FileUtils.DelSpecifier.WORLD);
                 }
             }
         }

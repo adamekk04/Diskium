@@ -38,8 +38,8 @@ public class LogsManagement {
         }
         if (logs == null) return false;
 
-        for (File name : logs) {
-            FileUtils.del(name);
+        for (File log : logs) {
+            FileUtils.safeDel(log, FileUtils.DelSpecifier.LOGS);
         }
 
         return true;

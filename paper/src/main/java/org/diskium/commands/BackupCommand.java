@@ -9,31 +9,28 @@ import io.papermc.paper.command.brigadier.Commands;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
-import org.diskium.Diskium;
 import org.diskium.objects.BackupObj;
 import org.diskium.objects.TaskObj;
 import org.diskium.utils.TasksUtils;
 
-import java.io.File;
 import java.util.Arrays;
 
 public class BackupCommand {
 
-    public static LiteralArgumentBuilder<CommandSourceStack> entry(File dir) {
+    public static LiteralArgumentBuilder<CommandSourceStack> entry() {
 
         return Commands.literal("backup")
                 .then(
                         Commands.literal("list")
                                 .executes(context -> {
-                                    lister(dir, context, null);
+                                    lister(context, null);
 
                                     return Command.SINGLE_SUCCESS;
                                 })
                                 .then(
                                         Commands.literal("logs")
                                                 .executes(context -> {
-                                                    lister(dir, context, "logs");
+                                                    lister(context, "logs");
 
                                                     return Command.SINGLE_SUCCESS;
                                                 })
@@ -41,7 +38,7 @@ public class BackupCommand {
                                 .then(
                                         Commands.literal("plugins")
                                                 .executes(context -> {
-                                                    lister(dir, context, "plugins");
+                                                    lister(context, "plugins");
 
                                                     return Command.SINGLE_SUCCESS;
                                                 })
@@ -49,7 +46,7 @@ public class BackupCommand {
                                 .then(
                                         Commands.literal("world")
                                                 .executes(context -> {
-                                                    lister(dir, context, "world");
+                                                    lister(context, "world");
 
                                                     return Command.SINGLE_SUCCESS;
                                                 })
@@ -60,18 +57,18 @@ public class BackupCommand {
                                 .then(
                                         Commands.argument("id", IntegerArgumentType.integer(1))
                                                 .suggests((context, builder) -> {
-                                                    for (int i = 1; i <= TasksUtils.getBackups(dir).length; i++) {
+                                                    for (int i = 1; i <= TasksUtils.getBackups().length; i++) {
                                                         builder.suggest(i);
                                                     }
 
                                                     return builder.buildFuture();
                                                 })
                                                 .executes(context -> {
-                                                    BackupObj[] backups = TasksUtils.getBackups(dir);
+                                                    BackupObj[] backups = TasksUtils.getBackups();
                                                     int arg = IntegerArgumentType.getInteger(context, "id") - 1;
 
                                                     if (backups != null && arg < backups.length) {
-                                                        TasksUtils.remove(backups[arg], Diskium.getInstance().getDataFolder());
+                                                        TasksUtils.remove(backups[arg]);
                                                         context.getSource().getSender().sendMessage("Removed backup " + (arg + 1));
                                                     } else {
                                                         context.getSource().getSender().sendMessage(backups == null ? "backups is null." : "backup with id " + (arg + 1) + " is out of index.");
@@ -86,18 +83,18 @@ public class BackupCommand {
                                 .then(
                                         Commands.argument("id", IntegerArgumentType.integer())
                                                 .suggests((context, builder) -> {
-                                                    for (int i = 0; i < TasksUtils.getBackups(dir).length; i++) {
+                                                    for (int i = 0; i < TasksUtils.getBackups().length; i++) {
                                                         builder.suggest(i);
                                                     }
 
                                                     return builder.buildFuture();
                                                 })
                                                 .executes(context -> {
-                                                    BackupObj[] backups = TasksUtils.getBackups(dir);
+                                                    BackupObj[] backups = TasksUtils.getBackups();
 
                                                     if (backups != null) {
                                                         BackupObj backup = backups[IntegerArgumentType.getInteger(context, "id") - 1];
-                                                        TasksUtils.add(Bukkit.getPluginsFolder(), new TaskObj(false, backup.getItself(), backup.getFile(), "backup"));
+                                                        TasksUtils.add(new TaskObj(false, backup.getItself(), backup.getFile(), "backup"));
                                                     }
 
                                                     return Command.SINGLE_SUCCESS;
@@ -106,10 +103,10 @@ public class BackupCommand {
                 );
     }
 
-    private static void lister(File dir, CommandContext<CommandSourceStack> context, String type) {
+    private static void lister(CommandContext<CommandSourceStack> context, String type) {
         int counter = 1;
         boolean all = type == null;
-        BackupObj[] backups = Arrays.stream(TasksUtils.getBackups(dir)).filter(backup -> backup.getType().equalsIgnoreCase(type) || type == null).toArray(BackupObj[]::new);
+        BackupObj[] backups = Arrays.stream(TasksUtils.getBackups()).filter(backup -> backup.getType().equalsIgnoreCase(type) || type == null).toArray(BackupObj[]::new);
 
         context.getSource().getSender().sendMessage(Component.text("Found ")
                 .append(Component.text(backups.length, NamedTextColor.DARK_GREEN))
