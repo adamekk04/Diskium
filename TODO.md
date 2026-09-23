@@ -17,3 +17,22 @@ Goal: stable version
 
 ## 💡 Ideas
 - Add filtering options for logs commands
+- Add /diskium delete (with subcommands like logs, plugins, world, etc.)
+
+## Changelog
+### Additions
+- ASCII art on startup
+
+### Changes
+- Errors are handled better
+- Better messages
+  - Bootstrap
+  - /diskium
+    - backups
+    - config
+    - plugin
+    - task
+    - world
+- genWorld should be much faster
+
+### Fixes
