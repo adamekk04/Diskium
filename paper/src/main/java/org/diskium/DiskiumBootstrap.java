@@ -21,12 +21,37 @@ class DiskiumBootstrap implements PluginBootstrap {
             context.getLogger().error("Something went wrong while creating plugin folder.", e);
         }
 
+        TasksUtils.setFiles(
+                context.getDataDirectory().toFile().getAbsoluteFile().getParentFile().getParentFile(),
+                context.getDataDirectory().toFile());
+
+        MultiplatformLogger.setLogger(new MultiplatformLogger.Logger() {
+            @Override
+            public void info(String message) {
+                context.getLogger().info(message);
+            }
+
+            @Override
+            public void warn(String message) {
+                context.getLogger().warn(message);
+            }
+
+            @Override
+            public void error(String message) {
+                context.getLogger().error(message);
+            }
+
+            @Override
+            public void error(String message, Throwable throwable) {
+                context.getLogger().trace(message, throwable);
+            }
+        });
+
         context.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> {
             commands.registrar().register(MainCommand.register(context.getDataDirectory().toFile()));
         });
 
         context.getLogger().info(ASCII.printASCII("Paper", context.getPluginMeta().getVersion(), ServerBuildInfo.buildInfo().minecraftVersionName()));
-
         context.getLogger().info("Checking for tasks to do before server startup.");
 
         if (!TasksUtils.fileExists(true)) {
