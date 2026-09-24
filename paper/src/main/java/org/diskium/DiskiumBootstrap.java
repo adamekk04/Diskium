@@ -48,12 +48,7 @@ class DiskiumBootstrap implements PluginBootstrap {
         context.getLogger().info(ASCII.printASCII("Paper", context.getPluginMeta().getVersion(), ServerBuildInfo.buildInfo().minecraftVersionName()));
         context.getLogger().info("Checking for tasks to do before server startup.");
 
-        if (!TasksUtils.fileExists(true)) {
-            TasksUtils.createDirs(context.getDataDirectory().toFile(), true);
-
-            context.getLogger().info("tasks.txt not found, created new one.");
-            return;
-        }
+        if (TasksUtils.mkFiles()) return;
 
         TaskObj[] tasks = TasksUtils.getTasks();
 
