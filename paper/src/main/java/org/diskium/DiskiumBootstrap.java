@@ -9,17 +9,11 @@ import org.diskium.objects.TaskObj;
 import org.diskium.utils.ASCII;
 import org.diskium.utils.TasksUtils;
 
-import java.io.IOException;
-
 class DiskiumBootstrap implements PluginBootstrap {
 
     @Override
     public void bootstrap(final BootstrapContext context) {
-        try {
-            context.getDataDirectory().toFile().createNewFile();
-        } catch (IOException e) {
-            context.getLogger().error("Something went wrong while creating plugin folder.", e);
-        }
+        context.getDataDirectory().toFile().mkdirs();
 
         TasksUtils.setFiles(
                 context.getDataDirectory().toFile().getAbsoluteFile().getParentFile().getParentFile(),
