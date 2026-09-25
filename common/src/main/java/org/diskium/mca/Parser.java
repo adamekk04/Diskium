@@ -18,8 +18,7 @@ public class Parser {
     }
 
     public static void removeChunk(int x, int z, File file) {
-        int[] coords = getCoordsByFile(file);
-        int index = getIndex(coords[0], coords[1], x, z);
+        int index = getIndex(x, z);
 
         try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
             raf.seek(index * 4L);
@@ -68,17 +67,9 @@ public class Parser {
         return false;
     }
 
-    private static int[] getCoordsByFile(File file) {
-        String name = file.getName().replace("r.", "").replace(".mca", "");
-
-        String[] parts = name.split("\\.");
-
-        return new int[]{Integer.parseInt(parts[0]), Integer.parseInt(parts[1])};
-    }
-
-    private static int getIndex(int chunkX, int chunkZ, int regionX, int regionZ) {
-        int localX = chunkX - regionX * 32;
-        int localZ = chunkZ - regionZ * 32;
+    private static int getIndex(int chunkX, int chunkZ) {
+        int localX = Math.floorMod(chunkX, 32);
+        int localZ = Math.floorMod(chunkZ, 32);
 
         return localX + localZ * 32;
     }
