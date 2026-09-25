@@ -69,9 +69,12 @@ public class BackupCommand {
 
                                                     if (backups != null && arg < backups.length) {
                                                         TasksUtils.remove(backups[arg]);
-                                                        context.getSource().getSender().sendMessage("Removed backup " + (arg + 1));
+                                                        context.getSource().getSender().sendMessage(Component.text("Removed backup ")
+                                                                        .append(Component.text(arg + 1, NamedTextColor.DARK_GREEN)));
                                                     } else {
-                                                        context.getSource().getSender().sendMessage(backups == null ? "backups is null." : "backup with id " + (arg + 1) + " is out of index.");
+                                                        context.getSource().getSender().sendMessage(Component.text("Backup with id ")
+                                                                .append(Component.text((arg + 1), NamedTextColor.DARK_GREEN))
+                                                                .append(Component.text("is out of index.")));
                                                     }
 
                                                     return Command.SINGLE_SUCCESS;
