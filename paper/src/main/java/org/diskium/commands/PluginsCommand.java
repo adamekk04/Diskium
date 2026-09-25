@@ -12,35 +12,33 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.diskium.management.PluginManagement;
 
-import java.io.File;
-
 public class PluginsCommand {
 
-    public static LiteralArgumentBuilder<CommandSourceStack> entry(File dir) {
+    public static LiteralArgumentBuilder<CommandSourceStack> entry() {
 
         return Commands.literal("plugins")
                 .then(
                         Commands.literal("disable")
                                 .then(
-                                        pluginSwitcher("thisInstance", true, true, dir)
+                                        pluginSwitcher("thisInstance", true, true)
                                 )
                                 .then(
-                                        pluginSwitcher("untilManualyEnabled", true, false, dir)
+                                        pluginSwitcher("untilManualyEnabled", true, false)
                                 )
                 )
                 .then(
-                        pluginSwitcher("enable", false, null, dir)
+                        pluginSwitcher("enable", false, null)
                 )
                 .then(
                         Commands.literal("delete")
                                 .then(
-                                        pluginDeleter("folder", false, true, dir)
+                                        pluginDeleter("folder", false, true)
                                 )
                                 .then(
-                                        pluginDeleter("plugin", true, false, dir)
+                                        pluginDeleter("plugin", true, false)
                                 )
                                 .then(
-                                        pluginDeleter("both", true, true, dir)
+                                        pluginDeleter("both", true, true)
                                 )
                 )
                 .then(
@@ -63,7 +61,7 @@ public class PluginsCommand {
                                                     if (info != null) {
                                                         context.getSource().getSender().sendMessage(info);
                                                     } else {
-                                                        context.getSource().getSender().sendMessage("Something went wrong while obtaining plugin info");
+                                                        context.getSource().getSender().sendMessage(Component.text("Something went wrong while obtaining plugin info", NamedTextColor.RED));
                                                     }
 
                                                     return Command.SINGLE_SUCCESS;
@@ -88,7 +86,7 @@ public class PluginsCommand {
                 );
     }
 
-    private static LiteralArgumentBuilder<CommandSourceStack> pluginSwitcher(String literal, boolean enabled, Boolean thisInstance, File dir) {
+    private static LiteralArgumentBuilder<CommandSourceStack> pluginSwitcher(String literal, boolean enabled, Boolean thisInstance) {
         return Commands.literal(literal)
                 .then(
                         Commands.argument("plugin", StringArgumentType.word())
@@ -103,12 +101,40 @@ public class PluginsCommand {
                                     Plugin pl = Bukkit.getPluginManager().getPlugin(StringArgumentType.getString(context, "plugin"));
 
                                     if (enabled && thisInstance) {
-                                        PluginManagement.tempDisablePlugin(pl);
+                                        if (PluginManagement.tempDisablePlugin(pl)) {
+                                            context.getSource().getSender().sendMessage(Component.text("Plugin ")
+                                                    .append(Component.text(pl.getName(), NamedTextColor.DARK_GREEN))
+                                                    .append(Component.text(" disabled")));
+                                        } else {
+                                            context.getSource().getSender().sendMessage(Component.text("Plugin ", NamedTextColor.RED)
+                                                    .append(Component.text(pl.getName(), NamedTextColor.DARK_GREEN))
+                                                    .append(Component.text(" couldn't be disabled", NamedTextColor.RED)));
+                                        }
                                     } else if (enabled) {
-                                        PluginManagement.permDisablePlugin(pl);
+                                        if (PluginManagement.permDisablePlugin(pl)) {
+                                            context.getSource().getSender().sendMessage(Component.text("Plugin ")
+                                                    .append(Component.text(pl.getName(), NamedTextColor.DARK_GREEN))
+                                                    .append(Component.text(" disabled")));
+                                        } else {
+                                            context.getSource().getSender().sendMessage(Component.text("Plugin ", NamedTextColor.RED)
+                                                    .append(Component.text(pl.getName(), NamedTextColor.DARK_GREEN))
+                                                    .append(Component.text(" couldn't be disabled", NamedTextColor.RED)));
+                                        }
                                     } else {
                                         if (!PluginManagement.tempEnablePlugin(pl)) {
-                                            PluginManagement.permEnablePlugin(pl);
+                                            if (!PluginManagement.permEnablePlugin(pl)) {
+                                                context.getSource().getSender().sendMessage(Component.text("Plugin ", NamedTextColor.RED)
+                                                        .append(Component.text(pl.getName(), NamedTextColor.DARK_GREEN))
+                                                        .append(Component.text(" couldn't be enabled", NamedTextColor.RED)));
+                                            } else {
+                                                context.getSource().getSender().sendMessage(Component.text("Plugin ")
+                                                        .append(Component.text(pl.getName(), NamedTextColor.DARK_GREEN))
+                                                        .append(Component.text(" enabled")));
+                                            }
+                                        } else {
+                                            context.getSource().getSender().sendMessage(Component.text("Plugin ")
+                                                    .append(Component.text(pl.getName(), NamedTextColor.DARK_GREEN))
+                                                    .append(Component.text(" enabled")));
                                         }
                                     }
 
@@ -117,7 +143,7 @@ public class PluginsCommand {
                 );
     }
 
-    private static LiteralArgumentBuilder<CommandSourceStack> pluginDeleter(String literal, boolean delPlugin, boolean delFolder, File dir) {
+    private static LiteralArgumentBuilder<CommandSourceStack> pluginDeleter(String literal, boolean delPlugin, boolean delFolder) {
         return Commands.literal(literal)
                 .then(
                         Commands.argument("plugin", StringArgumentType.word())
@@ -131,7 +157,11 @@ public class PluginsCommand {
                                 .executes(context -> {
                                     Plugin pl = Bukkit.getPluginManager().getPlugin(context.getArgument("plugin", String.class));
 
-                                    PluginManagement.del(pl, delPlugin, delFolder);
+                                    if (PluginManagement.del(pl, delPlugin, delFolder)) {
+                                        context.getSource().getSender().sendMessage("Deletion was successful.");
+                                    } else {
+                                        context.getSource().getSender().sendMessage(Component.text("Something went wrong while deleting.", NamedTextColor.RED));
+                                    }
 
                                     return Command.SINGLE_SUCCESS;
                                 })

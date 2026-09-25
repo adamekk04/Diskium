@@ -15,21 +15,20 @@ public class FileUtils {
     private static boolean TASKS_PLUGINS;
     private static boolean TASKS_WORLD;
 
-    public static void safeDel(File file, DelSpecifier type) {
+    public static boolean safeDel(File file, DelSpecifier type) {
         if ((type == DelSpecifier.LOGS && TASKS_LOGS)
         || (type == DelSpecifier.PLUGINS && TASKS_PLUGINS)
         || (type == DelSpecifier.WORLD && TASKS_WORLD)) {
-            TasksUtils.add(new TaskObj(true, file, null, TasksUtils.getType(file)));
-        }
-
-        else {
-            forceDel(file);
+            return TasksUtils.add(new TaskObj(true, file, null, TasksUtils.getType(file)));
+        } else {
+            return forceDel(file);
         }
     }
 
-    public static void forceDel(File file) {
+    public static boolean forceDel(File file) {
         try {
             Files.delete(file.toPath());
+            return true;
         } catch (NoSuchFileException e) {
             MultiplatformLogger.error("Couldn't delete file " + file.getName() + ", because it doesn't exist.");
         } catch (DirectoryNotEmptyException e) {
@@ -37,6 +36,7 @@ public class FileUtils {
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong." + e);
         }
+        return false;
     }
 
     public static void move(File origin, File goal) {

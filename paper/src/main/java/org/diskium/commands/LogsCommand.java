@@ -32,12 +32,12 @@ public class LogsCommand {
                                     }
                                     return Command.SINGLE_SUCCESS;
                                 })
-                                .then(
-                                        logsDates(true)
-                                )
-                                .then(
-                                        logsDates(false)
-                                )
+//                                .then(
+//                                        logsDates(true)
+//                                )
+//                                .then(
+//                                        logsDates(false)
+//                                )
                 )
                 .then(
                         Commands.literal("delete")
@@ -73,12 +73,14 @@ public class LogsCommand {
                                                         File key = entry.getKey();
                                                         int value = entry.getValue();
 
-                                                        context.getSource().getSender().sendMessage(
-                                                                Component.text("Found ")
-                                                                        .append(Component.text(value, NamedTextColor.DARK_GREEN))
-                                                                        .append(Component.text(" matches in "))
-                                                                        .append(Component.text(key.getName(), NamedTextColor.GREEN))
-                                                        );
+                                                        if (value != 0) {
+                                                            context.getSource().getSender().sendMessage(
+                                                                    Component.text("Found ")
+                                                                            .append(Component.text(value, NamedTextColor.DARK_GREEN))
+                                                                            .append(Component.text(" matches in "))
+                                                                            .append(Component.text(key.getName(), NamedTextColor.GREEN))
+                                                            );
+                                                        }
                                                     }
                                                     return Command.SINGLE_SUCCESS;
                                                 })

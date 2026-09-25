@@ -17,28 +17,37 @@ public class TasksUtils {
         boolean buffer = false;
 
         if (!pluginFile.exists()) {
-            File backups = new File(pluginFile, "backups.txt");
-            File tasks = new File(pluginFile, "tasks.txt");
-
-            try {
-                if (!backups.exists()) {
-                    backups.createNewFile();
-                    buffer = true;
-                }
-                if (!tasks.exists()) {
-                    tasks.createNewFile();
-                    buffer = true;
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            if (!pluginFile.mkdirs()) {
+                MultiplatformLogger.error("Could not create plugin directory");
+                return false;
             }
         }
+
+        File backups = new File(pluginFile, "backups.txt");
+        File tasks = new File(pluginFile, "tasks.txt");
+
+        try {
+            if (!backups.exists()) {
+                backups.createNewFile();
+                buffer = true;
+            }
+
+            if (!tasks.exists()) {
+                tasks.createNewFile();
+                buffer = true;
+            }
+        } catch (IOException e) {
+            MultiplatformLogger.error("Something went wrong while creating new files", e);
+            return false;
+        }
+
         return buffer;
     }
 
     public static TaskObj[] getTasks() {
         List<TaskObj> tasks = new ArrayList<>();
         File taskFile = new File(pluginFile, "tasks.txt");
+
         try (BufferedReader br = new BufferedReader(new FileReader(taskFile))) {
             String pathLine;
 
@@ -59,7 +68,7 @@ public class TasksUtils {
         } catch (SecurityException e) {
             MultiplatformLogger.error("Cannot access tasks.txt due to security reasons.");
         } catch (FileNotFoundException e) {
-            MultiplatformLogger.error("File tasks.txt do not exist, creating a new one");
+            MultiplatformLogger.warn("File tasks.txt do not exist, creating a new one");
             mkFiles();
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong while getting tasks from tasks.txt", e);
@@ -70,6 +79,7 @@ public class TasksUtils {
     public static BackupObj[] getBackups() {
         List<BackupObj> backups = new ArrayList<>();
         File backupFile = new File(pluginFile, "backups.txt");
+
         try (BufferedReader br = new BufferedReader(new FileReader(backupFile))) {
             String fileLine;
             String itselfLine;
@@ -85,7 +95,7 @@ public class TasksUtils {
         } catch (SecurityException e) {
             MultiplatformLogger.error("Cannot access backups.txt due to security reasons.");
         } catch (FileNotFoundException e) {
-            MultiplatformLogger.error("File backups.txt do not exist, creating a new one");
+            MultiplatformLogger.warn("File backups.txt do not exist, creating a new one");
             mkFiles();
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong while getting backups from backups.txt", e);
@@ -107,7 +117,7 @@ public class TasksUtils {
         } catch (SecurityException e) {
             MultiplatformLogger.error("Cannot access backups.txt due to security reasons.");
         } catch (FileNotFoundException e) {
-            MultiplatformLogger.error("File tasks.txt do not exist, creating a new one");
+            MultiplatformLogger.warn("File tasks.txt do not exist, creating a new one");
             mkFiles();
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong while adding backups to backups.txt", e);
@@ -125,7 +135,7 @@ public class TasksUtils {
         } catch (SecurityException e) {
             MultiplatformLogger.error("Cannot access tasks.txt due to security reasons.");
         } catch (FileNotFoundException e) {
-            MultiplatformLogger.error("File backups.txt do not exist, creating a new one");
+            MultiplatformLogger.warn("File backups.txt do not exist, creating a new one");
             mkFiles();
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong while adding tasks to tasks.txt", e);
@@ -169,7 +179,7 @@ public class TasksUtils {
         } catch (SecurityException e) {
             MultiplatformLogger.error("Cannot remove task from tasks.txt, due to security reasons.");
         } catch (FileNotFoundException e) {
-            MultiplatformLogger.error("File tasks.txt do not exist, creating a new one");
+            MultiplatformLogger.warn("File tasks.txt do not exist, creating a new one");
             mkFiles();
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong while removing task from tasks.txt.", e);
@@ -196,7 +206,7 @@ public class TasksUtils {
         } catch (SecurityException e) {
             MultiplatformLogger.error("Cannot remove backup from backups.txt, due to security reasons.");
         } catch (FileNotFoundException e) {
-            MultiplatformLogger.error("File backups.txt do not exist, creating a new one");
+            MultiplatformLogger.warn("File backups.txt do not exist, creating a new one");
             mkFiles();
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong while removing backup from backups.txt.", e);

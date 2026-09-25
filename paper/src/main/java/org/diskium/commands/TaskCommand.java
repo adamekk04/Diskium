@@ -63,9 +63,11 @@ public class TaskCommand {
                                                 .executes(context -> {
                                                     int index = IntegerArgumentType.getInteger(context, "id");
                                                     TaskObj[] tasks = TasksUtils.getTasks();
-                                                    if (tasks != null) {
-                                                        if (tasks.length >= index)
-                                                            TasksUtils.remove(tasks[index]);
+
+                                                    if (index <= tasks.length) {
+                                                        TasksUtils.remove(tasks[index]);
+                                                        context.getSource().getSender().sendMessage(Component.text("Removed task with id")
+                                                                .append(Component.text(index, NamedTextColor.GREEN)));
                                                     }
 
                                                     return Command.SINGLE_SUCCESS;
