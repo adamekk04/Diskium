@@ -1,5 +1,6 @@
 package org.diskium.management;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.diskium.Diskium;
@@ -16,7 +17,9 @@ import java.util.Map;
 
 public class FileManagement {
     public static File getRegionFile(int x, int z, World world) {
-        return new File(world.getWorldFolder(), "region/r." + x + "." + z + ".mca");
+        int[] reg = WorldUtils.chunkToRegion(x, z);
+
+        return new File(world.getWorldFolder(), "region/r." + reg[0] + "." + reg[1] + ".mca");
     }
 
     public static File getRegionFile(Region region) {
@@ -43,29 +46,35 @@ public class FileManagement {
         }
     }
 
-    public static void makeFiles(int x, int z, World world, boolean isChunk) {
+    public static boolean makeFiles(int x, int z, World world, boolean isChunk) {
         if (isChunk) {
-            if ((boolean) ConfigManagement.getSingleConfig("delete-while-running.world")) {
+            if (FileUtils.getDeleteWhileRunningWorld()) {
                 File regionFile = getRegionFile(x, z, world);
                 File taskSource = createTaskSource(regionFile);
+                boolean success = true;
 
-                Parser.removeChunk(x, z, taskSource);
-                TasksUtils.add(new TaskObj(false, taskSource, regionFile, TaskObj.Types.WORLD));
+                success = Parser.removeChunk(x, z, taskSource) && success;
+                return TasksUtils.add(new TaskObj(false, taskSource, regionFile, TaskObj.Types.WORLD)) && success;
             } else {
                 int[] coords = WorldUtils.chunkToRegion(x, z);
-                Parser.removeChunk(x, z, getRegionFile(coords[0], coords[1], world));
+                Chunk chunk = world.getChunkAt(coords[0], coords[1]);
+
+                chunk.unload(true);
+
+                return Parser.removeChunk(x, z, getRegionFile(coords[0], coords[1], world));
             }
         } else {
-            FileUtils.safeDel(getRegionFile(x, z ,world), FileUtils.DelSpecifier.WORLD);
+            return FileUtils.safeDel(getRegionFile(x, z, world), FileUtils.DelSpecifier.WORLD);
         }
     }
 
     private static File createTaskSource(File file) {
-        File dir = new File(Diskium.getInstance().getDataFolder(), "taskSource");
-        File taskSource = new File(dir, file.getName());
-        if (!taskSource.exists()) {
-            FileUtils.move(file, taskSource);
-        }
+        File taskSourceRoot = new File(Diskium.getInstance().getDataFolder(), "taskSource");
+        taskSourceRoot.mkdir();
+        File taskSource = new File(taskSourceRoot, file.getName());
+
+        FileUtils.move(file, taskSource);
+
         return taskSource;
     }
 }

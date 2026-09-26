@@ -120,7 +120,7 @@ public class WorldManagement {
         FileManagement.makeFiles(chunksQueue);
     }
 
-    public static void delSector(int x, int z, boolean isChunk, boolean checkForBuilds, World world) {
+    public static boolean delSector(int x, int z, boolean isChunk, boolean checkForBuilds, World world) {
         if (checkForBuilds) {
             World newWorld = genWorld(world);
 
@@ -128,20 +128,22 @@ public class WorldManagement {
                 Chunk chunk = world.getChunkAt(x, z);
                 Chunk freshChunk = newWorld.getChunkAt(x, z);
                 if (compareChunks(chunk, freshChunk)) {
-                    FileManagement.makeFiles(x, z, world, true);
+                    return FileManagement.makeFiles(x, z, world, true);
                 }
             } else {
                 List<Chunk> chunks = getGeneratedChunksInRegion(new Region(x, z, world));
 
                 for (Chunk chunk : chunks) {
                     if (compareChunks(chunk, newWorld.getChunkAt(chunk.getX(), chunk.getZ()))) {
-                        FileManagement.makeFiles(x, z, world, false);
+                        return FileManagement.makeFiles(x, z, world, false);
                     }
                 }
             }
         } else {
-            FileManagement.makeFiles(x, z, world, isChunk);
+            return FileManagement.makeFiles(x, z, world, isChunk);
         }
+
+        return false;
     }
 
     public static boolean compareChunks(Chunk a, Chunk b) {

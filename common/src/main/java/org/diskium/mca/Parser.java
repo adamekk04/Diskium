@@ -10,15 +10,21 @@ import java.nio.file.NoSuchFileException;
 
 public class Parser {
     public static int[][] parse(File file) {
-        if (!isValid(file)) return null;
+        if (!isValid(file)) return new int[0][0];
 
         Sector sector = new Sector(file);
 
         return sector.getChunks();
     }
 
-    public static void removeChunk(int x, int z, File file) {
+    public static boolean removeChunk(int x, int z, File file) {
         int index = getIndex(x, z);
+
+        if (!isValid(file)) {
+            MultiplatformLogger.error("Cannot read file " + file.getAbsolutePath());
+            MultiplatformLogger.error("Size: " + file.length());
+            return false;
+        }
 
         try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
             raf.seek(index * 4L);
@@ -49,8 +55,11 @@ public class Parser {
                     raf.writeInt(newLocation);
                 }
             }
+
+            return true;
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong while trying to read " + file.getName(), e);
+            return false;
         }
     }
 
@@ -58,7 +67,7 @@ public class Parser {
         try {
             long size = Files.size(file.toPath());
 
-            return size % 4096 == 0;
+            return size % 4096 == 0 && size >= 8192;
         } catch (NoSuchFileException e) {
             MultiplatformLogger.error("Couldn't find file " + file.getName());
         } catch (IOException e) {

@@ -115,30 +115,30 @@ public class TasksUtils {
             }
             return true;
         } catch (SecurityException e) {
-            MultiplatformLogger.error("Cannot access backups.txt due to security reasons.");
+            MultiplatformLogger.error("Cannot access tasks.txt due to security reasons.");
         } catch (FileNotFoundException e) {
             MultiplatformLogger.warn("File tasks.txt do not exist, creating a new one");
             mkFiles();
         } catch (IOException e) {
-            MultiplatformLogger.error("Something went wrong while adding backups to backups.txt", e);
+            MultiplatformLogger.error("Something went wrong while adding backups to tasks.txt", e);
         }
         return false;
     }
 
     public static boolean add(BackupObj backup) {
-        File backupFile = new File(pluginFile, "backup.txt");
+        File backupFile = new File(pluginFile, "backups.txt");
 
         try (FileWriter fw = new FileWriter(backupFile, true)) {
             fw.write(backup.getFile().toString());
             fw.write(backup.getItself().toString());
             return true;
         } catch (SecurityException e) {
-            MultiplatformLogger.error("Cannot access tasks.txt due to security reasons.");
+            MultiplatformLogger.error("Cannot access backups.txt due to security reasons.");
         } catch (FileNotFoundException e) {
             MultiplatformLogger.warn("File backups.txt do not exist, creating a new one");
             mkFiles();
         } catch (IOException e) {
-            MultiplatformLogger.error("Something went wrong while adding tasks to tasks.txt", e);
+            MultiplatformLogger.error("Something went wrong while adding tasks to backups.txt", e);
         }
         return false;
     }
