@@ -74,7 +74,7 @@ public class BackupCommand {
                                                     } else {
                                                         context.getSource().getSender().sendMessage(Component.text("Backup with id ")
                                                                 .append(Component.text((arg + 1), NamedTextColor.DARK_GREEN))
-                                                                .append(Component.text("is out of index.")));
+                                                                .append(Component.text(" doesn't exist.")));
                                                     }
 
                                                     return Command.SINGLE_SUCCESS;
@@ -84,7 +84,7 @@ public class BackupCommand {
                 .then(
                         Commands.literal("restore")
                                 .then(
-                                        Commands.argument("id", IntegerArgumentType.integer())
+                                        Commands.argument("id", IntegerArgumentType.integer(1))
                                                 .suggests((context, builder) -> {
                                                     for (int i = 0; i < TasksUtils.getBackups().length; i++) {
                                                         builder.suggest(i);
@@ -94,10 +94,15 @@ public class BackupCommand {
                                                 })
                                                 .executes(context -> {
                                                     BackupObj[] backups = TasksUtils.getBackups();
+                                                    int index = IntegerArgumentType.getInteger(context, "id");
 
-                                                    if (backups != null) {
-                                                        BackupObj backup = backups[IntegerArgumentType.getInteger(context, "id") - 1];
+                                                    if (index <= backups.length) {
+                                                        BackupObj backup = backups[index - 1];
                                                         TasksUtils.add(new TaskObj(false, backup.getItself(), backup.getFile(), TaskObj.Types.BACKUP));
+                                                    } else {
+                                                        context.getSource().getSender().sendMessage(Component.text("Backup with id ")
+                                                                .append(Component.text(index, NamedTextColor.DARK_GREEN))
+                                                                .append(Component.text(" doesn't exist")));
                                                     }
 
                                                     return Command.SINGLE_SUCCESS;

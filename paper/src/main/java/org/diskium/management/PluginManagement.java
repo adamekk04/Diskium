@@ -68,18 +68,23 @@ public class PluginManagement {
         return false;
     }
 
-    public static void del(Plugin pl, boolean plFile, boolean folder) {
+    public static boolean del(Plugin pl, boolean plFile, boolean folder) {
+        boolean buffer = true;
+
         if (plFile) {
-            FileUtils.safeDel(pl.getDataFolder(), FileUtils.DelSpecifier.PLUGINS);
+            buffer = FileUtils.safeDel(pl.getDataFolder(), FileUtils.DelSpecifier.PLUGINS);
         }
         if (folder && hasFolder(pl)) {
             try {
                 File file = new File(pl.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
-                FileUtils.safeDel(file, FileUtils.DelSpecifier.PLUGINS);
+                buffer = FileUtils.safeDel(file, FileUtils.DelSpecifier.PLUGINS) && buffer;
             } catch (URISyntaxException e) {
                 MultiplatformLogger.error("Couldn't make URI while deleting plugin.");
+                return false;
             }
         }
+
+        return buffer;
     }
 
     public static boolean hasFolder(Plugin pl) {
@@ -92,16 +97,18 @@ public class PluginManagement {
         }
 
         PluginMeta meta = pl.getPluginMeta();
+        List<String> authors = meta.getAuthors();
 
         TextComponent textComponent = Component.text("Name: ", NamedTextColor.DARK_GREEN)
                 .append(Component.text(pl.getName(), NamedTextColor.WHITE))
                 .append(Component.text("\nVersion: ", NamedTextColor.DARK_GREEN))
                 .append(Component.text(meta.getVersion(), NamedTextColor.WHITE))
                 .append(Component.text(meta.getAuthors().size() == 1 ? "\nAuthor: " : "\nAuthors: ", NamedTextColor.DARK_GREEN))
-                .append(Component.text(meta.getAuthors().getFirst(), NamedTextColor.WHITE));
+                .append(Component.text(!authors.isEmpty() ? meta.getAuthors().getFirst() : "None", NamedTextColor.WHITE));
 
-        List<String> authors = meta.getAuthors();
-        authors.removeFirst();
+        if (!authors.isEmpty()) {
+            authors.removeFirst();
+        }
 
         for (String author : authors) {
             textComponent = textComponent.append(Component.text(", ", NamedTextColor.WHITE))

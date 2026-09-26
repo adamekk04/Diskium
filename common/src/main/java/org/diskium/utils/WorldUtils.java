@@ -10,7 +10,10 @@ public class WorldUtils {
     }
 
     public static int[] chunkToRegion(int x, int z) {
-        return new int[]{x / 32 + 1, z / 32 + 1};
+        return new int[]{
+                Math.floorDiv(x, 32),
+                Math.floorDiv(z, 32)
+        };
     }
 
     public static int blockToRegion(int radius) {

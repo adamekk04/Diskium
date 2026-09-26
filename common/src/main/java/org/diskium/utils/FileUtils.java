@@ -11,25 +11,24 @@ import java.util.stream.Stream;
 
 public class FileUtils {
 
-    private static boolean TASKS_LOGS;
-    private static boolean TASKS_PLUGINS;
-    private static boolean TASKS_WORLD;
+    private static boolean DELETE_WHILE_RUNNING_LOGS;
+    private static boolean DELETE_WHILE_RUNNING_PLUGINS;
+    private static boolean DELETE_WHILE_RUNNING_WORLD;
 
-    public static void safeDel(File file, DelSpecifier type) {
-        if ((type == DelSpecifier.LOGS && TASKS_LOGS)
-        || (type == DelSpecifier.PLUGINS && TASKS_PLUGINS)
-        || (type == DelSpecifier.WORLD && TASKS_WORLD)) {
-            TasksUtils.add(new TaskObj(true, file, null, TasksUtils.getType(file)));
-        }
-
-        else {
-            forceDel(file);
+    public static boolean safeDel(File file, DelSpecifier type) {
+        if ((type == DelSpecifier.LOGS && DELETE_WHILE_RUNNING_LOGS)
+        || (type == DelSpecifier.PLUGINS && DELETE_WHILE_RUNNING_PLUGINS)
+        || (type == DelSpecifier.WORLD && DELETE_WHILE_RUNNING_WORLD)) {
+            return TasksUtils.add(new TaskObj(true, file, null, TasksUtils.getType(file)));
+        } else {
+            return forceDel(file);
         }
     }
 
-    public static void forceDel(File file) {
+    public static boolean forceDel(File file) {
         try {
             Files.delete(file.toPath());
+            return true;
         } catch (NoSuchFileException e) {
             MultiplatformLogger.error("Couldn't delete file " + file.getName() + ", because it doesn't exist.");
         } catch (DirectoryNotEmptyException e) {
@@ -37,20 +36,25 @@ public class FileUtils {
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong." + e);
         }
+        return false;
     }
 
     public static void move(File origin, File goal) {
         try {
             Files.move(Path.of(origin.toURI()), Path.of(goal.toURI()), StandardCopyOption.REPLACE_EXISTING);
         } catch (FileAlreadyExistsException e) {
-            MultiplatformLogger.error("Couldn't move file while completing tasks, because it already exists,");
+            MultiplatformLogger.error("Couldn't move file, because it already exists,");
         } catch (NoSuchFileException e) {
-            MultiplatformLogger.error("Couldn't move file while completing tasks, because it doesn't exist.");
+            MultiplatformLogger.error("Couldn't move file, because it doesn't exist.");
         } catch (SecurityException e) {
-            MultiplatformLogger.error("Couldn't move file while completing tasks, due to file move permissions.");
+            MultiplatformLogger.error("Couldn't move file, due to file move permissions.");
         } catch (IOException e) {
-            MultiplatformLogger.error("Something went wrong while moving files in tasks completing.", e);
+            MultiplatformLogger.error("Something went wrong while moving a file.", e);
         }
+    }
+
+    public static boolean getDeleteWhileRunningWorld() {
+        return DELETE_WHILE_RUNNING_WORLD;
     }
 
     private static void delWithSubDirs(File file) {
@@ -66,9 +70,9 @@ public class FileUtils {
 
 
     public static void setUseTasks(boolean logs, boolean plugins, boolean world) {
-        TASKS_LOGS = logs;
-        TASKS_PLUGINS = plugins;
-        TASKS_WORLD = world;
+        DELETE_WHILE_RUNNING_LOGS = logs;
+        DELETE_WHILE_RUNNING_PLUGINS = plugins;
+        DELETE_WHILE_RUNNING_WORLD = world;
     }
 
     public enum DelSpecifier {

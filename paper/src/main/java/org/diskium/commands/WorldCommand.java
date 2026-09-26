@@ -8,7 +8,9 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
+import io.papermc.paper.command.brigadier.argument.position.ColumnBlockPosition;
 import io.papermc.paper.command.brigadier.argument.resolvers.BlockPositionResolver;
+import io.papermc.paper.command.brigadier.argument.resolvers.ColumnBlockPositionResolver;
 import io.papermc.paper.math.BlockPosition;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -17,6 +19,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.diskium.management.WorldManagement;
 
+import javax.naming.Name;
 import java.util.List;
 
 public class WorldCommand {
@@ -97,7 +100,7 @@ public class WorldCommand {
 
     public static LiteralArgumentBuilder<CommandSourceStack> sector(LiteralArgumentBuilder<CommandSourceStack> root, boolean isChunk, boolean all) {
         return root.then(
-                buildChecker(Commands.argument("coords", ArgumentTypes.blockPosition()), Checker.SECTOR, isChunk, all)
+                buildChecker(Commands.argument("coords", ArgumentTypes.columnBlockPosition()), Checker.SECTOR, isChunk, all)
         );
     }
 
@@ -114,9 +117,9 @@ public class WorldCommand {
                                             WorldManagement.del(context.getArgument("world", World.class), in, IntegerArgumentType.getInteger(context, "radius"), true);
                                         }
                                     } else if (checker == Checker.SECTOR) {
-                                        BlockPosition blockPosition = context.getArgument("coords", BlockPositionResolver.class).resolve(context.getSource());
-                                        int x = blockPosition.blockX();
-                                        int z = blockPosition.blockZ();
+                                        ColumnBlockPosition columnBlockPosition = context.getArgument("coords", ColumnBlockPositionResolver.class).resolve(context.getSource());
+                                        int x = columnBlockPosition.blockX();
+                                        int z = columnBlockPosition.blockZ();
 
                                         if (all) {
                                             for (World world : Bukkit.getWorlds()) {
@@ -142,17 +145,30 @@ public class WorldCommand {
                                             WorldManagement.del(context.getArgument("world", World.class), in, IntegerArgumentType.getInteger(context, "radius"), false);
                                         }
                                     } else if (checker == Checker.SECTOR) {
-                                        BlockPosition blockPosition = context.getArgument("coords", BlockPositionResolver.class).resolve(context.getSource());
-                                        int x = blockPosition.blockX();
-                                        int z = blockPosition.blockZ();
+                                        ColumnBlockPosition columnBlockPosition = context.getArgument("coords", ColumnBlockPositionResolver.class).resolve(context.getSource());
+                                        int x = columnBlockPosition.blockX();
+                                        int z = columnBlockPosition.blockZ();
+                                        boolean success = true;
 
                                         if (all) {
                                             for (World world : Bukkit.getWorlds()) {
-                                                WorldManagement.delSector(x, z, in, false, world);
+                                                if (WorldManagement.delSector(x, z, in, false, world)) {
+                                                    context.getSource().getSender().sendMessage(Component.text("Successfully deleted " + (in ? "chunk " : "region "))
+                                                            .append(Component.text(x + " " + z, NamedTextColor.GREEN)));
+                                                } else {
+                                                    context.getSource().getSender().sendMessage(Component.text("Unable to delete " + (in ? "chunk " : "region "), NamedTextColor.RED)
+                                                            .append(Component.text(x + " " + z, NamedTextColor.GREEN)));
+                                                }
                                             }
                                         } else {
                                             World world = context.getArgument("world", World.class);
-                                            WorldManagement.delSector(x, z, in, false, world);
+                                            if (WorldManagement.delSector(x, z, in, false, world)) {
+                                                context.getSource().getSender().sendMessage(Component.text("Successfully deleted " + (in ? "chunk " : "region "))
+                                                        .append(Component.text(x + " " + z, NamedTextColor.GREEN)));
+                                            } else {
+                                                context.getSource().getSender().sendMessage(Component.text("Unable to delete " + (in ? "chunk " : "region "), NamedTextColor.RED)
+                                                        .append(Component.text(x + " " + z, NamedTextColor.GREEN)));
+                                            }
                                         }
                                     }
 

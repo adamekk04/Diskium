@@ -20,9 +20,18 @@ public class LogsManagement {
     private static final File logsDir = new File(Diskium.getInstance().getDataFolder().getParentFile().getParentFile(), "logs");
 
     public static File[] getLogs(LocalDate startDate, LocalDate endDate) {
-        File[] dir = logsDir.listFiles((file, s) -> s.endsWith(".log.gz"));
-        if (startDate == null && endDate == null) return dir;
-        return filter(dir, startDate, endDate);
+        File[] logs = logsDir.listFiles((_, s) -> s.endsWith(".log.gz"));
+        if (logs != null) {
+            List<File> logsList = new ArrayList<>(Arrays.asList(logs));
+
+            if (startDate != null || endDate != null) {
+                logsList = filter(logsList, startDate, endDate);
+            }
+            logsList.add(getLatestLog());
+            return logsList.toArray(File[]::new);
+        }
+
+        return new File[0];
     }
 
     public static boolean delete(String start, String end) {
@@ -89,23 +98,22 @@ public class LogsManagement {
         return count;
     }
 
-    private static File[] filter(File[] original, LocalDate start, LocalDate end) {
+    private static List<File> filter(List<File> original, LocalDate start, LocalDate end) {
         List<File> list = new ArrayList<>();
-        if (start == null) {
-            for (File i : original) {
-                if (supposedToAdd(i, null, end)) {
-                    list.add(i);
-                }
+        for (File i : original) {
+            if (supposedToAdd(i, start, end)) {
+                list.add(i);
             }
         }
-        return list.toArray(File[]::new);
+        return list;
     }
 
     private static boolean supposedToAdd(File file, LocalDate start, LocalDate end) {
         if (start == null) {
             return end.isAfter(LocalDate.parse(file.getName().substring(0, 10)));
-        } else if (end == null) {
-            return end.isBefore(LocalDate.parse(file.getName().substring(0, 10)));
+        }
+        if (end == null) {
+            return start.isAfter(LocalDate.parse(file.getName().substring(0, 10)));
         }
         return start.isBefore(LocalDate.parse(file.getName().substring(0, 10))) && end.isAfter(LocalDate.parse(file.getName().substring(0, 10)));
     }

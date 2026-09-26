@@ -12,9 +12,15 @@ public class ConfigManagement {
     public static Map<String, Object> getConfig(File dir) {
         FileConfiguration config = YamlConfiguration.loadConfiguration(new File(dir, "config.yml"));
         Map<String, Object> keys = new HashMap<>();
+
         for (String key : config.getKeys(true)) {
             keys.put(key, config.get(key));
         }
+
+        keys.keySet().removeIf(key ->
+                keys.keySet().stream().anyMatch(other -> other.startsWith(key + "."))
+        );
+
         return keys;
     }
 

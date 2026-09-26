@@ -46,6 +46,8 @@ public class ConfigCommand {
                             } else {
                                 context.getSource().getSender().sendMessage("Cannot set config, because something went wrong." + NamedTextColor.RED);
                             }
+                        } else {
+                            context.getSource().getSender().sendMessage(Component.text("Invalid date!", NamedTextColor.RED));
                         }
 
                         return Command.SINGLE_SUCCESS;
