@@ -1,9 +1,10 @@
 # TODO
 
-## Release 1.0-dev.7
-Add better design
-
 ## Release 1.0-dev.8
+Add JUnit tests  
+Add 26.3 support
+
+## Release 1.0-dev.9
 Fix critical bugs
 
 ## Release 1.0
@@ -18,21 +19,11 @@ Goal: stable version
 ## 💡 Ideas
 - Add filtering options for logs commands
 - Add /diskium delete (with subcommands like logs, plugins, world, etc.)
+- Remove and modify world only in bootstrap
 
 ## Changelog
 ### Additions
-- ASCII art on startup
 
 ### Changes
-- Errors are handled better
-- Better messages
-  - Bootstrap
-  - /diskium
-    - backups
-    - config
-    - plugin
-    - task
-    - world
-- genWorld should be much faster
 
 ### Fixes
