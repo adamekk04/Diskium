@@ -5,7 +5,7 @@
   - [ ] High priority
     - [ ] Common
       - [x] Parser and Sector
-      - [ ] TasksUtils
+      - [x] TasksUtils
       - [ ] FileUtils
       - [ ] WorldUtils
     - [ ] Paper management
