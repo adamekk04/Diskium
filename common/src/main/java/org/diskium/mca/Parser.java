@@ -70,6 +70,8 @@ public class Parser {
             return size % 4096 == 0 && size >= 8192;
         } catch (NoSuchFileException e) {
             MultiplatformLogger.error("Couldn't find file " + file.getName());
+        } catch (NullPointerException e) {
+            MultiplatformLogger.error("File to validate is null");
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong while trying to validate " + file.getName(), e);
         }

@@ -150,12 +150,14 @@ public class TasksUtils {
             } else {
                 FileUtils.move(task.getFile(), task.getReplacementFile());
             }
+            remove(task);
         }
     }
 
     public static void complete(BackupObj[] backups) {
         for (BackupObj backup : backups) {
             FileUtils.move(backup.getItself(), backup.getFile());
+            remove(backup);
         }
     }
 

@@ -27,20 +27,20 @@ public class FileManagement {
     }
 
     public static void makeFiles(Map<Chunk, Boolean> chunks) {
-        Map<Region, Boolean> del = new HashMap<>(); // true: unsafe; false: safe
+        Map<Region, Boolean> del = new HashMap<>(); // true: safe; false: unsafe
 
         for (Map.Entry<Chunk, Boolean> entry : chunks.entrySet()) {
-            Region region = RegionManagement.getRegion(entry.getKey());
+            Region region = new Region(entry.getKey());
 
-            if (region.fullDel(chunks)) {
-                del.put(region, false);
-            } else {
+            if (region.canDeleteEntireRegion(chunks)) {
                 del.put(region, true);
+            } else {
+                del.put(region, false);
             }
         }
 
         for (Map.Entry<Region, Boolean> entry : del.entrySet()) {
-            if (!entry.getValue()) {
+            if (entry.getValue()) {
                 FileUtils.safeDel(getRegionFile(entry.getKey()), FileUtils.DelSpecifier.WORLD);
             }
         }

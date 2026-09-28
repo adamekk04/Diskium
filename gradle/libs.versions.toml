@@ -1,6 +1,8 @@
 [versions]
 paper-api-current = "26.2.build.+"
 paper-api-next = "26.3.build.+"
+junit = "5.14.2"
+junit-platform = "1.14.2"
 
 run-task = "3.1.0"
 shadow = "9.6.1"
@@ -8,6 +10,8 @@ shadow = "9.6.1"
 [libraries]
 paper-api-current = { module = "io.papermc.paper:paper-api", version.ref = "paper-api-current" }
 paper-api-next = { module = "io.papermc.paper:paper-api", version.ref = "paper-api-next" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-platform" }
 
 [plugins]
 run-paper = { id = "xyz.jpenilla.run-paper", version.ref = "run-task" }

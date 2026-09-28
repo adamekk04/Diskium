@@ -177,7 +177,7 @@ public class WorldManagement {
     }
 
     public static List<Chunk> getGeneratedChunksInRegion(Region region) {
-        File file = FileManagement.getRegionFile(region.getX(), region.getZ(), region.getWorld());
+        File file = FileManagement.getRegionFile(region);
         int[][] chunks = Parser.parse(file);
 
         return coordsToChunk(chunks, region.getWorld());
@@ -188,7 +188,7 @@ public class WorldManagement {
         File[] files = getRegionFiles(world, radius, in);
 
         for (File file : files) {
-            allChunks.addAll(RegionManagement.getRegion(file, world).getChunks());
+            allChunks.addAll(new Region(file, world).getChunks());
         }
 
         return allChunks.toArray(Chunk[]::new);

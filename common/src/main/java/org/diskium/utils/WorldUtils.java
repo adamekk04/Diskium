@@ -5,8 +5,8 @@ import java.util.Random;
 
 public class WorldUtils {
 
-    public static int blockToChunk(double radius) {
-        return ((int) radius / 16) + 1;
+    public static int blockToChunk(int radius) {
+        return ( radius / 16) + 1;
     }
 
     public static int[] chunkToRegion(int x, int z) {
