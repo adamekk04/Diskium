@@ -19,9 +19,9 @@ public class FileUtils {
         if ((type == DelSpecifier.LOGS && DELETE_WHILE_RUNNING_LOGS)
         || (type == DelSpecifier.PLUGINS && DELETE_WHILE_RUNNING_PLUGINS)
         || (type == DelSpecifier.WORLD && DELETE_WHILE_RUNNING_WORLD)) {
-            return TasksUtils.add(new TaskObj(true, file, null, TasksUtils.getType(file)));
-        } else {
             return forceDel(file);
+        } else {
+            return TasksUtils.add(new TaskObj(true, file, null, TasksUtils.getType(file)));
         }
     }
 
