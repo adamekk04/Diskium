@@ -1,8 +1,42 @@
 # TODO
 
 ## Release 1.0-dev.8
-Add JUnit tests  
-Add 26.3 support
+- [ ] Add JUnit tests
+  - [ ] Common
+    - [ ] MultiplatformLogger
+    - [ ] mca
+      - [ ] Parser
+      - [ ] Sector
+    - [ ] objects
+      - [ ] BackupObj
+      - [ ] TaskObj
+    - [ ] utils
+      - [ ] ASCII
+      - [ ] DateUtils
+      - [ ] FileUtils
+      - [ ] TasksUtils
+      - [ ] WorldUtils
+  - [ ] Paper
+    - [ ] Diskium
+    - [ ] DiskiumBootstrap
+    - [ ] commands
+      - [ ] BackupCommand
+      - [ ] ConfigCommand
+      - [ ] LogsCommand
+      - [ ] MainCommand
+      - [ ] PluginsCommand
+      - [ ] TaskCommand
+      - [ ] WorldCommand
+    - [ ] management
+      - [ ] ConfigManagement
+      - [ ] FileManagement
+      - [ ] LogsManagement
+      - [ ] PluginManagement
+      - [ ] RegionManagement
+      - [ ] WorldManagement
+    - [ ] objects
+      - [ ] Region
+- [x] Add 26.3 support
 
 ## Release 1.0-dev.9
 Fix critical bugs
