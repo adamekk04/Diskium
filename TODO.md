@@ -3,11 +3,11 @@
 ## Release 1.0-dev.8
 - [ ] Add JUnit tests
   - [ ] High priority
-    - [ ] Common
+    - [x] Common
       - [x] Parser and Sector
       - [x] TasksUtils
       - [x] FileUtils
-      - [ ] WorldUtils
+      - [x] WorldUtils
     - [ ] Paper management
       - [ ] WorldManagement
       - [ ] LogsManagement
