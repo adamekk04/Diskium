@@ -12,7 +12,7 @@ import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ParserTest {
+class ParserTest {
 
     public static final int[][] CHUNK_COORDINATES = {
             {0, -24},

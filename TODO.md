@@ -4,9 +4,9 @@
 - [ ] Add JUnit tests
   - [ ] Common
     - [ ] MultiplatformLogger
-    - [ ] mca
-      - [ ] Parser
-      - [ ] Sector
+    - [x] mca
+      - [x] Parser
+      - [x] Sector
     - [ ] objects
       - [ ] BackupObj
       - [ ] TaskObj

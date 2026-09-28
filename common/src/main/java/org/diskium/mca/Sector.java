@@ -20,7 +20,9 @@ public class Sector {
 
             int bytesRead = input.read(data);
 
-            if (bytesRead != SECTOR_SIZE) MultiplatformLogger.error(file.getName() + " is too small, cannot get world data.");
+            if (bytesRead != SECTOR_SIZE) {
+                MultiplatformLogger.error(file.getName() + " is too small, cannot get world data.");
+            }
 
             this.data = data;
 
@@ -32,6 +34,8 @@ public class Sector {
 
             this.x = Integer.parseInt(regionCoords[0]);
             this.z = Integer.parseInt(regionCoords[1]);
+        } catch (NumberFormatException e) {
+            MultiplatformLogger.error("Cannot get coordinates from file name");
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong while trying to read " + file.getName(), e);
         }
@@ -47,7 +51,7 @@ public class Sector {
             byte b3 = this.data[i + 3];
 
             if (!(b0 == 0 && b1 == 0 && b2 == 0 && b3 == 0)) {
-                buffer.add(new int[] {this.x * 32 + i % 32, this.z * 32 + i / 32});
+                buffer.add(new int[]{this.x * 32 + i % 32, this.z * 32 + i / 32});
             }
         }
 
