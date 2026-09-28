@@ -42,8 +42,8 @@ class SectorTest {
 
         Sector sector = new Sector(region);
 
-        assertEquals(0, sector.x);
-        assertEquals(-1, sector.z);
+        assertEquals(0, sector.getX());
+        assertEquals(-1, sector.getZ());
         assertEquals(4096, sector.data.length);
         assertArrayEquals(expectedHeader, sector.data);
     }
@@ -54,8 +54,8 @@ class SectorTest {
 
         Sector sector = new Sector(region);
 
-        assertEquals(0, sector.x);
-        assertEquals(0, sector.z);
+        assertEquals(0, sector.getX());
+        assertEquals(0, sector.getZ());
     }
 
     @Test

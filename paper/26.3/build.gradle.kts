@@ -7,6 +7,7 @@ plugins {
 dependencies {
     implementation(project(":common"))
     compileOnly(libs.paper.api.next)
+    testImplementation(libs.paper.api.next)
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.platform.launcher)
 }
@@ -19,6 +20,10 @@ sourceSets {
     main {
         java.srcDir("../common/src/main/java")
         resources.srcDir("../common/src/main/resources")
+    }
+
+    test {
+        java.srcDir("../common/src/test/java")
     }
 }
 

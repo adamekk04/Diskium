@@ -2,6 +2,7 @@ package org.diskium.objects;
 
 import org.bukkit.Chunk;
 import org.bukkit.World;
+import org.diskium.management.WorldManagement;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,12 +12,18 @@ public class Region {
     int x;
     int z;
     World world;
-    final List<Chunk> chunks = new ArrayList<>();
+    List<Chunk> chunks = new ArrayList<>();
 
     public Region(int x, int z, World world) {
+        this(x, z, world, null);
+        this.chunks = WorldManagement.getGeneratedChunksInRegion(this);
+    }
+
+    Region(int x, int z, World world, List<Chunk> chunks) {
         this.x = x;
         this.z = z;
         this.world = world;
+        this.chunks = chunks == null ? new ArrayList<>() : new ArrayList<>(chunks);
     }
 
     public int getX() {
@@ -35,24 +42,7 @@ public class Region {
         return this.chunks;
     }
 
-    public void addChunks(List<Chunk> chunks) {
-        this.chunks.addAll(chunks);
-    }
-
-    public List<Chunk> toChunks() {
-        return this.chunks;
-    }
-
-    public boolean fullDel(Map<Chunk, Boolean> chunks) {
-        int amount = this.chunks.size();
-        int buffer = 0;
-
-        for (Chunk chunk : this.chunks) {
-            if (chunks.containsKey(chunk)) {
-                buffer++;
-            }
-        }
-
-        return amount == buffer;
+    public boolean canDeleteEntireRegion(Map<Chunk, Boolean> chunks) {
+        return this.chunks.stream().allMatch(chunk -> Boolean.TRUE.equals(chunks.get(chunk)));
     }
 }

@@ -9,10 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Sector {
-    final int SECTOR_SIZE = 4096;
+    static final int SECTOR_SIZE = 4096;
     byte[] data = new byte[SECTOR_SIZE];
-    int x;
-    int z;
+    private int x;
+    private int z;
 
     public Sector(File file) {
         try (FileInputStream input = new FileInputStream(file)) {
@@ -45,10 +45,11 @@ public class Sector {
         List<int[]> buffer = new ArrayList<>();
 
         for (int i = 0; i < 1024; i++) {
-            byte b0 = this.data[i];
-            byte b1 = this.data[i + 1];
-            byte b2 = this.data[i + 2];
-            byte b3 = this.data[i + 3];
+            int locationOffset = i * 4;
+            byte b0 = this.data[locationOffset];
+            byte b1 = this.data[locationOffset + 1];
+            byte b2 = this.data[locationOffset + 2];
+            byte b3 = this.data[locationOffset + 3];
 
             if (!(b0 == 0 && b1 == 0 && b2 == 0 && b3 == 0)) {
                 buffer.add(new int[]{this.x * 32 + i % 32, this.z * 32 + i / 32});
@@ -56,5 +57,13 @@ public class Sector {
         }
 
         return buffer.toArray(int[][]::new);
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getZ() {
+        return z;
     }
 }
