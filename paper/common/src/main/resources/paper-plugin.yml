@@ -1,9 +1,9 @@
 name: Diskium
 description: $description
-version: '1.0-dev.7+26.2'
+version: '${version}'
 
 main: org.diskium.Diskium
 bootstrapper: org.diskium.DiskiumBootstrap
-api-version: '26.2'
+api-version: '${apiVersion}'
 
 authors: [ adamekk04 ]

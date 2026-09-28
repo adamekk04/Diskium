@@ -16,5 +16,6 @@ rootProject.name = "Diskium"
 
 include(
     "common",
-    "paper"
+    "paper:26.2",
+    "paper:26.3"
 )
