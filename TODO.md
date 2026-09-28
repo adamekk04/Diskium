@@ -12,6 +12,7 @@
       - [ ] WorldManagement
       - [ ] LogsManagement
       - [ ] PluginManagement
+    - [ ] GH workflow
   - [ ] Lower priority
     - [ ] Common
       - [ ] DateUtils
