@@ -7,9 +7,9 @@
     - [x] mca
       - [x] Parser
       - [x] Sector
-    - [ ] objects
-      - [ ] BackupObj
-      - [ ] TaskObj
+    - [x] objects
+      - [x] BackupObj
+      - [x] TaskObj
     - [ ] utils
       - [ ] ASCII
       - [ ] DateUtils
