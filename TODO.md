@@ -2,40 +2,23 @@
 
 ## Release 1.0-dev.8
 - [ ] Add JUnit tests
-  - [ ] Common
-    - [ ] MultiplatformLogger
-    - [x] mca
-      - [x] Parser
-      - [x] Sector
-    - [x] objects
-      - [x] BackupObj
-      - [x] TaskObj
-    - [ ] utils
-      - [ ] ASCII
-      - [ ] DateUtils
-      - [ ] FileUtils
+  - [ ] High priority
+    - [ ] Common
+      - [x] Parser and Sector
       - [ ] TasksUtils
+      - [ ] FileUtils
       - [ ] WorldUtils
-  - [ ] Paper
-    - [ ] Diskium
-    - [ ] DiskiumBootstrap
-    - [ ] commands
-      - [ ] BackupCommand
-      - [ ] ConfigCommand
-      - [ ] LogsCommand
-      - [ ] MainCommand
-      - [ ] PluginsCommand
-      - [ ] TaskCommand
-      - [ ] WorldCommand
-    - [ ] management
-      - [ ] ConfigManagement
-      - [ ] FileManagement
+    - [ ] Paper management
+      - [ ] WorldManagement
       - [ ] LogsManagement
       - [ ] PluginManagement
-      - [ ] RegionManagement
-      - [ ] WorldManagement
-    - [ ] objects
-      - [ ] Region
+  - [ ] Lower priority
+    - [ ] Common
+      - [ ] DateUtils
+    - [ ] Paper
+      - [ ] ConfigManagement
+      - [ ] FileManagement
+      - [ ] RegionManagement and Region
 - [x] Add 26.3 support
 
 ## Release 1.0-dev.9
