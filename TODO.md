@@ -41,7 +41,10 @@ Goal: stable version
 
 ## Changelog
 ### Additions
+- Add support for Paper 26.3
 
 ### Changes
+- Little better error handling in MCA Parser
 
 ### Fixes
+- Remove task/backup after completing it
