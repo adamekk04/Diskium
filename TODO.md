@@ -19,7 +19,7 @@
     - [ ] Paper
       - [ ] ConfigManagement
       - [ ] FileManagement
-      - [ ] (only region is done) RegionManagement and Region
+      - [x] Region
 - [x] Add 26.3 support
 
 ## Release 1.0-dev.9

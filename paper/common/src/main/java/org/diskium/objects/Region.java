@@ -3,7 +3,10 @@ package org.diskium.objects;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.diskium.management.WorldManagement;
+import org.diskium.mca.Sector;
+import org.diskium.utils.WorldUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,15 +18,26 @@ public class Region {
     List<Chunk> chunks = new ArrayList<>();
 
     public Region(int x, int z, World world) {
-        this(x, z, world, null);
-        this.chunks = WorldManagement.getGeneratedChunksInRegion(this);
-    }
-
-    Region(int x, int z, World world, List<Chunk> chunks) {
         this.x = x;
         this.z = z;
         this.world = world;
-        this.chunks = chunks == null ? new ArrayList<>() : new ArrayList<>(chunks);
+        this.chunks = WorldManagement.getGeneratedChunksInRegion(this);
+    }
+
+    public Region(Chunk chunk) {
+        int[] coords = WorldUtils.chunkToRegion(chunk.getX(), chunk.getZ());
+        this.x = coords[0];
+        this.z = coords[1];
+        this.world = chunk.getWorld();
+        this.chunks = WorldManagement.getGeneratedChunksInRegion(this);
+    }
+
+    public Region(File file, World world) {
+        Sector sector = new Sector(file);
+        this.x = sector.getX();
+        this.z = sector.getZ();
+        this.world = world;
+        this.chunks = WorldManagement.getGeneratedChunksInRegion(this);
     }
 
     public int getX() {

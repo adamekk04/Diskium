@@ -30,7 +30,7 @@ public class FileManagement {
         Map<Region, Boolean> del = new HashMap<>(); // true: safe; false: unsafe
 
         for (Map.Entry<Chunk, Boolean> entry : chunks.entrySet()) {
-            Region region = RegionManagement.getRegion(entry.getKey());
+            Region region = new Region(entry.getKey());
 
             if (region.canDeleteEntireRegion(chunks)) {
                 del.put(region, true);
