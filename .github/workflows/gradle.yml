@@ -29,20 +29,14 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
 
       - name: Build
-        run: ./gradlew :paper:shadowJar
-
-      - name: Rename JAR
-        if: github.ref_type == 'tag'
-        run: |
-          for file in paper/build/libs/*-all.jar; do
-            mv "$file" "${file%-all.jar}.jar"
-          done
+        run: ./gradlew build
 
       - name: Release
         if: github.ref_type == 'tag'
         uses: softprops/action-gh-release@v3
         with:
-          files: paper/build/libs/*.jar
+          fail_on_unmatched_files: true
+          files: paper/*/build/libs/*.jar
 
   dependency-submission:
     runs-on: ubuntu-latest
