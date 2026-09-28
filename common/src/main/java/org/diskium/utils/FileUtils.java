@@ -33,6 +33,7 @@ public class FileUtils {
             MultiplatformLogger.error("Couldn't delete file " + file.getName() + ", because it doesn't exist.");
         } catch (DirectoryNotEmptyException e) {
             delWithSubDirs(file);
+            return true;
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong." + e);
         }

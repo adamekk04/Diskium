@@ -108,11 +108,15 @@ public class TasksUtils {
 
         try (FileWriter fw = new FileWriter(taskFile, true)) {
             fw.write(task.getFile().toString());
+            fw.write(System.lineSeparator());
+
             if (task.getDelete()) {
                 fw.write("1");
             } else {
                 fw.write(task.getReplacementFile().toString());
             }
+
+            fw.write(System.lineSeparator());
             return true;
         } catch (SecurityException e) {
             MultiplatformLogger.error("Cannot access tasks.txt due to security reasons.");
@@ -130,7 +134,10 @@ public class TasksUtils {
 
         try (FileWriter fw = new FileWriter(backupFile, true)) {
             fw.write(backup.getFile().toString());
+            fw.write(System.lineSeparator());
             fw.write(backup.getItself().toString());
+            fw.write(System.lineSeparator());
+
             return true;
         } catch (SecurityException e) {
             MultiplatformLogger.error("Cannot access backups.txt due to security reasons.");

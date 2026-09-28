@@ -33,6 +33,10 @@ public class Parser {
             int offset = (location >>> 8) & 0xFFFFFF;
             int length = location & 0xFF;
 
+            if (offset == 0 || length == 0) {
+                return false;
+            }
+
             raf.writeInt(0);
             raf.seek(index * 4L + 4096);
             raf.writeInt(0);
@@ -44,7 +48,9 @@ public class Parser {
                 int otherOffset = (location >>> 8) & 0xFFFFFF;
                 int otherLength = location & 0xFF;
 
-                if (otherOffset == 0 || otherLength == 0) continue;
+                if (otherOffset == 0 || otherLength == 0) {
+                    continue;
+                }
 
                 if (otherOffset > offset) {
                     otherOffset -= length;

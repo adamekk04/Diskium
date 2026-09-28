@@ -1,6 +1,5 @@
 package org.diskium.utils;
 
-import java.util.Arrays;
 import java.util.Random;
 
 public class WorldUtils {
@@ -32,12 +31,15 @@ public class WorldUtils {
     }
 
     public static boolean isRegionSafeToDelete(int radius, int x, int z, boolean in) {
-        int max = Arrays.stream(chunkToRegion(x, z)).max().getAsInt();
+        long furthestChunk = Math.max(
+                Math.abs((long) x),
+                Math.abs((long) z)
+        );
 
-        if (in) {
-            return max < blockToRegion(radius);
-        } else {
-            return max >= blockToRegion(radius);
-        }
+        long regionDistance = furthestChunk / 32;
+        long radiusInRegions = blockToRegion(radius);
+        boolean isInside = regionDistance < radiusInRegions;
+
+        return in == isInside;
     }
 }
