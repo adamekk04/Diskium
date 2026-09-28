@@ -7,6 +7,8 @@ plugins {
 dependencies {
     implementation(project(":common"))
     compileOnly(libs.paper.api.current)
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 java {
@@ -22,6 +24,10 @@ sourceSets {
 
 tasks.named("build") {
     dependsOn("shadowJar")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 tasks {
