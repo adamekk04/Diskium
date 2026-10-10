@@ -1,14 +1,12 @@
 # TODO
 
-## Release 1.0-dev.8
-- [x] Add JUnit tests
-- [x] Add 26.3 support
-
 ## Release 1.0-dev.9
-Fix critical bugs
+- Add filtering options for logs commands  
+- Add /diskium delete
 
-## Release 1.0
-Goal: stable version
+## Release 1.0-alpha.1
+- Remove and modify world only in bootstrap  
+- Use flags in commands
 
 ---
 
@@ -17,9 +15,8 @@ Goal: stable version
 ---
 
 ## 💡 Ideas
-- Add filtering options for logs commands
-- Add /diskium delete (with subcommands like logs, plugins, world, etc.)
-- Remove and modify world only in bootstrap
+
+---
 
 ## Changelog
 ### Additions
