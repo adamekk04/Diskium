@@ -19,7 +19,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.diskium.management.WorldManagement;
 
-import javax.naming.Name;
 import java.util.List;
 
 public class WorldCommand {
@@ -55,14 +54,10 @@ public class WorldCommand {
                                     return Command.SINGLE_SUCCESS;
                                 })
                 )
-                .then(
-                        Commands.literal("delete")
-                                .then(range(Commands.literal("in"), true, all))
-                                .then(range(Commands.literal("out"), false, all))
-                                .then(buildChecker(Commands.literal("wholeWorld"), Checker.WHOLE_WORLD, false, all))
-                                .then(sector(Commands.literal("region"), false, all))
-                                .then(sector(Commands.literal("chunk"), true, all))
-                );
+                .then(DeleteCommand.world(
+                        Commands.literal("delete"),
+                        all
+                ));
     }
 
     public static LiteralArgumentBuilder<CommandSourceStack> blockCoords(LiteralArgumentBuilder<CommandSourceStack> root, boolean existing, boolean all) {
@@ -104,7 +99,7 @@ public class WorldCommand {
         );
     }
 
-    private static ArgumentBuilder<CommandSourceStack, ?> buildChecker(RequiredArgumentBuilder<CommandSourceStack, ?> root, Checker checker, boolean in, boolean all) {
+    public static ArgumentBuilder<CommandSourceStack, ?> buildChecker(RequiredArgumentBuilder<CommandSourceStack, ?> root, Checker checker, boolean in, boolean all) {
         return root.then(
                         Commands.literal("checkForBuilds")
                                 .executes(context -> {
@@ -177,7 +172,7 @@ public class WorldCommand {
                 );
     }
 
-    private static LiteralArgumentBuilder<CommandSourceStack> buildChecker(LiteralArgumentBuilder<CommandSourceStack> root, Checker checker, boolean in, boolean all) {
+    public static LiteralArgumentBuilder<CommandSourceStack> buildChecker(LiteralArgumentBuilder<CommandSourceStack> root, Checker checker, boolean in, boolean all) {
         return root.then(
                         Commands.literal("checkForBuilds")
                                 .executes(context -> {

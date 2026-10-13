@@ -53,34 +53,8 @@ public class BackupCommand {
                                 )
                 )
                 .then(
-                        Commands.literal("remove")
-                                .then(
-                                        Commands.argument("id", IntegerArgumentType.integer(1))
-                                                .suggests((context, builder) -> {
-                                                    for (int i = 1; i <= TasksUtils.getBackups().length; i++) {
-                                                        builder.suggest(i);
-                                                    }
-
-                                                    return builder.buildFuture();
-                                                })
-                                                .executes(context -> {
-                                                    BackupObj[] backups = TasksUtils.getBackups();
-                                                    int arg = IntegerArgumentType.getInteger(context, "id") - 1;
-
-                                                    if (backups != null && arg < backups.length) {
-                                                        TasksUtils.remove(backups[arg]);
-                                                        context.getSource().getSender().sendMessage(Component.text("Removed backup ")
-                                                                        .append(Component.text(arg + 1, NamedTextColor.DARK_GREEN)));
-                                                    } else {
-                                                        context.getSource().getSender().sendMessage(Component.text("Backup with id ")
-                                                                .append(Component.text((arg + 1), NamedTextColor.DARK_GREEN))
-                                                                .append(Component.text(" doesn't exist.")));
-                                                    }
-
-                                                    return Command.SINGLE_SUCCESS;
-                                                })
-                                )
-                )
+                        Commands.literal("delete")
+                                .then(DeleteCommand.backups()))
                 .then(
                         Commands.literal("restore")
                                 .then(

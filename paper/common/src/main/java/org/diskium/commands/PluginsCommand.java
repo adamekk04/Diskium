@@ -32,13 +32,13 @@ public class PluginsCommand {
                 .then(
                         Commands.literal("delete")
                                 .then(
-                                        pluginDeleter("folder", false, true)
+                                        DeleteCommand.pluginDeleter("folder", false, true)
                                 )
                                 .then(
-                                        pluginDeleter("plugin", true, false)
+                                        DeleteCommand.pluginDeleter("plugin", true, false)
                                 )
                                 .then(
-                                        pluginDeleter("both", true, true)
+                                        DeleteCommand.pluginDeleter("both", true, true)
                                 )
                 )
                 .then(
@@ -136,31 +136,6 @@ public class PluginsCommand {
                                                     .append(Component.text(pl.getName(), NamedTextColor.DARK_GREEN))
                                                     .append(Component.text(" enabled")));
                                         }
-                                    }
-
-                                    return Command.SINGLE_SUCCESS;
-                                })
-                );
-    }
-
-    private static LiteralArgumentBuilder<CommandSourceStack> pluginDeleter(String literal, boolean delPlugin, boolean delFolder) {
-        return Commands.literal(literal)
-                .then(
-                        Commands.argument("plugin", StringArgumentType.word())
-                                .suggests((context, builder) -> {
-                                    for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
-                                        builder.suggest(plugin.getName());
-                                    }
-
-                                    return builder.buildFuture();
-                                })
-                                .executes(context -> {
-                                    Plugin pl = Bukkit.getPluginManager().getPlugin(context.getArgument("plugin", String.class));
-
-                                    if (PluginManagement.del(pl, delPlugin, delFolder)) {
-                                        context.getSource().getSender().sendMessage("Deletion was successful.");
-                                    } else {
-                                        context.getSource().getSender().sendMessage(Component.text("Something went wrong while deleting.", NamedTextColor.RED));
                                     }
 
                                     return Command.SINGLE_SUCCESS;

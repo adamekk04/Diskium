@@ -1,12 +1,17 @@
 # TODO
 
 ## Release 1.0-dev.9
-- Add filtering options for logs commands  
-- Add /diskium delete
+- [x] Add /diskium delete
+  - [x] world
+  - [x] tasks
+  - [x] plugins
+  - [x] logs
+  - [x] backups
+- [ ] Remove and modify world only in bootstrap
 
 ## Release 1.0-alpha.1
-- Remove and modify world only in bootstrap  
-- Use flags in commands
+- [ ] Add filtering options for logs commands
+- [ ] Use flags in commands
 
 ---
 

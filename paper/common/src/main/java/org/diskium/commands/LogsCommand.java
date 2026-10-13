@@ -42,16 +42,8 @@ public class LogsCommand {
                 .then(
                         Commands.literal("delete")
                                 .executes(context -> {
-                                    File[] logs = LogsManagement.getLogs(null, null);
+                                    DeleteCommand.logsExec(context);
 
-                                    context.getSource().getSender().sendMessage(
-                                            Component.text("Found ")
-                                                    .append(Component.text(logs.length, NamedTextColor.DARK_GREEN))
-                                                    .append(Component.text(logs.length == 1 ? " log, " : " logs, "))
-                                                    .append(Component.text("DELETING!", NamedTextColor.RED))
-                                    );
-
-                                    LogsManagement.delete(null, null);
                                     return Command.SINGLE_SUCCESS;
                                 })
                                 .then(

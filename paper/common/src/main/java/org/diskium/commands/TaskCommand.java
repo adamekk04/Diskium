@@ -50,29 +50,8 @@ public class TaskCommand {
                                 )
                 )
                 .then(
-                        Commands.literal("remove")
-                                .then(
-                                        Commands.argument("id", IntegerArgumentType.integer(0))
-                                                .suggests((context, builder) -> {
-                                                    for (int i = 0; i < TasksUtils.getTasks().length; i++) {
-                                                        builder.suggest(i);
-                                                    }
-
-                                                    return builder.buildFuture();
-                                                })
-                                                .executes(context -> {
-                                                    int index = IntegerArgumentType.getInteger(context, "id");
-                                                    TaskObj[] tasks = TasksUtils.getTasks();
-
-                                                    if (index <= tasks.length) {
-                                                        TasksUtils.remove(tasks[index]);
-                                                        context.getSource().getSender().sendMessage(Component.text("Removed task with id")
-                                                                .append(Component.text(index, NamedTextColor.GREEN)));
-                                                    }
-
-                                                    return Command.SINGLE_SUCCESS;
-                                                })
-                                )
+                        Commands.literal("delete")
+                                .then(DeleteCommand.tasks())
                 )
                 .then(
                         Commands.literal("info")
