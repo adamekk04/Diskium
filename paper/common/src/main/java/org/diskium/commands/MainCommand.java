@@ -17,6 +17,7 @@ public class MainCommand {
                 .then(WorldCommand.entry())
                 .then(TaskCommand.entry())
                 .then(BackupCommand.entry())
+                .then(DeleteCommand.entry())
                 .build();
     }
 }
