@@ -172,7 +172,7 @@ public class WorldCommand {
                 );
     }
 
-    static LiteralArgumentBuilder<CommandSourceStack> buildChecker(LiteralArgumentBuilder<CommandSourceStack> root, Checker checker, boolean in, boolean all) {
+    public static LiteralArgumentBuilder<CommandSourceStack> buildChecker(LiteralArgumentBuilder<CommandSourceStack> root, Checker checker, boolean in, boolean all) {
         return root.then(
                         Commands.literal("checkForBuilds")
                                 .executes(context -> {

@@ -1,7 +1,7 @@
 # TODO
 
 ## Release 1.0-dev.9
-- [ ] Add /diskium delete
+- [x] Add /diskium delete
   - [x] world
   - [x] tasks
   - [x] plugins
