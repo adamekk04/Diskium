@@ -77,7 +77,7 @@ public class WorldManagement {
 
     public static void delWorld(World world) {
         Bukkit.unloadWorld(world, false);
-        FileUtils.safeDel(world.getWorldFolder(), FileUtils.DelSpecifier.WORLD);
+        FileUtils.safeDel(world.getWorldFolder(), FileUtils.DelSpecifier.USE_TASK_QUEUE);
     }
 
     public static void del(World world, boolean in, int radius, boolean checkForBuilds) {
@@ -93,7 +93,7 @@ public class WorldManagement {
         } else {
             for (Chunk chunk : chunks) {
                 if (WorldUtils.isRegionSafeToDelete(radius, chunk.getX(), chunk.getZ(), in)) {
-                    FileUtils.safeDel(FileManagement.getRegionFile(chunk.getX(), chunk.getZ(), world), FileUtils.DelSpecifier.WORLD);
+                    FileUtils.safeDel(FileManagement.getRegionFile(chunk.getX(), chunk.getZ(), world), FileUtils.DelSpecifier.USE_TASK_QUEUE);
                 }
             }
         }

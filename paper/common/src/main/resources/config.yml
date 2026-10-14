@@ -3,5 +3,4 @@ backups: true # Makes backups into backups/ in plugin's folder. It takes up spac
 delete-while-running: # Deletes files while running, it's not recommended to turn on to prevent errors
   logs: false
   plugins: false
-  world: false # world files
 date-format: "yyyy-mm-dd" # Date format, needs to contain 4x y, 2x m and 2x d.

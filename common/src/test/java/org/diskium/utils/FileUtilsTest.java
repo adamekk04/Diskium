@@ -24,7 +24,7 @@ public class FileUtilsTest {
 
         TasksUtils.setFiles(serverDir, pluginDir);
         TasksUtils.mkFiles();
-        FileUtils.setUseTasks(true, true, false);
+        FileUtils.setUseTasks(true, true);
     }
 
     @Test
@@ -78,14 +78,14 @@ public class FileUtilsTest {
     }
 
     @Test
-    void safeDelDeletesEnabledTypesAndQueuesDisabledType() throws IOException {
+    void safeDelDeletesEnabledTypesAndQueuesExplicitTaskQueueType() throws IOException {
         Path log = Files.createFile(tempDir.resolve("delete-me.log"));
         Path plugin = Files.createFile(tempDir.resolve("delete-me.jar"));
         Path world = Files.createFile(tempDir.resolve("delete-me.mca"));
 
         assertTrue(FileUtils.safeDel(log.toFile(), FileUtils.DelSpecifier.LOGS));
         assertTrue(FileUtils.safeDel(plugin.toFile(), FileUtils.DelSpecifier.PLUGINS));
-        assertTrue(FileUtils.safeDel(world.toFile(), FileUtils.DelSpecifier.WORLD));
+        assertTrue(FileUtils.safeDel(world.toFile(), FileUtils.DelSpecifier.USE_TASK_QUEUE));
 
         assertFalse(Files.exists(log));
         assertFalse(Files.exists(plugin));
@@ -99,8 +99,4 @@ public class FileUtilsTest {
         assertEquals(TaskObj.Types.WORLD, tasks[0].getType());
     }
 
-    @Test
-    void getDeleteWhileRunningWorld() {
-        assertFalse(FileUtils.getDeleteWhileRunningWorld());
-    }
 }

@@ -7,7 +7,7 @@
   - [x] plugins
   - [x] logs
   - [x] backups
-- [ ] Remove and modify world only in bootstrap
+- [x] Remove and modify world only in bootstrap
 
 ## Release 1.0-alpha.1
 - [ ] Add filtering options for logs commands

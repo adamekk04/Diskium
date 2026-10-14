@@ -13,12 +13,10 @@ public class FileUtils {
 
     private static boolean DELETE_WHILE_RUNNING_LOGS;
     private static boolean DELETE_WHILE_RUNNING_PLUGINS;
-    private static boolean DELETE_WHILE_RUNNING_WORLD;
 
     public static boolean safeDel(File file, DelSpecifier type) {
         if ((type == DelSpecifier.LOGS && DELETE_WHILE_RUNNING_LOGS)
-        || (type == DelSpecifier.PLUGINS && DELETE_WHILE_RUNNING_PLUGINS)
-        || (type == DelSpecifier.WORLD && DELETE_WHILE_RUNNING_WORLD)) {
+        || (type == DelSpecifier.PLUGINS && DELETE_WHILE_RUNNING_PLUGINS)) {
             return forceDel(file);
         } else {
             return TasksUtils.add(new TaskObj(true, file, null, TasksUtils.getType(file)));
@@ -54,10 +52,6 @@ public class FileUtils {
         }
     }
 
-    public static boolean getDeleteWhileRunningWorld() {
-        return DELETE_WHILE_RUNNING_WORLD;
-    }
-
     private static void delWithSubDirs(File file) {
         try (Stream<Path> paths = Files.walk(file.toPath())) {
             paths.sorted(Comparator.reverseOrder())
@@ -70,15 +64,14 @@ public class FileUtils {
     }
 
 
-    public static void setUseTasks(boolean logs, boolean plugins, boolean world) {
+    public static void setUseTasks(boolean logs, boolean plugins) {
         DELETE_WHILE_RUNNING_LOGS = logs;
         DELETE_WHILE_RUNNING_PLUGINS = plugins;
-        DELETE_WHILE_RUNNING_WORLD = world;
     }
 
     public enum DelSpecifier {
         LOGS,
         PLUGINS,
-        WORLD
+        USE_TASK_QUEUE
     }
 }

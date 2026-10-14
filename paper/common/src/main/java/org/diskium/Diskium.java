@@ -13,7 +13,7 @@ public final class Diskium extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
         instance = this;
-        FileUtils.setUseTasks(getConfig().getBoolean("delete-while-running.logs"), getConfig().getBoolean("delete-while-running.plugins"), getConfig().getBoolean("delete-while-running.world"));
+        FileUtils.setUseTasks(getConfig().getBoolean("delete-while-running.logs"), getConfig().getBoolean("delete-while-running.plugins"));
 
         MultiplatformLogger.setLogger(new MultiplatformLogger.Logger() {
             @Override
