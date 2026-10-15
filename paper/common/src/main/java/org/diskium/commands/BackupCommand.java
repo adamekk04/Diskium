@@ -51,6 +51,13 @@ public class BackupCommand {
                                                     return Command.SINGLE_SUCCESS;
                                                 })
                                 )
+                                .then(
+                                        Commands.argument("flags")
+                                                .suggests((context, builder) -> {
+                                                    builder.getRemaining();
+                                                })
+                                                .executes()
+                                )
                 )
                 .then(
                         Commands.literal("delete")
