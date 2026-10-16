@@ -11,8 +11,8 @@
 - [ ] Use flags in commands
   - [x] backups
   - [x] delete
-  - [ ] plugins
-  - [ ] tasks
+  - [x] plugins
+  - [x] tasks
   - [ ] world
 - [ ] Add filtering options for logs & plugins commands and migrate to flags
 
