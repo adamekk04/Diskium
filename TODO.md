@@ -10,12 +10,11 @@
 - [x] Remove and modify world only in bootstrap
 - [ ] Use flags in commands
   - [x] backups
-  - [ ] delete
-  - [ ] logs
+  - [x] delete
   - [ ] plugins
   - [ ] tasks
   - [ ] world
-- [ ] Add filtering options for logs commands
+- [ ] Add filtering options for logs & plugins commands and migrate to flags
 
 ---
 
