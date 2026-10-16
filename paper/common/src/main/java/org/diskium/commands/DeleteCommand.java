@@ -17,9 +17,11 @@ import org.diskium.management.LogsManagement;
 import org.diskium.management.PluginManagement;
 import org.diskium.objects.BackupObj;
 import org.diskium.objects.TaskObj;
+import org.diskium.utils.Flags;
 import org.diskium.utils.TasksUtils;
 
 import java.io.File;
+import java.util.Map;
 
 public class DeleteCommand {
 
@@ -34,22 +36,14 @@ public class DeleteCommand {
                             return Command.SINGLE_SUCCESS;
                         }))
                 .then(Commands.literal("plugins")
-                        .then(
-                                DeleteCommand.pluginDeleter("folder", false, true)
-                        )
-                        .then(
-                                DeleteCommand.pluginDeleter("plugin", true, false)
-                        )
-                        .then(
-                                DeleteCommand.pluginDeleter("both", true, true)
-                        ))
+                        .then(DeleteCommand.pluginDeleter())
                 .then(Commands.literal("tasks")
                         .then(tasks()))
                 .then(
                         Commands.literal("world")
                                 .then(WorldCommand.worldArgSeparator(Commands.literal("allWorlds"), true))
                                 .then(WorldCommand.worldArgSeparator(Commands.argument("world", ArgumentTypes.world()), false))
-                );
+                ));
     }
 
     public static RequiredArgumentBuilder<CommandSourceStack, ?> backups() {
@@ -92,19 +86,42 @@ public class DeleteCommand {
         LogsManagement.delete(null, null);
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> pluginDeleter(String literal, boolean delPlugin, boolean delFolder) {
-        return Commands.literal(literal)
+    public static RequiredArgumentBuilder<CommandSourceStack, ?> pluginDeleter() {
+        return Commands.argument("plugin", StringArgumentType.word())
+                .suggests((context, builder) -> {
+                    for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
+                        builder.suggest(plugin.getName());
+                    }
+
+                    return builder.buildFuture();
+                })
                 .then(
-                        Commands.argument("plugin", StringArgumentType.word())
+                        Commands.argument("flags", StringArgumentType.greedyString())
                                 .suggests((context, builder) -> {
-                                    for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
-                                        builder.suggest(plugin.getName());
+                                    Flags flags = new Flags(Map.of("jarFile", boolean.class, "folder", boolean.class));
+                                    String[] suggestions = flags.suggest(builder.getRemainingLowerCase());
+
+                                    for (String suggestion : suggestions) {
+                                        builder.suggest(suggestion);
                                     }
 
                                     return builder.buildFuture();
                                 })
                                 .executes(context -> {
-                                    Plugin pl = Bukkit.getPluginManager().getPlugin(context.getArgument("plugin", String.class));
+                                    Plugin pl = Bukkit.getPluginManager().getPlugin(StringArgumentType.getString(context, "plugin"));
+                                    Flags flags = new Flags(Map.of("jarFile", boolean.class, "folder", boolean.class));
+                                    flags.suggest(StringArgumentType.getString(context, "flags"));
+
+                                    boolean delPlugin = false;
+                                    boolean delFolder = false;
+
+                                    for (Map.Entry<String, Object> entry : flags.getAll().entrySet()) {
+                                        if (entry.getKey().equalsIgnoreCase("jarFile")) {
+                                            delPlugin = Boolean.getBoolean(entry.getValue().toString());
+                                        } else {
+                                            delFolder = Boolean.getBoolean(entry.getValue().toString());
+                                        }
+                                    }
 
                                     if (PluginManagement.del(pl, delPlugin, delFolder)) {
                                         context.getSource().getSender().sendMessage("Deletion was successful.");

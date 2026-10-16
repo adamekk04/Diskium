@@ -9,8 +9,7 @@
   - [x] backups
 - [x] Remove and modify world only in bootstrap
 - [ ] Use flags in commands
-  - [ ] backups
-  - [ ] config
+  - [x] backups
   - [ ] delete
   - [ ] logs
   - [ ] plugins
