@@ -38,12 +38,6 @@ public class Flags {
         return this.parsed;
     }
 
-    private void parseNames() {
-        this.parsedFlags = Arrays.stream(now.replace(" ", "").split("--"))
-                .filter(s -> !s.isEmpty())
-                .toArray(String[]::new);
-    }
-
     private void parseAll() {
         parseNames();
 
@@ -53,6 +47,12 @@ public class Flags {
                         parts -> parts[0],
                         parts -> parts.length == 1 ? Boolean.TRUE : parseValue(parts[0], parts[1])
                 ));
+    }
+
+    private void parseNames() {
+        this.parsedFlags = Arrays.stream(now.replace(" ", "").split("--"))
+                .filter(s -> !s.isEmpty())
+                .toArray(String[]::new);
     }
 
     private Object parseValue(String name, String value) {
