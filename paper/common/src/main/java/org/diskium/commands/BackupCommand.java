@@ -2,6 +2,7 @@ package org.diskium.commands;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -11,9 +12,13 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.diskium.objects.BackupObj;
 import org.diskium.objects.TaskObj;
+import org.diskium.utils.Flags;
 import org.diskium.utils.TasksUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class BackupCommand {
 
@@ -28,25 +33,30 @@ public class BackupCommand {
                                     return Command.SINGLE_SUCCESS;
                                 })
                                 .then(
-                                        Commands.literal("logs")
-                                                .executes(context -> {
-                                                    lister(context, TaskObj.Types.LOGS);
+                                        Commands.argument("flags", StringArgumentType.greedyString())
+                                                .suggests((context, builder) -> {
+                                                    Flags flags = new Flags(Map.of("logs", boolean.class, "plugins", boolean.class, "world", boolean.class));
+                                                    String[] suggestions = flags.suggest(builder.getRemainingLowerCase());
 
-                                                    return Command.SINGLE_SUCCESS;
-                                                })
-                                )
-                                .then(
-                                        Commands.literal("plugins")
-                                                .executes(context -> {
-                                                    lister(context, TaskObj.Types.PLUGINS);
+                                                    for (String suggestion : suggestions) {
+                                                        builder.suggest(suggestion);
+                                                    }
 
-                                                    return Command.SINGLE_SUCCESS;
+                                                    return builder.buildFuture();
                                                 })
-                                )
-                                .then(
-                                        Commands.literal("world")
                                                 .executes(context -> {
-                                                    lister(context, TaskObj.Types.WORLD);
+                                                    Flags flags = new Flags(Map.of("logs", boolean.class, "plugins", boolean.class, "world", boolean.class));
+                                                    String arg = StringArgumentType.getString(context, "flags");
+                                                    List<TaskObj.Types> types = new ArrayList<>();
+                                                    flags.suggest(arg);
+
+                                                    for (Map.Entry<String, Object> entry : flags.getAll().entrySet()) {
+                                                        if (Boolean.getBoolean(entry.getValue().toString())) {
+                                                            types.add(TaskObj.Types.valueOf(entry.getKey()));
+                                                        }
+                                                    }
+
+                                                    lister(context, types);
 
                                                     return Command.SINGLE_SUCCESS;
                                                 })
@@ -85,10 +95,11 @@ public class BackupCommand {
                 );
     }
 
-    private static void lister(CommandContext<CommandSourceStack> context, TaskObj.Types type) {
+    private static void lister(CommandContext<CommandSourceStack> context, List<TaskObj.Types> types) {
         int counter = 1;
-        boolean all = type == null;
-        BackupObj[] backups = Arrays.stream(TasksUtils.getBackups()).filter(backup -> backup.getType() == type).toArray(BackupObj[]::new);
+        BackupObj[] backups = Arrays.stream(TasksUtils.getBackups())
+                .filter(backup -> types == null || types.contains(backup.getType()))
+                .toArray(BackupObj[]::new);
 
         context.getSource().getSender().sendMessage(Component.text("Found ")
                 .append(Component.text(backups.length, NamedTextColor.DARK_GREEN))
@@ -97,7 +108,7 @@ public class BackupCommand {
         if (backups.length == 0) return;
 
         int idLength = Math.max(String.valueOf(backups.length).length(), 2);
-        int backupLength = "File".length();
+        int backupLength = 4; // "File".length()
 
         for (BackupObj backup : backups) {
             int tempBackupLen = backup.getFile().toString().length();
@@ -107,10 +118,10 @@ public class BackupCommand {
             }
         }
 
-        context.getSource().getSender().sendMessage(tableHeader(all, idLength, backupLength));
+        context.getSource().getSender().sendMessage(tableHeader(idLength, backupLength));
 
         for (BackupObj backup : backups) {
-            TextComponent component = backupOutput(all, backup, type, counter, idLength, backupLength);
+            TextComponent component = backupOutput(backup, types, counter, idLength, backupLength);
 
             if (component != null) {
                 context.getSource().getSender().sendMessage(component);
@@ -120,34 +131,28 @@ public class BackupCommand {
         }
     }
 
-    private static TextComponent tableHeader(boolean all, int idLength, int backupLength) {
+    private static TextComponent tableHeader(int idLength, int backupLength) {
         String id = " ".repeat(TasksUtils.nonNegative(idLength - 2));
         String backup = " ".repeat(TasksUtils.nonNegative(backupLength - 4));
 
-        TextComponent component = Component.text("ID" + id, NamedTextColor.DARK_GREEN)
+        return Component.text("ID" + id, NamedTextColor.DARK_GREEN)
                 .append(Component.text(" | ", NamedTextColor.WHITE))
-                .append(Component.text("File" + backup, NamedTextColor.DARK_GREEN));
-        if (all) {
-            return component.append(Component.text(" | ", NamedTextColor.WHITE))
-                    .append(Component.text("Type", NamedTextColor.DARK_GREEN));
-        }
-        return component;
+                .append(Component.text("File" + backup, NamedTextColor.DARK_GREEN))
+                .append(Component.text(" | ", NamedTextColor.WHITE))
+                .append(Component.text("Type", NamedTextColor.DARK_GREEN));
     }
 
-    private static TextComponent backupOutput(boolean all, BackupObj backup, TaskObj.Types type, int counter, int idLength, int backupLength) {
+    private static TextComponent backupOutput(BackupObj backup, List<TaskObj.Types> types, int counter, int idLength, int backupLength) {
         String idOffset = " ".repeat(TasksUtils.nonNegative(idLength - String.valueOf(counter).length()));
         String backupOffset = " ".repeat(TasksUtils.nonNegative(backupLength - backup.getFile().toPath().toString().length()));
 
         TextComponent component = Component.text(idOffset + counter, NamedTextColor.GREEN)
                 .append(Component.text(" | ", NamedTextColor.WHITE))
-                .append(Component.text(backup.getFile().toString() + backupOffset, NamedTextColor.GREEN));
+                .append(Component.text(backup.getFile().toString() + backupOffset, NamedTextColor.GREEN))
+                .append(Component.text(" | ", NamedTextColor.WHITE))
+                .append(Component.text(backup.getType().toString(), NamedTextColor.GREEN));
 
-        if (all) {
-            return component.append(Component.text(" | ", NamedTextColor.WHITE))
-                    .append(Component.text(backup.getType().toString(), NamedTextColor.GREEN));
-        }
-
-        if (backup.getType() == type) {
+        if (types == null || types.contains(backup.getType())) {
             return component;
         }
 

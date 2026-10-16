@@ -11,6 +11,9 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.diskium.management.PluginManagement;
+import org.diskium.utils.Flags;
+
+import java.util.Map;
 
 public class PluginsCommand {
 
@@ -20,27 +23,55 @@ public class PluginsCommand {
                 .then(
                         Commands.literal("disable")
                                 .then(
-                                        pluginSwitcher("thisInstance", true, true)
-                                )
-                                .then(
-                                        pluginSwitcher("untilManualyEnabled", true, false)
+                                        Commands.argument("plugin", StringArgumentType.word())
+                                                .suggests((context, builder) -> {
+                                                    Plugin[] plugins = Bukkit.getPluginManager().getPlugins();
+
+                                                    for (Plugin plugin : plugins) {
+                                                        builder.suggest(plugin.toString());
+                                                    }
+
+                                                    return builder.buildFuture();
+                                                })
+                                                .executes(context -> {
+                                                    Plugin plugin = Bukkit.getPluginManager().getPlugin(StringArgumentType.getString(context, "plugin"));
+                                                    pluginDisabler(plugin, true);
+
+                                                    return Command.SINGLE_SUCCESS;
+                                                })
+                                                .then(
+                                                        Commands.argument("flags", StringArgumentType.greedyString())
+                                                                .suggests((context, builder) -> {
+                                                                    Flags flags = new Flags(Map.of("persistentlyDisabled", boolean.class));
+                                                                    String[] suggestions = flags.suggest(builder.getRemainingLowerCase());
+
+                                                                    for (String suggestion : suggestions) {
+                                                                        builder.suggest(suggestion);
+                                                                    }
+
+                                                                    return builder.buildFuture();
+                                                                })
+                                                                .executes(context -> {
+                                                                    Plugin plugin = Bukkit.getPluginManager().getPlugin(StringArgumentType.getString(context, "plugin"));
+                                                                    Flags flags = new Flags(Map.of("persistentlyDisabled", boolean.class));
+                                                                    flags.suggest(StringArgumentType.getString(context, "flags"));
+                                                                    boolean thisInstance = true;
+
+                                                                    for (Map.Entry<String, Object> entry : flags.getAll().entrySet()) {
+                                                                        if (entry.getKey().equalsIgnoreCase("persistentlyDisabled")) {
+                                                                            thisInstance = !Boolean.getBoolean(entry.getValue().toString());
+                                                                        }
+                                                                    }
+
+                                                                    pluginDisabler(plugin, thisInstance);
+
+                                                                    return Command.SINGLE_SUCCESS;
+                                                                })
+                                                )
                                 )
                 )
-                .then(
-                        pluginSwitcher("enable", false, null)
-                )
-                .then(
-                        Commands.literal("delete")
-                                .then(
-                                        DeleteCommand.pluginDeleter("folder", false, true)
-                                )
-                                .then(
-                                        DeleteCommand.pluginDeleter("plugin", true, false)
-                                )
-                                .then(
-                                        DeleteCommand.pluginDeleter("both", true, true)
-                                )
-                )
+                .then(pluginEnabler())
+                .then(Commands.literal("delete").then(DeleteCommand.pluginDeleter()))
                 .then(
                         Commands.literal("info")
                                 .then(
@@ -86,57 +117,30 @@ public class PluginsCommand {
                 );
     }
 
-    private static LiteralArgumentBuilder<CommandSourceStack> pluginSwitcher(String literal, boolean enabled, Boolean thisInstance) {
-        return Commands.literal(literal)
+    private static void pluginDisabler(Plugin plugin, boolean thisInstance) {
+        if (thisInstance) {
+            PluginManagement.tempDisablePlugin(plugin);
+        } else {
+            PluginManagement.permDisablePlugin(plugin);
+        }
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> pluginEnabler() {
+        return Commands.literal("enable")
                 .then(
                         Commands.argument("plugin", StringArgumentType.word())
                                 .suggests((context, builder) -> {
-                                    for (Plugin pl : Bukkit.getPluginManager().getPlugins()) {
-                                        builder.suggest(pl.getName());
+                                    Plugin[] plugins = Bukkit.getPluginManager().getPlugins();
+
+                                    for (Plugin plugin : plugins) {
+                                        builder.suggest(plugin.toString());
                                     }
 
                                     return builder.buildFuture();
                                 })
                                 .executes(context -> {
-                                    Plugin pl = Bukkit.getPluginManager().getPlugin(StringArgumentType.getString(context, "plugin"));
-
-                                    if (enabled && thisInstance) {
-                                        if (PluginManagement.tempDisablePlugin(pl)) {
-                                            context.getSource().getSender().sendMessage(Component.text("Plugin ")
-                                                    .append(Component.text(pl.getName(), NamedTextColor.DARK_GREEN))
-                                                    .append(Component.text(" disabled")));
-                                        } else {
-                                            context.getSource().getSender().sendMessage(Component.text("Plugin ", NamedTextColor.RED)
-                                                    .append(Component.text(pl.getName(), NamedTextColor.DARK_GREEN))
-                                                    .append(Component.text(" couldn't be disabled", NamedTextColor.RED)));
-                                        }
-                                    } else if (enabled) {
-                                        if (PluginManagement.permDisablePlugin(pl)) {
-                                            context.getSource().getSender().sendMessage(Component.text("Plugin ")
-                                                    .append(Component.text(pl.getName(), NamedTextColor.DARK_GREEN))
-                                                    .append(Component.text(" disabled")));
-                                        } else {
-                                            context.getSource().getSender().sendMessage(Component.text("Plugin ", NamedTextColor.RED)
-                                                    .append(Component.text(pl.getName(), NamedTextColor.DARK_GREEN))
-                                                    .append(Component.text(" couldn't be disabled", NamedTextColor.RED)));
-                                        }
-                                    } else {
-                                        if (!PluginManagement.tempEnablePlugin(pl)) {
-                                            if (!PluginManagement.permEnablePlugin(pl)) {
-                                                context.getSource().getSender().sendMessage(Component.text("Plugin ", NamedTextColor.RED)
-                                                        .append(Component.text(pl.getName(), NamedTextColor.DARK_GREEN))
-                                                        .append(Component.text(" couldn't be enabled", NamedTextColor.RED)));
-                                            } else {
-                                                context.getSource().getSender().sendMessage(Component.text("Plugin ")
-                                                        .append(Component.text(pl.getName(), NamedTextColor.DARK_GREEN))
-                                                        .append(Component.text(" enabled")));
-                                            }
-                                        } else {
-                                            context.getSource().getSender().sendMessage(Component.text("Plugin ")
-                                                    .append(Component.text(pl.getName(), NamedTextColor.DARK_GREEN))
-                                                    .append(Component.text(" enabled")));
-                                        }
-                                    }
+                                    Plugin plugin = Bukkit.getPluginManager().getPlugin(StringArgumentType.getString(context, "plugin"));
+                                    PluginManagement.permEnablePlugin(plugin);
 
                                     return Command.SINGLE_SUCCESS;
                                 })
