@@ -16,6 +16,7 @@ import org.bukkit.plugin.Plugin;
 import org.diskium.management.LogsManagement;
 import org.diskium.management.PluginManagement;
 import org.diskium.objects.BackupObj;
+import org.diskium.objects.FlagObj;
 import org.diskium.objects.TaskObj;
 import org.diskium.utils.Flags;
 import org.diskium.utils.TasksUtils;
@@ -41,8 +42,8 @@ public class DeleteCommand {
                         .then(tasks()))
                 .then(
                         Commands.literal("world")
-                                .then(WorldCommand.worldArgSeparator(Commands.literal("allWorlds"), true))
-                                .then(WorldCommand.worldArgSeparator(Commands.argument("world", ArgumentTypes.world()), false))
+                                .then(WorldCommand.delete(true))
+                                .then(WorldCommand.delete(false))
                 ));
     }
 
@@ -98,7 +99,10 @@ public class DeleteCommand {
                 .then(
                         Commands.argument("flags", StringArgumentType.greedyString())
                                 .suggests((context, builder) -> {
-                                    Flags flags = new Flags(Map.of("jarFile", boolean.class, "folder", boolean.class));
+                                    Flags flags = new Flags(
+                                            new FlagObj<>("jarFile", true, false),
+                                            new FlagObj<>("folder", true, false)
+                                    );
                                     String[] suggestions = flags.suggest(builder.getRemainingLowerCase());
 
                                     for (String suggestion : suggestions) {
@@ -109,7 +113,10 @@ public class DeleteCommand {
                                 })
                                 .executes(context -> {
                                     Plugin pl = Bukkit.getPluginManager().getPlugin(StringArgumentType.getString(context, "plugin"));
-                                    Flags flags = new Flags(Map.of("jarFile", boolean.class, "folder", boolean.class));
+                                    Flags flags = new Flags(
+                                            new FlagObj<>("jarFile", true, false),
+                                            new FlagObj<>("folder", true, false)
+                                    );
                                     flags.suggest(StringArgumentType.getString(context, "flags"));
 
                                     boolean delPlugin = false;
@@ -155,13 +162,5 @@ public class DeleteCommand {
 
                     return Command.SINGLE_SUCCESS;
                 });
-    }
-
-    public static LiteralArgumentBuilder<CommandSourceStack> world(LiteralArgumentBuilder<CommandSourceStack> root, boolean all) {
-        return root.then(WorldCommand.range(Commands.literal("in"), true, all))
-                .then(WorldCommand.range(Commands.literal("out"), false, all))
-                .then(WorldCommand.buildChecker(Commands.literal("wholeWorld"), WorldCommand.Checker.WHOLE_WORLD, false, all))
-                .then(WorldCommand.sector(Commands.literal("region"), false, all))
-                .then(WorldCommand.sector(Commands.literal("chunk"), true, all));
     }
 }

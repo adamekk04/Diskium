@@ -10,6 +10,7 @@ import io.papermc.paper.command.brigadier.Commands;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.diskium.objects.FlagObj;
 import org.diskium.objects.TaskObj;
 import org.diskium.utils.Flags;
 import org.diskium.utils.TasksUtils;
@@ -32,7 +33,11 @@ public class TaskCommand {
                                 .then(
                                         Commands.argument("flags", StringArgumentType.greedyString())
                                                 .suggests((context, builder) -> {
-                                                    Flags flags = new Flags(Map.of("logs", boolean.class, "plugins", boolean.class, "world", boolean.class));
+                                                    Flags flags = new Flags(
+                                                            new FlagObj<>("logs", true, false),
+                                                            new FlagObj<>("plugins", true, false),
+                                                            new FlagObj<>("world", true, false)
+                                                    );
                                                     String[] suggestions = flags.suggest(builder.getRemainingLowerCase());
 
                                                     for (String suggestion : suggestions) {
@@ -42,7 +47,11 @@ public class TaskCommand {
                                                     return builder.buildFuture();
                                                 })
                                                 .executes(context -> {
-                                                    Flags flags = new Flags(Map.of("logs", boolean.class, "plugins", boolean.class, "world", boolean.class));
+                                                    Flags flags = new Flags(
+                                                            new FlagObj<>("logs", true, false),
+                                                            new FlagObj<>("plugins", true, false),
+                                                            new FlagObj<>("world", true, false)
+                                                    );
                                                     flags.suggest(StringArgumentType.getString(context, "flags"));
                                                     List<TaskObj.Types> types = new ArrayList<>();
 

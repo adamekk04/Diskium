@@ -11,6 +11,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.diskium.management.PluginManagement;
+import org.diskium.objects.FlagObj;
 import org.diskium.utils.Flags;
 
 import java.util.Map;
@@ -42,7 +43,9 @@ public class PluginsCommand {
                                                 .then(
                                                         Commands.argument("flags", StringArgumentType.greedyString())
                                                                 .suggests((context, builder) -> {
-                                                                    Flags flags = new Flags(Map.of("persistentlyDisabled", boolean.class));
+                                                                    Flags flags = new Flags(
+                                                                            new FlagObj<>("persistentlyDisabled", true, false)
+                                                                    );
                                                                     String[] suggestions = flags.suggest(builder.getRemainingLowerCase());
 
                                                                     for (String suggestion : suggestions) {
@@ -53,7 +56,9 @@ public class PluginsCommand {
                                                                 })
                                                                 .executes(context -> {
                                                                     Plugin plugin = Bukkit.getPluginManager().getPlugin(StringArgumentType.getString(context, "plugin"));
-                                                                    Flags flags = new Flags(Map.of("persistentlyDisabled", boolean.class));
+                                                                    Flags flags = new Flags(
+                                                                            new FlagObj<>("persistentlyDisabled", true, false)
+                                                                    );
                                                                     flags.suggest(StringArgumentType.getString(context, "flags"));
                                                                     boolean thisInstance = true;
 

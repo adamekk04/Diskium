@@ -214,8 +214,4 @@ public class WorldCommand {
             );
         }
     }
-
-    enum Checker {
-        WHOLE_WORLD,
-    }
 }
