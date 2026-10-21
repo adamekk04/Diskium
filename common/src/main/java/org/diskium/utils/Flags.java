@@ -1,44 +1,42 @@
 package org.diskium.utils;
 
 import org.diskium.MultiplatformLogger;
+import org.diskium.objects.FlagObj;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class Flags {
-    private final Map<String, Class<?>> base;
+    private final FlagObj[] base;
     private final String[] baseFlags;
+
     private String now;
+    private FlagObj flagNow;
     private Map<String, Object> parsed;
     private String[] parsedFlags;
 
-    public Flags(Map<String, Class<?>> base) {
+    @SafeVarargs
+    public Flags(FlagObj... base) {
         this.base = base;
-        List<String> baseFlags = new ArrayList<>();
-
-        for (Map.Entry<String, Class<?>> entry : base.entrySet()) {
-            baseFlags.add(entry.getKey());
-        }
-
-        this.baseFlags = baseFlags.toArray(String[]::new);
+        this.baseFlags = Arrays.stream(base).map(FlagObj::getName).toArray(String[]::new);
     }
 
     public String[] suggest(String typed) {
         this.now = typed;
         parseNames();
 
-        return Arrays.stream(this.baseFlags)
-                .filter(item -> !Arrays.stream(this.parsedFlags).toList().contains(item))
-                .toArray(String[]::new);
+        boolean isFlag = typed.lastIndexOf("--") > typed.lastIndexOf('=');
+
+        if (isFlag) {
+            return Arrays.stream(this.baseFlags)
+                    .filter(item -> !Arrays.stream(this.parsedFlags).toList().contains(item))
+                    .toArray(String[]::new);
+        }
+
+        return flagNow.suggest(typed);
     }
 
     public Map<String, Object> getAll() {
-        parseAll();
-
-        return this.parsed;
-    }
-
-    private void parseAll() {
         parseNames();
 
         this.parsed = Arrays.stream(this.parsedFlags)
@@ -47,16 +45,24 @@ public class Flags {
                         parts -> parts[0],
                         parts -> parts.length == 1 ? Boolean.TRUE : parseValue(parts[0], parts[1])
                 ));
+
+        return this.parsed;
     }
 
     private void parseNames() {
         this.parsedFlags = Arrays.stream(now.replace(" ", "").split("--"))
                 .filter(s -> !s.isEmpty())
                 .toArray(String[]::new);
+
+        this.flagNow = getFlagByName(Arrays.stream(this.parsedFlags).toList().getLast());
     }
 
     private Object parseValue(String name, String value) {
-        Class<?> type = this.base.get(name);
+        Class<?> type = Arrays.stream(this.base).filter(flag -> flag.getName().equalsIgnoreCase(name))
+                .toList()
+                .getFirst()
+                .getValueClass();
+
         try {
             if (type == String.class) {
                 return value;
@@ -77,22 +83,9 @@ public class Flags {
         return null;
     }
 
-    private boolean canParse(Object object, Class<?> type) {
-        if (type == String.class) {
-            return true;
-        }
-        if (type == Integer.class) {
-            try {
-                Integer.parseInt(object.toString());
-                return true;
-            } catch (NumberFormatException e) {
-                return false;
-            }
-        }
-        if (type == Boolean.class || type == boolean.class) {
-            return (object.toString().equalsIgnoreCase("true") || object.toString().equalsIgnoreCase("false"));
-        }
-
-        return false;
+    private FlagObj getFlagByName(String name) {
+        return Arrays.stream(this.base).filter(flag -> flag.getName().equalsIgnoreCase(name))
+                .toList()
+                .getFirst();
     }
 }

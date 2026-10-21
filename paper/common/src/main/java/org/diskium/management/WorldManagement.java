@@ -80,8 +80,8 @@ public class WorldManagement {
         FileUtils.safeDel(world.getWorldFolder(), FileUtils.DelSpecifier.USE_TASK_QUEUE);
     }
 
-    public static void del(World world, boolean in, int radius, boolean checkForBuilds) {
-        Chunk[] chunks = getAllChunks(world, radius, in);
+    public static void del(World world, boolean in, int radius, boolean checkForBuilds, Location center) {
+        Chunk[] chunks = getAllChunks(world, radius, in, center);
         Map<Chunk, Boolean> chunksQueue = new HashMap<>();
 
         if (checkForBuilds) {
@@ -169,13 +169,6 @@ public class WorldManagement {
         return true;
     }
 
-    public static List<Chunk> getGeneratedChunksInRegion(Chunk ch) {
-        File file = FileManagement.getRegionFile(ch.getX(), ch.getZ(), ch.getWorld());
-        int[][] chunks = Parser.parse(file);
-
-        return coordsToChunk(chunks, ch.getWorld());
-    }
-
     public static List<Chunk> getGeneratedChunksInRegion(Region region) {
         File file = FileManagement.getRegionFile(region);
         int[][] chunks = Parser.parse(file);
@@ -183,9 +176,9 @@ public class WorldManagement {
         return coordsToChunk(chunks, region.getWorld());
     }
 
-    private static Chunk[] getAllChunks(World world, int radius, boolean in) {
+    private static Chunk[] getAllChunks(World world, int radius, boolean in, Location center) {
         List<Chunk> allChunks = new ArrayList<>();
-        File[] files = getRegionFiles(world, radius, in);
+        File[] files = getRegionFiles(world, radius, in, center);
 
         for (File file : files) {
             allChunks.addAll(new Region(file, world).getChunks());
@@ -212,8 +205,12 @@ public class WorldManagement {
         return dir.listFiles(file -> !file.isDirectory() && file.toPath().endsWith(".mca"));
     }
 
-    private static File[] getRegionFiles(World world, int radius, boolean in) {
+    private static File[] getRegionFiles(World world, int radius, boolean in, Location center) {
         File dir = new File(world.getWorldFolder(), "region");
+        int regionRadius = WorldUtils.blockToRegion(radius);
+        int regionX = WorldUtils.blockToRegion(center.getBlockX());
+        int regionZ = WorldUtils.blockToRegion(center.getBlockZ());
+
         return dir.listFiles(file -> {
             if (file.isDirectory() || !file.getName().endsWith(".mca")) {
                 return false;
@@ -225,9 +222,9 @@ public class WorldManagement {
             int z = Integer.parseInt(parts[1]);
 
             if (in) {
-                return Math.max(x, z) < WorldUtils.blockToRegion(radius);
+                return Math.abs(regionX - x) < regionRadius && Math.abs(regionZ - z) < regionRadius;
             } else {
-                return Math.max(x, z) > WorldUtils.blockToRegion(radius);
+                return Math.abs(regionX - x) > regionRadius && Math.abs(regionZ - z) > regionRadius;
             }
         });
     }
