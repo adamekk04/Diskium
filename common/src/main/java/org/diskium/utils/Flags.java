@@ -1,6 +1,7 @@
 package org.diskium.utils;
 
 import org.diskium.MultiplatformLogger;
+import org.diskium.objects.DependingFlagObj;
 import org.diskium.objects.FlagObj;
 
 import java.util.*;
@@ -28,8 +29,14 @@ public class Flags {
         boolean isFlag = typed.lastIndexOf("--") > typed.lastIndexOf('=');
 
         if (isFlag) {
-            return Arrays.stream(this.baseFlags)
-                    .filter(item -> !Arrays.stream(this.parsedFlags).toList().contains(item))
+            return Arrays.stream(this.base)
+                    .filter(flag -> {
+                        if (flag instanceof DependingFlagObj dependingFlag) {
+                            return dependingFlag.isFlagDepending(getAll());
+                        }
+
+                        return !Arrays.stream(this.parsedFlags).toList().contains(flag.getName());
+                    } )
                     .toArray(String[]::new);
         }
 

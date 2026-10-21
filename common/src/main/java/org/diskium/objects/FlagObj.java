@@ -29,6 +29,10 @@ public class FlagObj <T> {
         return this.name;
     }
 
+    public T[] getOptions() {
+        return options;
+    }
+
     public Class<?> getValueClass() {
         return options.getClass().getComponentType();
     }

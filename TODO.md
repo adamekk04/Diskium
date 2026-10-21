@@ -14,7 +14,7 @@
   - [x] plugins
   - [x] tasks
   - [x] world
-  - [ ] implement dependingflagobj into flags
+  - [x] implement dependingflagobj into flags
   - [ ] add tests for FlagObj & Flags classes
 - [ ] Add filtering options for logs & plugins commands and migrate to flags
 - [ ] 26.1.2 support
