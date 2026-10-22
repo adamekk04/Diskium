@@ -26,17 +26,18 @@ public class Flags {
         this.now = typed;
         parseNames();
 
-        boolean isFlag = typed.lastIndexOf("--") > typed.lastIndexOf('=');
+        int flagStart = typed.lastIndexOf("--");
+        boolean isFlag = typed.isBlank() || flagStart > typed.lastIndexOf('=');
 
         if (isFlag) {
-            String prefix = typed.substring(typed.lastIndexOf("--") + 2).trim().toLowerCase();
+            String prefix = flagStart < 0 ? "" : typed.substring(flagStart + 2).strip().toLowerCase();
             boolean entered = Arrays.stream(this.base).anyMatch(flag -> flag.getName().equalsIgnoreCase(prefix));
 
             return Arrays.stream(this.base)
                     .filter(flag -> Arrays.stream(this.parsedFlags)
                             .map(value -> value.split("=", 2)[0])
                             .noneMatch(name -> name.equalsIgnoreCase(flag.getName())))
-                    .filter(flag -> entered || flag.getName().toLowerCase(Locale.ROOT).startsWith(prefix))
+                    .filter(flag -> entered || flag.getName().toLowerCase().startsWith(prefix))
                     .filter(flag -> {
                         if (flag instanceof DependingFlagObj dependingFlag) {
                             return dependingFlag.isFlagDepending(getAll());
@@ -50,7 +51,7 @@ public class Flags {
 
         String current = typed.substring(typed.lastIndexOf("--") + 2);
         String[] parts = current.split("=", 2);
-        this.flagNow = getFlagByName(parts[0]);
+        this.flagNow = getFlagByName(parts[0]).get();
         return flagNow.suggest(parts.length == 2 ? parts[1] : "");
     }
 
@@ -59,16 +60,19 @@ public class Flags {
 
         this.parsed = Arrays.stream(this.parsedFlags)
                 .map(flag -> flag.split("=", 2))
+                .filter(parts -> getFlagByName(parts[0]).isPresent())
                 .collect(Collectors.toMap(
-                        parts -> parts[0],
-                        parts -> parts.length == 1 ? Boolean.TRUE : parseValue(parts[0], parts[1])
+                        parts -> getFlagByName(parts[0]).orElseThrow().getName(),
+                        parts -> parts.length == 1 ? Boolean.TRUE : parseValue(parts[0], parts[1]),
+                        (previous, latest) -> latest
                 ));
 
         return this.parsed;
     }
 
     private void parseNames() {
-        this.parsedFlags = Arrays.stream(now.replace(" ", "").split("--"))
+        this.parsedFlags = Arrays.stream(now.split("--"))
+                .map(String::strip)
                 .filter(s -> !s.isEmpty())
                 .toArray(String[]::new);
     }
@@ -96,12 +100,14 @@ public class Flags {
             MultiplatformLogger.error("Couldn't parse integer: " + value);
         }
 
-        return null;
+        throw new IllegalArgumentException(
+                "Invalid value '" + value + "' for flag --" + name
+        );
     }
 
-    private FlagObj getFlagByName(String name) {
-        return Arrays.stream(this.base).filter(flag -> flag.getName().equalsIgnoreCase(name))
-                .toList()
-                .getFirst();
+    private Optional<FlagObj> getFlagByName(String name) {
+        return Arrays.stream(this.base)
+                .filter(flag -> flag.getName().equalsIgnoreCase(name))
+                .findFirst();
     }
 }

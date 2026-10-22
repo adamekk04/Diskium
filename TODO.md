@@ -15,7 +15,9 @@
   - [x] tasks
   - [x] world
   - [x] implement dependingflagobj into flags
-  - [ ] add tests for FlagObj & Flags classes
+  - [x] add tests for FlagObj & Flags classes
+  - [x] fix issues being caused by failing tests
+  - [ ] change `builder.suggest` to `builder.createOffset`
 - [ ] Add filtering options for logs & plugins commands and migrate to flags
 - [ ] 26.1.2 support
 

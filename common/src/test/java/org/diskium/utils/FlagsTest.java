@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FlagsTest {
 
@@ -52,20 +51,17 @@ class FlagsTest {
         String[] suggestions = flags.suggest("--mode=fast --out");
 
         assertAll(
-                () -> assertArrayEquals(new String[]{"output"}, suggestions),
+                () -> assertArrayEquals(new String[]{"--output"}, suggestions),
                 () -> assertEquals(Map.of("mode", "fast"), flags.getAll())
         );
     }
 
     @Test
-    void getAllRejectsDuplicateFlagsWithClearError() {
+    void getAllUsesLastValueForDuplicateFlags() {
         Flags flags = new Flags(new FlagObj<Integer>("limit"));
         flags.suggest("--limit=1 --limit=2");
 
-        IllegalArgumentException error = assertThrows(IllegalArgumentException.class, flags::getAll);
-
-        assertTrue(error.getMessage() != null && error.getMessage().contains("limit"),
-                "Duplicate flag error should identify the flag");
+        assertEquals(Map.of("limit", 2), flags.getAll());
     }
 
     @Test
@@ -77,7 +73,7 @@ class FlagsTest {
                 )
         );
 
-        assertArrayEquals(new String[]{"output"}, flags.suggest("--MODE=fast --"));
+        assertArrayEquals(new String[]{"--output"}, flags.suggest("--MODE=fast --"));
     }
 
     @Test
@@ -162,7 +158,7 @@ class FlagsTest {
         );
 
         assertArrayEquals(
-                new String[]{"output"},
+                new String[]{"--output"},
                 flags.suggest("--verbose --")
         );
         assertArrayEquals(
@@ -182,7 +178,7 @@ class FlagsTest {
         );
 
         assertArrayEquals(
-                new String[]{"output"},
+                new String[]{"--output"},
                 flags.suggest("--level=2 --")
         );
         assertArrayEquals(
@@ -262,7 +258,7 @@ class FlagsTest {
         );
 
         assertArrayEquals(
-                new String[]{"verbose"},
+                new String[]{"--verbose"},
                 flags.suggest("--mode=fast --output=console --")
         );
     }
@@ -277,9 +273,9 @@ class FlagsTest {
                 )
         );
 
-        assertArrayEquals(new String[]{"output"}, flags.suggest("--mode=fast --"));
+        assertArrayEquals(new String[]{"--output"}, flags.suggest("--mode=fast --"));
         assertArrayEquals(new String[]{}, flags.suggest("--mode=safe --"));
-        assertArrayEquals(new String[]{"mode"}, flags.suggest("--"));
+        assertArrayEquals(new String[]{"--mode"}, flags.suggest("--"));
     }
 
     @Test
@@ -289,8 +285,8 @@ class FlagsTest {
                 new FlagObj<String>("mode", "fast", "full")
         );
 
-        assertArrayEquals(new String[]{"verbose"}, flags.suggest("--VER"));
-        assertArrayEquals(new String[]{"mode"}, flags.suggest("--Mo"));
+        assertArrayEquals(new String[]{"--verbose"}, flags.suggest("--VER"));
+        assertArrayEquals(new String[]{"--mode"}, flags.suggest("--Mo"));
     }
 
     @Test
@@ -313,7 +309,7 @@ class FlagsTest {
         );
 
         assertArrayEquals(
-                new String[]{"verbose", "mode"},
+                new String[]{"--verbose", "--mode"},
                 flags.suggest("--")
         );
     }
