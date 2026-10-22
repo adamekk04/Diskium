@@ -29,18 +29,29 @@ public class Flags {
         boolean isFlag = typed.lastIndexOf("--") > typed.lastIndexOf('=');
 
         if (isFlag) {
+            String prefix = typed.substring(typed.lastIndexOf("--") + 2).trim().toLowerCase();
+            boolean entered = Arrays.stream(this.base).anyMatch(flag -> flag.getName().equalsIgnoreCase(prefix));
+
             return Arrays.stream(this.base)
+                    .filter(flag -> Arrays.stream(this.parsedFlags)
+                            .map(value -> value.split("=", 2)[0])
+                            .noneMatch(name -> name.equalsIgnoreCase(flag.getName())))
+                    .filter(flag -> entered || flag.getName().toLowerCase(Locale.ROOT).startsWith(prefix))
                     .filter(flag -> {
                         if (flag instanceof DependingFlagObj dependingFlag) {
                             return dependingFlag.isFlagDepending(getAll());
                         }
 
-                        return !Arrays.stream(this.parsedFlags).toList().contains(flag.getName());
+                        return true;
                     } )
+                    .map(flag -> "--" + flag.getName())
                     .toArray(String[]::new);
         }
 
-        return flagNow.suggest(typed);
+        String current = typed.substring(typed.lastIndexOf("--") + 2);
+        String[] parts = current.split("=", 2);
+        this.flagNow = getFlagByName(parts[0]);
+        return flagNow.suggest(parts.length == 2 ? parts[1] : "");
     }
 
     public Map<String, Object> getAll() {
@@ -60,8 +71,6 @@ public class Flags {
         this.parsedFlags = Arrays.stream(now.replace(" ", "").split("--"))
                 .filter(s -> !s.isEmpty())
                 .toArray(String[]::new);
-
-        this.flagNow = getFlagByName(Arrays.stream(this.parsedFlags).toList().getLast());
     }
 
     private Object parseValue(String name, String value) {

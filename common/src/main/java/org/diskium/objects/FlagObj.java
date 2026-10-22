@@ -17,7 +17,7 @@ public class FlagObj <T> {
         List<String> suggestions = new ArrayList<>();
 
         for (T suggestion : this.options) {
-            if (suggestion.toString().startsWith(typed)) {
+            if (suggestion.toString().toLowerCase().startsWith(typed.toLowerCase())) {
                 suggestions.add(suggestion.toString());
             }
         }
