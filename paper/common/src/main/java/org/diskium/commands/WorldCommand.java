@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
@@ -89,13 +90,20 @@ public class WorldCommand {
                                     Flags flags = new Flags(
                                             new FlagObj("naturally", true, false)
                                     );
-                                    String[] suggestions = flags.suggest(builder.getRemainingLowerCase());
+                                    String typed = builder.getRemaining();
+                                    String[] suggestions = flags.suggest(typed);
+
+                                    int flagStart = typed.lastIndexOf("--");
+                                    int equals = typed.lastIndexOf('=');
+
+                                    int offset = equals > flagStart ? equals + 1 : Math.max(0, flagStart);
+                                    SuggestionsBuilder completion = builder.createOffset(builder.getStart() + offset);
 
                                     for (String suggestion : suggestions) {
-                                        builder.suggest(suggestion);
+                                        completion.suggest(suggestion);
                                     }
 
-                                    return builder.buildFuture();
+                                    return completion.buildFuture();
                                 })
                                 .executes(context -> {
                                     Flags flags = new Flags(
@@ -141,13 +149,20 @@ public class WorldCommand {
                             new DependingFlagObj<Integer>("x", "checker", new String[]{"chunk", "region"}),
                             new DependingFlagObj<>("in", "checker", new String[]{"range"}, true, false)
                     );
-                    String[] suggestions = flags.suggest(builder.getRemainingLowerCase());
+                    String typed = builder.getRemaining();
+                    String[] suggestions = flags.suggest(typed);
+
+                    int flagStart = typed.lastIndexOf("--");
+                    int equals = typed.lastIndexOf('=');
+
+                    int offset = equals > flagStart ? equals + 1 : Math.max(0, flagStart);
+                    SuggestionsBuilder completion = builder.createOffset(builder.getStart() + offset);
 
                     for (String suggestion : suggestions) {
-                        builder.suggest(suggestion);
+                        completion.suggest(suggestion);
                     }
 
-                    return builder.buildFuture();
+                    return completion.buildFuture();
                 })
                 .executes(context -> {
                     Flags flags = new Flags(
@@ -173,7 +188,7 @@ public class WorldCommand {
                 });
     }
 
-    private static void deleteLogic(World world, Flags flags) { //checker: chunk, region
+    private static void deleteLogic(World world, Flags flags) {
         Map<String, Object> map = flags.getAll();
         String checker = map.get("checker").toString();
         boolean checkForBuilds = Boolean.parseBoolean(map.get("checkForBuilds").toString());
