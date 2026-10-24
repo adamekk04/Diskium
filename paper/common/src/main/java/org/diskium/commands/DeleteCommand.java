@@ -109,8 +109,12 @@ public class DeleteCommand {
 
                                     int flagStart = typed.lastIndexOf("--");
                                     int equals = typed.lastIndexOf('=');
+                                    int lastSpace = typed.lastIndexOf(' ');
 
                                     int offset = equals > flagStart ? equals + 1 : Math.max(0, flagStart);
+                                    if (offset < lastSpace) {
+                                        offset = lastSpace + 1;
+                                    }
                                     SuggestionsBuilder completion = builder.createOffset(builder.getStart() + offset);
 
                                     for (String suggestion : suggestions) {
