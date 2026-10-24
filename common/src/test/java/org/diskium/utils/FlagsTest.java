@@ -51,7 +51,7 @@ class FlagsTest {
         String[] suggestions = flags.suggest("--mode=fast --out");
 
         assertAll(
-                () -> assertArrayEquals(new String[]{"--output"}, suggestions),
+                () -> assertArrayEquals(new String[]{"--output="}, suggestions),
                 () -> assertEquals(Map.of("mode", "fast"), flags.getAll())
         );
     }
@@ -73,7 +73,7 @@ class FlagsTest {
                 )
         );
 
-        assertArrayEquals(new String[]{"--output"}, flags.suggest("--MODE=fast --"));
+        assertArrayEquals(new String[]{"--output="}, flags.suggest("--MODE=fast --"));
     }
 
     @Test
@@ -86,7 +86,7 @@ class FlagsTest {
                 )
         );
 
-        assertArrayEquals(new String[]{"--verbose", "--mode"}, flags.suggest(""));
+        assertArrayEquals(new String[]{"--verbose", "--mode="}, flags.suggest(""));
     }
 
     @Test
@@ -158,7 +158,7 @@ class FlagsTest {
         );
 
         assertArrayEquals(
-                new String[]{"--output"},
+                new String[]{"--output="},
                 flags.suggest("--verbose --")
         );
         assertArrayEquals(
@@ -178,7 +178,7 @@ class FlagsTest {
         );
 
         assertArrayEquals(
-                new String[]{"--output"},
+                new String[]{"--output="},
                 flags.suggest("--level=2 --")
         );
         assertArrayEquals(
@@ -273,9 +273,9 @@ class FlagsTest {
                 )
         );
 
-        assertArrayEquals(new String[]{"--output"}, flags.suggest("--mode=fast --"));
+        assertArrayEquals(new String[]{"--output="}, flags.suggest("--mode=fast --"));
         assertArrayEquals(new String[]{}, flags.suggest("--mode=safe --"));
-        assertArrayEquals(new String[]{"--mode"}, flags.suggest("--"));
+        assertArrayEquals(new String[]{"--mode="}, flags.suggest("--"));
     }
 
     @Test
@@ -286,7 +286,7 @@ class FlagsTest {
         );
 
         assertArrayEquals(new String[]{"--verbose"}, flags.suggest("--VER"));
-        assertArrayEquals(new String[]{"--mode"}, flags.suggest("--Mo"));
+        assertArrayEquals(new String[]{"--mode="}, flags.suggest("--Mo"));
     }
 
     @Test
@@ -309,7 +309,7 @@ class FlagsTest {
         );
 
         assertArrayEquals(
-                new String[]{"--verbose", "--mode"},
+                new String[]{"--verbose", "--mode="},
                 flags.suggest("--")
         );
     }
