@@ -36,7 +36,7 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           fail_on_unmatched_files: true
-          files: paper/*/build/libs/*.jar
+          files: "*/*/build/libs/*.jar"
 
   dependency-submission:
     runs-on: ubuntu-latest

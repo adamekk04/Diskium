@@ -1,6 +1,6 @@
 # Diskium
 
-> **WARNING, THIS PLUGIN IS STILL IN DEVELOPMENT! IT'S NOT FINISHED YET AND USE IT AT YOUR OWN RISK!**
+> **WARNING, THIS PLUGIN IS IN ALPHA, IT MAY BE VERY UNSTABLE AND HAVE BUGS!**
 
 Diskium is a Minecraft Paper plugin to manage server files and free up disk space on your Minecraft server.
 
@@ -16,7 +16,7 @@ Diskium is a Minecraft Paper plugin to manage server files and free up disk spac
 
 ## Requirements
 
-- Paper **26.2** or **26.3**
+- Paper **26.1.2**, **26.2** or **26.3**
 - **Java 25**
 
 ## Installation
@@ -31,8 +31,14 @@ Diskium is a Minecraft Paper plugin to manage server files and free up disk spac
 ./gradlew build
 ```
 
-The two compiled jars will be in `paper/26.2/build/libs/` and
-`paper/26.3/build/libs/`.
+If you want to build specific version, use:
+
+```bash
+./gradlew :paper:<version>:build
+```
+_e.g. use `./gradlew :paper:26.3:build` for 26.3._
+
+Compiled jars will be in `paper/<version>/build/libs/`.
 
 ## License
 

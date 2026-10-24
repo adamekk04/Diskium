@@ -14,8 +14,16 @@ dependencyResolutionManagement {
 
 rootProject.name = "Diskium"
 
-include(
-    "common",
-    "paper:26.2",
-    "paper:26.3"
-)
+include("common")
+
+// Each platform owns its build configuration and version modules.
+providers.gradleProperty("platforms").get().split(",")
+    .map { it.trim() }
+    .filter { it.isNotEmpty() }
+    .forEach { platform ->
+        include(platform)
+        file(platform).listFiles()
+            ?.filter { it.isDirectory && it.resolve("build.gradle.kts").isFile }
+            ?.sortedBy { it.name }
+            ?.forEach { include("$platform:${it.name}") }
+    }
