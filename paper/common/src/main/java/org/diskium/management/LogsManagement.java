@@ -34,18 +34,8 @@ public class LogsManagement {
         return new File[0];
     }
 
-    public static boolean delete(String start, String end) {
-        File[] logs;
-
-        if (!DateUtils.isValidDate(start, end)) return false;
-        if (start == null && end == null) {
-            logs = getLogs(null, null);
-        } else if (start == null) {
-            logs = getLogs(getOldest(), LocalDate.parse(end));
-        } else {
-            logs = getLogs(LocalDate.parse(start), getNewest());
-        }
-        if (logs == null) return false;
+    public static boolean delete(LocalDate start, LocalDate end) {
+        File[] logs = getLogs(start, end);
 
         for (File log : logs) {
             FileUtils.safeDel(log, FileUtils.DelSpecifier.LOGS);

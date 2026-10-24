@@ -23,7 +23,7 @@ import org.diskium.utils.Flags;
 import org.diskium.utils.TasksUtils;
 
 import java.io.File;
-import java.util.Map;
+import java.time.LocalDate;import java.util.Map;
 
 public class DeleteCommand {
 
@@ -86,6 +86,19 @@ public class DeleteCommand {
         );
 
         LogsManagement.delete(null, null);
+    }
+
+    public static void logsExec(CommandContext<CommandSourceStack> context, LocalDate since, LocalDate until) {
+        File[] logs = LogsManagement.getLogs(since, until);
+
+        context.getSource().getSender().sendMessage(
+                Component.text("Found ")
+                        .append(Component.text(logs.length, NamedTextColor.DARK_GREEN))
+                        .append(Component.text(logs.length == 1 ? " log, " : " logs, "))
+                        .append(Component.text("DELETING!", NamedTextColor.RED))
+        );
+
+        LogsManagement.delete(since, until);
     }
 
     public static RequiredArgumentBuilder<CommandSourceStack, ?> pluginDeleter() {

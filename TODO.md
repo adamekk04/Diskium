@@ -18,7 +18,7 @@
   - [x] add tests for FlagObj & Flags classes
   - [x] fix issues being caused by failing tests
   - [x] change `builder.suggest` to `builder.createOffset`
-- [ ] Add filtering options for logs & plugins commands and migrate to flags
+- [x] Add filtering options for logs & plugins commands and migrate to flags
 - [ ] 26.1.2 support
 
 ---
