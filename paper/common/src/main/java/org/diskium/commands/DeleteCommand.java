@@ -6,6 +6,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
@@ -16,10 +17,13 @@ import org.bukkit.plugin.Plugin;
 import org.diskium.management.LogsManagement;
 import org.diskium.management.PluginManagement;
 import org.diskium.objects.BackupObj;
+import org.diskium.objects.FlagObj;
 import org.diskium.objects.TaskObj;
+import org.diskium.utils.Flags;
 import org.diskium.utils.TasksUtils;
 
 import java.io.File;
+import java.util.Map;
 
 public class DeleteCommand {
 
@@ -34,21 +38,13 @@ public class DeleteCommand {
                             return Command.SINGLE_SUCCESS;
                         }))
                 .then(Commands.literal("plugins")
-                        .then(
-                                DeleteCommand.pluginDeleter("folder", false, true)
-                        )
-                        .then(
-                                DeleteCommand.pluginDeleter("plugin", true, false)
-                        )
-                        .then(
-                                DeleteCommand.pluginDeleter("both", true, true)
-                        ))
+                        .then(DeleteCommand.pluginDeleter()))
                 .then(Commands.literal("tasks")
                         .then(tasks()))
                 .then(
                         Commands.literal("world")
-                                .then(WorldCommand.worldArgSeparator(Commands.literal("allWorlds"), true))
-                                .then(WorldCommand.worldArgSeparator(Commands.argument("world", ArgumentTypes.world()), false))
+                                .then(WorldCommand.delete(true))
+                                .then(WorldCommand.delete(false))
                 );
     }
 
@@ -92,19 +88,59 @@ public class DeleteCommand {
         LogsManagement.delete(null, null);
     }
 
-    public static LiteralArgumentBuilder<CommandSourceStack> pluginDeleter(String literal, boolean delPlugin, boolean delFolder) {
-        return Commands.literal(literal)
+    public static RequiredArgumentBuilder<CommandSourceStack, ?> pluginDeleter() {
+        return Commands.argument("plugin", StringArgumentType.word())
+                .suggests((context, builder) -> {
+                    for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
+                        builder.suggest(plugin.getName());
+                    }
+
+                    return builder.buildFuture();
+                })
                 .then(
-                        Commands.argument("plugin", StringArgumentType.word())
+                        Commands.argument("flags", StringArgumentType.greedyString())
                                 .suggests((context, builder) -> {
-                                    for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
-                                        builder.suggest(plugin.getName());
+                                    Flags flags = new Flags(
+                                            new FlagObj<>("jarFile", true, false),
+                                            new FlagObj<>("folder", true, false)
+                                    );
+                                    String typed = builder.getRemaining();
+                                    String[] suggestions = flags.suggest(typed);
+
+                                    int flagStart = typed.lastIndexOf("--");
+                                    int equals = typed.lastIndexOf('=');
+                                    int lastSpace = typed.lastIndexOf(' ');
+
+                                    int offset = equals > flagStart ? equals + 1 : Math.max(0, flagStart);
+                                    if (offset < lastSpace) {
+                                        offset = lastSpace + 1;
+                                    }
+                                    SuggestionsBuilder completion = builder.createOffset(builder.getStart() + offset);
+
+                                    for (String suggestion : suggestions) {
+                                        completion.suggest(suggestion);
                                     }
 
-                                    return builder.buildFuture();
+                                    return completion.buildFuture();
                                 })
                                 .executes(context -> {
-                                    Plugin pl = Bukkit.getPluginManager().getPlugin(context.getArgument("plugin", String.class));
+                                    Plugin pl = Bukkit.getPluginManager().getPlugin(StringArgumentType.getString(context, "plugin"));
+                                    Flags flags = new Flags(
+                                            new FlagObj<>("jarFile", true, false),
+                                            new FlagObj<>("folder", true, false)
+                                    );
+                                    flags.suggest(StringArgumentType.getString(context, "flags"));
+
+                                    boolean delPlugin = false;
+                                    boolean delFolder = false;
+
+                                    for (Map.Entry<String, Object> entry : flags.getAll().entrySet()) {
+                                        if (entry.getKey().equalsIgnoreCase("jarFile")) {
+                                            delPlugin = Boolean.parseBoolean(entry.getValue().toString());
+                                        } else {
+                                            delFolder = Boolean.parseBoolean(entry.getValue().toString());
+                                        }
+                                    }
 
                                     if (PluginManagement.del(pl, delPlugin, delFolder)) {
                                         context.getSource().getSender().sendMessage("Deletion was successful.");
@@ -138,13 +174,5 @@ public class DeleteCommand {
 
                     return Command.SINGLE_SUCCESS;
                 });
-    }
-
-    public static LiteralArgumentBuilder<CommandSourceStack> world(LiteralArgumentBuilder<CommandSourceStack> root, boolean all) {
-        return root.then(WorldCommand.range(Commands.literal("in"), true, all))
-                .then(WorldCommand.range(Commands.literal("out"), false, all))
-                .then(WorldCommand.buildChecker(Commands.literal("wholeWorld"), WorldCommand.Checker.WHOLE_WORLD, false, all))
-                .then(WorldCommand.sector(Commands.literal("region"), false, all))
-                .then(WorldCommand.sector(Commands.literal("chunk"), true, all));
     }
 }
