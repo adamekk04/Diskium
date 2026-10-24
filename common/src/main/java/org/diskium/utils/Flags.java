@@ -27,10 +27,23 @@ public class Flags {
         parseNames();
 
         int flagStart = typed.lastIndexOf("--");
-        boolean isFlag = typed.isBlank() || flagStart > typed.lastIndexOf('=');
+        boolean completedOption = false;
+
+        if (flagStart >= 0 && typed.endsWith(" ")) {
+            String[] parts = typed.substring(flagStart + 2).stripTrailing().split("=", 2);
+
+            if (parts.length == 2) {
+                completedOption = getFlagByName(parts[0])
+                        .map(flag -> Arrays.stream(flag.getOptions())
+                                .anyMatch(option -> option.toString().equalsIgnoreCase(parts[1])))
+                        .orElse(false);
+            }
+        }
+
+        boolean isFlag = typed.isBlank() || flagStart > typed.lastIndexOf('=') || completedOption;
 
         if (isFlag) {
-            String prefix = flagStart < 0 ? "" : typed.substring(flagStart + 2).strip().toLowerCase();
+            String prefix = completedOption || flagStart < 0 ? "" : typed.substring(flagStart + 2).strip().toLowerCase();
             boolean entered = Arrays.stream(this.base).anyMatch(flag -> flag.getName().equalsIgnoreCase(prefix));
 
             return Arrays.stream(this.base)
