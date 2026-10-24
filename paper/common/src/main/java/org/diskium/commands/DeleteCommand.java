@@ -38,14 +38,14 @@ public class DeleteCommand {
                             return Command.SINGLE_SUCCESS;
                         }))
                 .then(Commands.literal("plugins")
-                        .then(DeleteCommand.pluginDeleter())
+                        .then(DeleteCommand.pluginDeleter()))
                 .then(Commands.literal("tasks")
                         .then(tasks()))
                 .then(
                         Commands.literal("world")
                                 .then(WorldCommand.delete(true))
                                 .then(WorldCommand.delete(false))
-                ));
+                );
     }
 
     public static RequiredArgumentBuilder<CommandSourceStack, ?> backups() {
