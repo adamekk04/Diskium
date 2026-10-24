@@ -45,7 +45,12 @@ public class Flags {
 
                         return true;
                     } )
-                    .map(flag -> "--" + flag.getName())
+                    .map(flag -> {
+                        Class<?> type = flag.getValueClass();
+                        boolean isBoolean = type == boolean.class || type == Boolean.class;
+
+                        return "--" + flag.getName() + (isBoolean ? "" : "=");
+                    })
                     .toArray(String[]::new);
         }
 
