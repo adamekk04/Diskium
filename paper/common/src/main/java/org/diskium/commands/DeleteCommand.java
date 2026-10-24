@@ -136,9 +136,9 @@ public class DeleteCommand {
 
                                     for (Map.Entry<String, Object> entry : flags.getAll().entrySet()) {
                                         if (entry.getKey().equalsIgnoreCase("jarFile")) {
-                                            delPlugin = Boolean.getBoolean(entry.getValue().toString());
+                                            delPlugin = Boolean.parseBoolean(entry.getValue().toString());
                                         } else {
-                                            delFolder = Boolean.getBoolean(entry.getValue().toString());
+                                            delFolder = Boolean.parseBoolean(entry.getValue().toString());
                                         }
                                     }
 

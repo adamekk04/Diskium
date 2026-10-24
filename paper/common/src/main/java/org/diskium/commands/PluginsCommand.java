@@ -76,7 +76,7 @@ public class PluginsCommand {
 
                                                                     for (Map.Entry<String, Object> entry : flags.getAll().entrySet()) {
                                                                         if (entry.getKey().equalsIgnoreCase("persistentlyDisabled")) {
-                                                                            thisInstance = !Boolean.getBoolean(entry.getValue().toString());
+                                                                            thisInstance = !Boolean.parseBoolean(entry.getValue().toString());
                                                                         }
                                                                     }
 

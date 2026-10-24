@@ -72,7 +72,7 @@ public class BackupCommand {
                                                     flags.suggest(arg);
 
                                                     for (Map.Entry<String, Object> entry : flags.getAll().entrySet()) {
-                                                        if (Boolean.getBoolean(entry.getValue().toString())) {
+                                                        if (Boolean.parseBoolean(entry.getValue().toString())) {
                                                             types.add(TaskObj.Types.valueOf(entry.getKey()));
                                                         }
                                                     }
