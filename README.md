@@ -7,12 +7,10 @@ Diskium is a Minecraft Paper plugin to manage server files and free up disk spac
 ## Features
 
 **Implemented:**
-- Config management (`/diskium config`)
-- Log management: list, delete and search logs (`/diskium logs`)
+- Backups & tasks management: list, delete, restore backups and do tasks on server startup (`/diskium backup` or `/diskium task`)
+- Logs management: list, delete and search logs (`/diskium logs`)
 - Plugin management: list, disable, enable and delete plugins (`/diskium plugin`)
-- Block lookup in a world (`/diskium world`)
-
-**Planned:** backups, task queue, world deletion. See [TODO.md](TODO.md) for the full roadmap.
+- World management: look for blocks, get info and safely delete parts of the world
 
 ## Requirements
 
