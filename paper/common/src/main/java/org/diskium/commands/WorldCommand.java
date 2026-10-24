@@ -151,7 +151,7 @@ public class WorldCommand {
                             new FlagObj<>("checkForBuilds", true, false),
                             new DependingFlagObj<Integer>("radius", "checker", new String[]{"range"}),
                             new DependingFlagObj<Integer>("x", "checker", new String[]{"chunk", "region"}),
-                            new DependingFlagObj<Integer>("x", "checker", new String[]{"chunk", "region"}),
+                            new DependingFlagObj<Integer>("z", "checker", new String[]{"chunk", "region"}),
                             new DependingFlagObj<>("in", "checker", new String[]{"range"}, true, false)
                     );
                     String typed = builder.getRemaining();
