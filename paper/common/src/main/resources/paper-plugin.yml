@@ -6,4 +6,9 @@ main: org.diskium.Diskium
 bootstrapper: org.diskium.DiskiumBootstrap
 api-version: '${apiVersion}'
 
+permissions:
+  diskium:
+    description: Allows access to Diskium commands
+    default: op
+
 authors: [ adamekk04 ]

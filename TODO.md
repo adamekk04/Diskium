@@ -19,3 +19,4 @@
 ### Changes
 
 ### Fixes
+- Commands can be run with "diskium" permission

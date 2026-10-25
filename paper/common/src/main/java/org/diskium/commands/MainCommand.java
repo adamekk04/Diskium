@@ -16,6 +16,9 @@ public class MainCommand {
      */
     public static LiteralCommandNode<CommandSourceStack> register(File dir) {
         return Commands.literal("diskium")
+                .requires(commandSourceStack ->
+                        commandSourceStack.getSender().hasPermission("diskium")
+                )
                 .then(ConfigCommand.entry(dir))
                 .then(LogsCommand.entry())
                 .then(PluginsCommand.entry())
