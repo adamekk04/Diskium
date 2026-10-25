@@ -12,11 +12,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FileManagement {
-/**
+    /**
      * Gets a .mca region file from given world and coordinates.
      *
-     * @param x X coordinate of the chunk.
-     * @param z Z coordinate of the chunk.
+     * @param x     X coordinate of the chunk.
+     * @param z     Z coordinate of the chunk.
      * @param world World whose region directory contains the file.
      * @return Region file from given coordinates and world.
      */
@@ -26,7 +26,7 @@ public class FileManagement {
         return new File(world.getWorldFolder(), "region/r." + reg[0] + "." + reg[1] + ".mca");
     }
 
-/**
+    /**
      * Gets a .mca region file from given region.
      *
      * @param region Region object.
@@ -36,7 +36,7 @@ public class FileManagement {
         return new File(region.getWorld().getWorldFolder(), "region/r." + region.getX() + "." + region.getZ() + ".mca");
     }
 
-/**
+    /**
      * Safely deletes all region files of all given chunks.
      *
      * @param chunks All chunks to get checked and safely deleted.
@@ -61,25 +61,26 @@ public class FileManagement {
         }
     }
 
-/**
+    /**
      * Safely deletes a sector in a given world from coordinates.
      *
-     * @param x X coordinate of the sector.
-     * @param z Z coordinate of the sector.
-     * @param world World the sector is located in.
+     * @param x       X coordinate of the sector.
+     * @param z       Z coordinate of the sector.
+     * @param world   World the sector is located in.
      * @param isChunk Whether the sector is a chunk or a region.
-     * @return Status of the method.
      */
-    public static boolean makeFiles(int x, int z, World world, boolean isChunk) {
+    public static void makeFiles(int x, int z, World world, boolean isChunk) {
         if (isChunk) {
-            int[] coords = WorldUtils.chunkToRegion(x, z);
-            Chunk chunk = world.getChunkAt(coords[0], coords[1]);
+            Chunk chunk = world.getChunkAt(x, z);
 
             chunk.unload(false);
 
-            return Parser.removeChunk(x, z, getRegionFile(coords[0], coords[1], world));
+            Parser.removeChunk(x, z, getRegionFile(x, z, world));
         } else {
-            return FileUtils.safeDel(getRegionFile(x, z, world), FileUtils.DelSpecifier.USE_TASK_QUEUE);
+            int chunkX = WorldUtils.regionToChunk(x);
+            int chunkZ = WorldUtils.regionToChunk(z);
+
+            FileUtils.safeDel(getRegionFile(chunkX, chunkZ, world), FileUtils.DelSpecifier.USE_TASK_QUEUE);
         }
     }
 }

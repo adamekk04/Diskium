@@ -12,18 +12,6 @@
 
 > Bugs found by Codex
 
-### BUG-003: Chunk and region deletion convert coordinates twice and target different regions
-
-- **Severity:** Critical
-- **Location:** paper/common/src/main/java/org/diskium/management/FileManagement.java:76, FileManagement.makeFiles; :23, getRegionFile
-- **Description:** The chunk branch converts chunk coordinates to region coordinates, then passes them to an API that converts again. It also unloads the converted chunk. The region branch passes region coordinates to that same chunk-coordinate API.
-- **Reproduction:** Use AuditProbe with synthetic r.0.0.mca and r.2.0.mca. Call makeFiles(64,0,world,true). Then call makeFiles(32,0,world,false) and inspect the queued path.
-- **Expected behavior:** Chunk 64,0 edits r.2.0.mca; region 32,0 queues r.32.0.mca.
-- **Actual behavior:** The chunk operation modifies r.0.0.mca; region 32 queues r.1.0.mca.
-- **Impact:** Deletes or corrupts data far from the requested location.
-- **Evidence:** runtime-stage2.log: wrongChunkModified=r.0.0.mca requested=r.2.0.mca region32Queued=true.
-- **Suggested fix:** Use distinct coordinate types/helpers for blocks, chunks and regions; unload the exact requested chunk and use the Region overload for region coordinates.
-
 ### BUG-004: Build protection deletes a whole region when just one chunk is unchanged
 
 - **Severity:** Critical
@@ -595,3 +583,4 @@ These are unverified risk hypotheses or incomplete end-to-end investigations, **
 - Commands can be run with "diskium" permission
 - Use `backup` config option
 - Correctly remove chunk from region file
+- Correctly convert chunks and regions
