@@ -172,7 +172,13 @@ public class TasksUtilsTest {
         File original = tempDir.resolve("server/world/region/r.0.0.mca").toFile();
         File backup = tempDir.resolve("backup/r.0.0.mca").toFile();
 
+        Files.createDirectories(original.toPath().getParent());
+        Files.createDirectories(backup.toPath().getParent());
+        Files.writeString(original.toPath(), "region data");
+
         assertTrue(TasksUtils.add(new BackupObj(original, backup)));
+        assertEquals("region data", Files.readString(backup.toPath()));
+        assertEquals("region data", Files.readString(original.toPath()));
 
         assertEquals(
                 List.of(original.toString(), backup.toString()),

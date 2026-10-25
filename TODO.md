@@ -9,18 +9,6 @@
 
 > Bugs found by Codex
 
-### BUG-001: Destructive operations never create the promised backups
-
-- **Severity:** Critical
-- **Location:** common/src/main/java/org/diskium/utils/FileUtils.java:26, FileUtils.safeDel; paper/common/src/main/java/org/diskium/Diskium.java:14, onEnable; paper/common/src/main/resources/config.yml:2
-- **Description:** The default backups: true setting is never read by any deletion implementation. No production caller creates backup files or calls TasksUtils.add(BackupObj).
-- **Reproduction:** In a disposable server with the default config, create a small archived log, delete it with /diskium logs delete, and restart to execute queued deletion. Alternatively run Audit.java safe-deletion fixture.
-- **Expected behavior:** Persist and verify a recoverable backup before deleting data when backups are enabled.
-- **Actual behavior:** The file is deleted and no backup data or registry entry is created.
-- **Impact:** World, plugin and log deletions are irreversible despite the advertised safety setting.
-- **Evidence:** Runtime config reports backups = true; common-audit.log confirms safe deletion creates no backup. Repository-wide call-site review finds no backup-creation path.
-- **Suggested fix:** Implement verified backup creation and registration before destructive work; abort deletion if backing up fails.
-
 ### BUG-002: Chunk removal corrupts neighboring entries and chunk payload offsets
 
 - **Severity:** Critical
