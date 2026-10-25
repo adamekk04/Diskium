@@ -1,5 +1,8 @@
 # TODO
 
+## Release 1.0-alpha.2
+- Fix bugs 2, 3 and 4
+
 ## Release 1.0-beta.1
 - Fix critical bugs
 
@@ -8,18 +11,6 @@
 ## 🐛 Bugs
 
 > Bugs found by Codex
-
-### BUG-002: Chunk removal corrupts neighboring entries and chunk payload offsets
-
-- **Severity:** Critical
-- **Location:** common/src/main/java/org/diskium/mca/Parser.java:44, Parser.removeChunk
-- **Description:** readInt advances the file pointer, so writeInt(0) clears the next location-table entry. Other offsets are reduced although sector payloads are never moved. The requested entry remains, and at index 1023 the write enters the timestamp table.
-- **Reproduction:** Create a disposable 16 KiB r.0.0.mca with entry 0 = 0x201, entry 1 = 0x301 and distinct sector payloads. Call removeChunk(0,0,file); inspect the header. Repeat with a third populated entry.
-- **Expected behavior:** Remove only the selected chunk and preserve all surviving chunks and timestamps.
-- **Actual behavior:** Entry 0 remains 0x201, entry 1 becomes zero, and later entries point at earlier chunks data.
-- **Impact:** Permanent corruption or loss of unrelated world chunks.
-- **Evidence:** Audit.java first two fixtures reproduced both errors; common-audit.log records both confirmations. Existing ParserTest only asserts the return boolean, not surviving data.
-- **Suggested fix:** Seek back before clearing the selected location and timestamp; either retain sector offsets or actually relocate data transactionally with exhaustive integrity tests.
 
 ### BUG-003: Chunk and region deletion convert coordinates twice and target different regions
 
@@ -602,3 +593,5 @@ These are unverified risk hypotheses or incomplete end-to-end investigations, **
 
 ### Fixes
 - Commands can be run with "diskium" permission
+- Use `backup` config option
+- Correctly remove chunk from region file

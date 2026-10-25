@@ -33,28 +33,29 @@ public class Parser {
      * @return Status of the action.
      */
     public static boolean removeChunk(int x, int z, File file) {
-        int index = getIndex(x, z);
-
         if (!isValid(file)) {
             MultiplatformLogger.error("Cannot read file " + file.getAbsolutePath());
             MultiplatformLogger.error("Size: " + file.length());
             return false;
         }
 
+        int index = getIndex(x, z);
+
         try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
             raf.seek(index * 4L);
 
             int location = raf.readInt();
-            int offset = (location >>> 8) & 0xFFFFFF;
-            int length = location & 0xFF;
+            int offset = (location >>> 8) & 0xFFFFFF; // offset of the chunk in sectors
+            int length = location & 0xFF; // length of the chunk in sectors
 
             if (offset == 0 || length == 0) {
                 return false;
             }
 
-            raf.writeInt(0);
+            raf.seek(index * 4L);
+            raf.writeInt(0); // remove from the first table
             raf.seek(index * 4L + 4096);
-            raf.writeInt(0);
+            raf.writeInt(0); // remove from the second table
 
             for (int i = 0; i < 1024; i++) {
                 raf.seek(i * 4L);
@@ -76,6 +77,18 @@ public class Parser {
                     raf.writeInt(newLocation);
                 }
             }
+
+            long source = (offset + length) * 4096L; // chunks behind the deleted one
+            long target = offset * 4096L; // target location to move chunks to
+            long originalSize = raf.length(); // original size of the file
+
+            byte[] tail = new byte[Math.toIntExact(originalSize - source)];
+            raf.seek(source);
+            raf.readFully(tail);
+
+            raf.seek(target);
+            raf.write(tail);
+            raf.setLength(originalSize - length * 4096L);
 
             return true;
         } catch (IOException e) {
