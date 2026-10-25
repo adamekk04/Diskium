@@ -22,6 +22,12 @@ import java.util.List;
 import java.util.Map;
 
 public class TaskCommand {
+
+/**
+     * Builds the task command with its subcommands.
+     *
+     * @return Builder ready to attach to the parent command.
+     */
     public static LiteralArgumentBuilder<CommandSourceStack> entry() {
         return Commands.literal("task")
                 .then(
@@ -114,6 +120,12 @@ public class TaskCommand {
                 );
     }
 
+/**
+     * Lists the whole table to the command sender with header and all tasks from types argument.
+     *
+     * @param types All types, that should be listed, or {@code null}, if all should be listed.
+     * @param context Command context.
+     */
     private static void lister(List<TaskObj.Types> types, CommandContext<CommandSourceStack> context) {
         TaskObj[] tasks = Arrays.stream(TasksUtils.getTasks())
                 .filter(task -> types == null || types.contains(task.getType()))

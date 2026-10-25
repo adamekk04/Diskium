@@ -5,7 +5,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.diskium.MultiplatformLogger;
 import org.diskium.objects.BackupObj;
@@ -15,82 +14,102 @@ import org.diskium.utils.TasksUtils;
 
 import java.io.*;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 
 public class PluginManagement {
-    public static boolean tempDisablePlugin(Plugin pl) {
+
+/**
+     * Temporarily disables plugin through {@code Bukkit#getPluginManager#disablePlugin}
+     *
+     * @param pl Plugin to disable.
+     */
+    public static void tempDisablePlugin(Plugin pl) {
         if (Arrays.asList(getPlugins()).contains(pl)) {
             Bukkit.getPluginManager().disablePlugin(pl);
-            return true;
         }
-        return false;
     }
 
-    public static boolean permDisablePlugin(Plugin pl) {
+/**
+     * Permanently disables plugin by adding 'diskiumdisable' after its name.
+     *
+     * @param pl Plugin to permanently disable.
+     */
+    public static void permDisablePlugin(Plugin pl) {
         if (Arrays.asList(getPlugins()).contains(pl)) {
-            if (pl == null) return false;
+            if (pl == null) return;
             try {
                 File oldFile = new File(pl.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
                 File newFile = new File(oldFile.getPath() + "diskiumdisable");
-                return oldFile.renameTo(newFile);
+                oldFile.renameTo(newFile);
             } catch (URISyntaxException e) {
-                return false;
+                MultiplatformLogger .error("Something went wrong while permanently disabling plugin." + e);
             }
         }
-        return false;
     }
 
-    public static boolean tempEnablePlugin(Plugin pl) {
-        if (Arrays.asList(getPlugins()).contains(pl)) {
-            Bukkit.getPluginManager().enablePlugin(pl);
-            return true;
-        }
-        return false;
-    }
-
-    public static boolean permEnablePlugin(Plugin pl) {
+/**
+     * Enables plugin by removing subfix 'diskiumdisable' after its name.
+     *
+     * @param pl Plugin it should enable.
+     */
+    public static void permEnablePlugin(Plugin pl) {
         if (Arrays.asList(getPlugins()).contains(pl)) {
             try {
                 File oldFile = new File(pl.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
-                if (!oldFile.getPath().endsWith("diskiumdisable")) return false;
+                if (!oldFile.getPath().endsWith("diskiumdisable")) return;
                 String oldPath = oldFile.getPath();
                 String newPath = oldPath.substring(0, oldPath.length() - 14);
                 File newFile = new File(newPath);
-                return oldFile.renameTo(newFile);
+                oldFile.renameTo(newFile);
             } catch (URISyntaxException e) {
-                return false;
+                MultiplatformLogger.error("Something went wrong while enabling plugin." + e);
             }
         }
-        return false;
     }
 
+/**
+     * Deletes the .jar file or/and the folder of given plugin.
+     *
+     * @param pl The target plugin.
+     * @param plFile Whether the .jar file of the plugin should be deleted.
+     * @param folder Whether the folder of the plugin should be deleted.
+     * @return Status of the method
+     */
     public static boolean del(Plugin pl, boolean plFile, boolean folder) {
         boolean buffer = true;
 
         if (plFile) {
-            buffer = FileUtils.safeDel(pl.getDataFolder(), FileUtils.DelSpecifier.PLUGINS);
-        }
-        if (folder && hasFolder(pl)) {
             try {
                 File file = new File(pl.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
-                buffer = FileUtils.safeDel(file, FileUtils.DelSpecifier.PLUGINS) && buffer;
+                buffer = FileUtils.safeDel(file, FileUtils.DelSpecifier.PLUGINS);
             } catch (URISyntaxException e) {
                 MultiplatformLogger.error("Couldn't make URI while deleting plugin.");
                 return false;
             }
         }
+        if (folder && hasFolder(pl)) {
+            buffer = FileUtils.safeDel(pl.getDataFolder(), FileUtils.DelSpecifier.PLUGINS);
+        }
 
         return buffer;
     }
 
+/**
+     * Checks, if a given plugin has a folder.
+     *
+     * @param pl Plugin target.
+     * @return Whether the plugin has a folder.
+     */
     public static boolean hasFolder(Plugin pl) {
         return pl.getDataFolder().exists();
     }
 
+/**
+     * Creates a TextComponent with information about a given plugin.
+     *
+     * @param pl Target plugin to fetch its information
+     * @return A TextComponent with all information about a plugin. Ready to send.
+     */
     public static TextComponent info(Plugin pl) {
         if (!Arrays.asList(getPlugins()).contains(pl)) {
             return null;
@@ -161,34 +180,12 @@ public class PluginManagement {
         return textComponent;
     }
 
+/**
+     * Gets all plugins
+     *
+     * @return Array of all plugins
+     */
     public static Plugin[] getPlugins() {
         return Bukkit.getPluginManager().getPlugins();
-    }
-
-    public static String[] getPluginNames(File dir) {
-        List<String> plugins = new ArrayList<>();
-        File[] files = dir.listFiles((file, name) -> name.endsWith(".jar"));
-
-        if (files == null) return new String[0];
-
-        for (File file : files) {
-            try (JarFile jar = new JarFile(file)) {
-                ZipEntry entry = jar.getJarEntry("plugin.yml");
-                if (entry == null) entry = jar.getJarEntry("paper-plugin.yml");
-                if (entry == null) MultiplatformLogger.error("Couldn't find plugin.yml/paper-plugin.yml in " + file.getName());
-                try (InputStream input = jar.getInputStream(entry); InputStreamReader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
-                    YamlConfiguration config = YamlConfiguration.loadConfiguration(reader);
-                    plugins.add(config.getString("name"));
-                }
-            } catch (FileNotFoundException e) {
-                MultiplatformLogger.error("Plugin file " + file.getName() + " not found.");
-            } catch (ZipException e) {
-                MultiplatformLogger.error("Plugin file " + file.getName() + " is maybe damaged, couldn't unzip it.");
-            } catch (IOException e) {
-                MultiplatformLogger.error("Something went wrong while getting name of plugin " + file.getName(), e);
-            }
-        }
-
-        return plugins.toArray(String[]::new);
     }
 }

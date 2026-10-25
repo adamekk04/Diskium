@@ -9,7 +9,6 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
-import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -27,6 +26,11 @@ import java.time.LocalDate;import java.util.Map;
 
 public class DeleteCommand {
 
+/**
+     * Builds the delete command with its subcommands.
+     *
+     * @return Builder ready to attach to the parent command.
+     */
     public static LiteralArgumentBuilder<CommandSourceStack> entry() {
         return Commands.literal("delete")
                 .then(Commands.literal("backup")
@@ -48,6 +52,11 @@ public class DeleteCommand {
                 );
     }
 
+/**
+     * Builds the backups delete command with its subcommands.
+     *
+     * @return Builder ready to attach to the parent command.
+     */
     public static RequiredArgumentBuilder<CommandSourceStack, ?> backups() {
         return Commands.argument("id", IntegerArgumentType.integer(1))
                 .suggests((context, builder) -> {
@@ -75,6 +84,11 @@ public class DeleteCommand {
                 });
     }
 
+/**
+     * Deletes all logs and sends message to the command sender about it.
+     *
+     * @param context Command context.
+     */
     public static void logsExec(CommandContext<CommandSourceStack> context) {
         File[] logs = LogsManagement.getLogs(null, null);
 
@@ -88,6 +102,13 @@ public class DeleteCommand {
         LogsManagement.delete(null, null);
     }
 
+/**
+     * Deletes logs in given range and sends message to the command sender about it.
+     *
+     * @param context Command context.
+     * @param since Lower date boundary, or {@code null} for no lower limit.
+     * @param until Upper date boundary, or {@code null} for no upper limit.
+     */
     public static void logsExec(CommandContext<CommandSourceStack> context, LocalDate since, LocalDate until) {
         File[] logs = LogsManagement.getLogs(since, until);
 
@@ -101,6 +122,11 @@ public class DeleteCommand {
         LogsManagement.delete(since, until);
     }
 
+/**
+     * Builds the plugins delete command with its subcommands.
+     *
+     * @return Builder ready to attach to the parent command.
+     */
     public static RequiredArgumentBuilder<CommandSourceStack, ?> pluginDeleter() {
         return Commands.argument("plugin", StringArgumentType.word())
                 .suggests((context, builder) -> {
@@ -166,6 +192,11 @@ public class DeleteCommand {
                 );
     }
 
+/**
+     * Builds the task delete command with its subcommands.
+     *
+     * @return Builder ready to attach to the parent command.
+     */
     public static RequiredArgumentBuilder<CommandSourceStack, ?> tasks() {
         return Commands.argument("id", IntegerArgumentType.integer(0))
                 .suggests((context, builder) -> {

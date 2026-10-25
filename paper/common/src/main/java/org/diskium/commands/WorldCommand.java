@@ -25,6 +25,12 @@ import java.util.List;
 import java.util.Map;
 
 public class WorldCommand {
+
+/**
+     * Builds the world command with its subcommands.
+     *
+     * @return Builder ready to attach to the parent command.
+     */
     public static LiteralArgumentBuilder<CommandSourceStack> entry() {
         return Commands.literal("world")
                 .then(
@@ -59,6 +65,12 @@ public class WorldCommand {
                         .then(delete(false)));
     }
 
+/**
+     * Builds the getBlock subcommand.
+     *
+     * @param singleWorld Whether the subcommand should include a choice between different worlds or fetch the block from them all.
+     * @return Builder ready to attach to the parent command.
+     */
     private static ArgumentBuilder<CommandSourceStack, ?> getBlock(boolean singleWorld) {
         if (singleWorld) {
             return Commands.argument("world", ArgumentTypes.world()).then(getBlockSeparator(true));
@@ -67,6 +79,12 @@ public class WorldCommand {
         return Commands.literal("all").then(getBlockSeparator(false));
     }
 
+/**
+     * Builds the coordinates argument with block lookup execution and optional flags.
+     *
+     * @param singleWorld Whether the subcommand should include a choice between different worlds or fetch the block from them all.
+     * @return Coordinates argument builder ready to attach to the parent command.
+     */
     private static RequiredArgumentBuilder<CommandSourceStack, ?> getBlockSeparator(boolean singleWorld) {
         return Commands.argument("coords", ArgumentTypes.blockPosition())
                 .executes(context -> {
@@ -135,6 +153,12 @@ public class WorldCommand {
                 );
     }
 
+/**
+     * Builds the delete subcommand.
+     *
+     * @param singleWorld Whether the subcommand should include a choice between different world or delete them all.
+     * @return Builder ready to attach to the parent command.
+     */
     public static ArgumentBuilder<CommandSourceStack, ?> delete(boolean singleWorld) {
         if (singleWorld) {
             return Commands.argument("world", ArgumentTypes.world()).then(deleteSeparator(true));
@@ -143,6 +167,12 @@ public class WorldCommand {
         return Commands.literal("all").then(deleteSeparator(false));
     }
 
+/**
+     * Builds the delete arguments and flags.
+     *
+     * @param singleWorld Whether the subcommand should include a choice between different world or delete them all.
+     * @return Argument builder with flags ready to attach to the parent command.
+     */
     private static RequiredArgumentBuilder<CommandSourceStack, ?> deleteSeparator(boolean singleWorld) {
         return Commands.argument("flags", StringArgumentType.greedyString())
                 .suggests((context, builder) -> {
@@ -197,6 +227,12 @@ public class WorldCommand {
                 });
     }
 
+/**
+     * Executes the delete command.
+     *
+     * @param world World it should delete (or a part of it).
+     * @param flags Flags fetched from the command.
+     */
     private static void deleteLogic(World world, Flags flags) {
         Map<String, Object> map = flags.getAll();
         String checker = map.get("checker").toString();

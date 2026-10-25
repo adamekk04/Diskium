@@ -14,6 +14,11 @@ public class Sector {
     private int x;
     private int z;
 
+/**
+     * Creates sector from region file.
+     *
+     * @param file Region file.
+     */
     public Sector(File file) {
         try (FileInputStream input = new FileInputStream(file)) {
             byte[] data = new byte[SECTOR_SIZE];
@@ -41,6 +46,11 @@ public class Sector {
         }
     }
 
+/**
+     * Reads global chunk coordinates from non-empty entries in the loaded location table.
+     *
+     * @return coordinate pairs {@code {x, z}} in chunk units
+     */
     public int[][] getChunks() {
         List<int[]> buffer = new ArrayList<>();
 

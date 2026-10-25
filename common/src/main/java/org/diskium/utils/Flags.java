@@ -16,12 +16,24 @@ public class Flags {
     private Map<String, Object> parsed;
     private String[] parsedFlags;
 
+/**
+     * Creates flags from {@code FlagObj}
+     *
+     * @param base Varargs of {@code FlagObj}
+     */
     @SafeVarargs
     public Flags(FlagObj... base) {
         this.base = base;
         this.baseFlags = Arrays.stream(base).map(FlagObj::getName).toArray(String[]::new);
     }
 
+    /**
+     * Suggests unused flag names or values matching the current input.
+     * Prefix matching ignores case. Stores the input for subsequent calls to {@link #getAll()}.
+     *
+     * @param typed the current command argument containing flag expressions
+     * @return matching flag names or value suggestions
+     */
     public String[] suggest(String typed) {
         this.now = typed;
         parseNames();
@@ -73,6 +85,14 @@ public class Flags {
         return flagNow.suggest(parts.length == 2 ? parts[1] : "");
     }
 
+/**
+     * Parses the input stored by the most recent call to {@link #suggest(String)}.
+     * Unknown flags are ignored, flags without values become {@code true},
+     * and the last value wins for repeated flags.
+     *
+     * @return values keyed by the registered flag names
+     * @throws IllegalArgumentException if a value cannot be converted to its declared type
+     */
     public Map<String, Object> getAll() {
         parseNames();
 
@@ -88,6 +108,10 @@ public class Flags {
         return this.parsed;
     }
 
+    /**
+     * Splits the current input on {@code --}, trims each part,
+     * and stores the non-empty flag expressions.
+     */
     private void parseNames() {
         this.parsedFlags = Arrays.stream(now.split("--"))
                 .map(String::strip)
@@ -95,6 +119,14 @@ public class Flags {
                 .toArray(String[]::new);
     }
 
+/**
+     * Converts a value to the registered flag's declared type.
+     *
+     * @param name the registered flag name, matched without regard to case
+     * @param value the text to convert
+     * @return the converted string, integer, or boolean
+     * @throws IllegalArgumentException if the value is invalid or the type is unsupported
+     */
     private Object parseValue(String name, String value) {
         Class<?> type = Arrays.stream(this.base).filter(flag -> flag.getName().equalsIgnoreCase(name))
                 .toList()
@@ -123,6 +155,12 @@ public class Flags {
         );
     }
 
+/**
+     * Gets flag by its name.
+     *
+     * @param name Name of the flag.
+     * @return Return {@code Optional<FlagObj>} of the flag.
+     */
     private Optional<FlagObj> getFlagByName(String name) {
         return Arrays.stream(this.base)
                 .filter(flag -> flag.getName().equalsIgnoreCase(name))

@@ -24,8 +24,12 @@ import java.util.Map;
 
 public class BackupCommand {
 
+/**
+     * Builds the backup command with its subcommands.
+     *
+     * @return Builder ready to attach to the parent command.
+     */
     public static LiteralArgumentBuilder<CommandSourceStack> entry() {
-
         return Commands.literal("backup")
                 .then(
                         Commands.literal("list")
@@ -116,6 +120,12 @@ public class BackupCommand {
                 );
     }
 
+/**
+     * Sends a table of backups matching the specific type to the sender.
+     *
+     * @param context Command context providing the message sender.
+     * @param types Types of backups to be listed, or {@code null} to list all types.
+     */
     private static void lister(CommandContext<CommandSourceStack> context, List<TaskObj.Types> types) {
         int counter = 1;
         BackupObj[] backups = Arrays.stream(TasksUtils.getBackups())
@@ -152,6 +162,13 @@ public class BackupCommand {
         }
     }
 
+/**
+     * Creates ready header of table with maximum length of ID and backup name.
+     *
+     * @param idLength Longest id.
+     * @param backupLength Longest backup name.
+     * @return Header of table ready to send.
+     */
     private static TextComponent tableHeader(int idLength, int backupLength) {
         String id = " ".repeat(TasksUtils.nonNegative(idLength - 2));
         String backup = " ".repeat(TasksUtils.nonNegative(backupLength - 4));
@@ -163,6 +180,16 @@ public class BackupCommand {
                 .append(Component.text("Type", NamedTextColor.DARK_GREEN));
     }
 
+/**
+     * Creates a line with backup's information.
+     *
+     * @param backup Specific backup to fetch its information.
+     * @param types Types of backups to fetch information from.
+     * @param counter
+     * @param idLength Maximum length of ID.
+     * @param backupLength Maximum length of backup name.
+     * @return Ready TextComponent to send, or {@code null} if the backup has wrong type.
+     */
     private static TextComponent backupOutput(BackupObj backup, List<TaskObj.Types> types, int counter, int idLength, int backupLength) {
         String idOffset = " ".repeat(TasksUtils.nonNegative(idLength - String.valueOf(counter).length()));
         String backupOffset = " ".repeat(TasksUtils.nonNegative(backupLength - backup.getFile().toPath().toString().length()));

@@ -15,8 +15,12 @@ import java.time.LocalDate;import java.util.Map;
 
 public class LogsCommand {
 
+/**
+     * Builds the logs command with its subcommands.
+     *
+     * @return Builder ready to attach to the parent command.
+     */
     public static LiteralArgumentBuilder<CommandSourceStack> entry() {
-
         return Commands.literal("logs")
                 .then(
                         Commands.literal("list")

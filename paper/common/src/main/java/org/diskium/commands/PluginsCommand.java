@@ -19,8 +19,12 @@ import java.util.Map;
 
 public class PluginsCommand {
 
+/**
+     * Builds the plugins command with its subcommands.
+     *
+     * @return Builder ready to attach to the parent command.
+     */
     public static LiteralArgumentBuilder<CommandSourceStack> entry() {
-
         return Commands.literal("plugins")
                 .then(
                         Commands.literal("disable")
@@ -134,6 +138,12 @@ public class PluginsCommand {
                 );
     }
 
+/**
+     * Disables a plugin.
+     *
+     * @param plugin Instance of the plugin.
+     * @param thisInstance Whether it should be disabled only for this instance or permanently
+     */
     private static void pluginDisabler(Plugin plugin, boolean thisInstance) {
         if (thisInstance) {
             PluginManagement.tempDisablePlugin(plugin);
@@ -142,6 +152,11 @@ public class PluginsCommand {
         }
     }
 
+/**
+     * Builds the plugin enable subcommand.
+     *
+     * @return Builder ready to attach to the parent command.
+     */
     private static LiteralArgumentBuilder<CommandSourceStack> pluginEnabler() {
         return Commands.literal("enable")
                 .then(

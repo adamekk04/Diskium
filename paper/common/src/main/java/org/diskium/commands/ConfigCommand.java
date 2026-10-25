@@ -19,8 +19,13 @@ import java.util.Map;
 
 public class ConfigCommand {
 
+/**
+     * Builds the config command with its subcommands.
+     *
+     * @param dir Plugin's folder.
+     * @return Builder ready to attach to the parent command.
+     */
     public static LiteralArgumentBuilder<CommandSourceStack> entry(File dir) {
-
         List<LiteralArgumentBuilder<CommandSourceStack>> subcommands = configs(dir);
         LiteralArgumentBuilder<CommandSourceStack> configRoot = Commands.literal("config");
 
@@ -31,6 +36,12 @@ public class ConfigCommand {
         return configRoot;
     }
 
+/**
+     * Builds all subcommands of config command.
+     *
+     * @param dir Plugin's folder.
+     * @return Builders ready to attach to the config command.
+     */
     private static List<LiteralArgumentBuilder<CommandSourceStack>> configs(File dir) {
         List<LiteralArgumentBuilder<CommandSourceStack>> literals = new ArrayList<>();
         Map<String, Object> configs = ConfigManagement.getConfig(dir);

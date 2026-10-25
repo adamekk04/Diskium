@@ -8,8 +8,13 @@ import java.io.File;
 
 public class MainCommand {
 
+/**
+     * Builds the entire diskium command tree.
+     *
+     * @param dir Plugin's directory.
+     * @return Command's node ready to register.
+     */
     public static LiteralCommandNode<CommandSourceStack> register(File dir) {
-
         return Commands.literal("diskium")
                 .then(ConfigCommand.entry(dir))
                 .then(LogsCommand.entry())
