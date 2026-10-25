@@ -137,7 +137,7 @@ public class FileUtils {
      * @param file File, you want to create a backup of.
      * @return Whether the action succeeded.
      */
-    private static boolean createBackup(File file) {
+    public static boolean createBackup(File file) {
         if (!file.isFile()) {
             return false;
         }

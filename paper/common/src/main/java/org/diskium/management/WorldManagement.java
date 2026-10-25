@@ -180,13 +180,15 @@ public class WorldManagement {
                 }
             } else {
                 List<Chunk> chunks = getGeneratedChunksInRegion(new Region(x, z, world));
+                Map<Chunk, Boolean> safeToDelete = new HashMap<>();
 
                 for (Chunk chunk : chunks) {
-                    if (compareChunks(chunk, newWorld.getChunkAt(chunk.getX(), chunk.getZ()))) {
-                        FileManagement.makeFiles(x, z, world, false);
-                        return;
-                    }
+                    safeToDelete.put(
+                            chunk,
+                            compareChunks(chunk, newWorld.getChunkAt(chunk.getX(), chunk.getZ()))
+                    );
                 }
+                FileManagement.makeFiles(safeToDelete);
             }
         } else {
             FileManagement.makeFiles(x, z, world, isChunk);
