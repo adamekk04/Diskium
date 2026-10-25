@@ -1,28 +1,16 @@
 # TODO
 
-## Release 1.0-alpha.2
-- Fix bugs 2, 3 and 4
+## Release 1.0-alpha.3
+- Fix high priority bugs
 
 ## Release 1.0-beta.1
-- Fix critical bugs
+- Fix high and medium priority bugs
 
 ---
 
 ## 🐛 Bugs
 
 > Bugs found by Codex
-
-### BUG-004: Build protection deletes a whole region when just one chunk is unchanged
-
-- **Severity:** Critical
-- **Location:** paper/common/src/main/java/org/diskium/management/WorldManagement.java:181, WorldManagement.delSector
-- **Description:** The region branch queues the entire region and returns as soon as any generated chunk matches its natural counterpart. Other chunks can contain player builds.
-- **Reproduction:** On a disposable flat world generate chunks 0,0 and 1,0, place a diamond block in 0,0, save, and run /diskium world delete minecraft:overworld --checker=region --x=0 --z=0 --checkForBuilds=true. Inspect tasks.txt without restarting.
-- **Expected behavior:** Retain any region containing at least one modified chunk.
-- **Actual behavior:** The entire r.0.0.mca is queued for deletion.
-- **Impact:** Severe player-build data loss even when the safety check is explicitly enabled.
-- **Evidence:** AuditProbe reproduced this on Paper 26.3: mixedRegionWithDiamondQueued=true in runtime-stage3.log.
-- **Suggested fix:** Require every generated chunk to pass all safety checks; do not short-circuit on the first safe chunk.
 
 ### BUG-005: Build comparison ignores inventories, block-entity state and entities
 
@@ -580,7 +568,3 @@ These are unverified risk hypotheses or incomplete end-to-end investigations, **
 ### Changes
 
 ### Fixes
-- Commands can be run with "diskium" permission
-- Use `backup` config option
-- Correctly remove chunk from region file
-- Correctly convert chunks and regions
