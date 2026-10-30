@@ -5,8 +5,11 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.diskium.mca.Parser;
 import org.diskium.mca.Sector;
 import org.diskium.objects.Region;
@@ -222,6 +225,26 @@ public class WorldManagement {
             }
         }
 
+        List<BlockState> blockStatesA = List.of(a.getTileEntities());
+        List<BlockState> blockStatesB = List.of(b.getTileEntities());
+
+        if (blockStatesA.size() != blockStatesB.size()) {
+            return false;
+        }
+
+        for (BlockState blockStateA : blockStatesA) {
+            BlockState blockStateB = blockStatesB.stream()
+                    .filter(blockState -> blockState.getX() == blockStateA.getX() && blockState.getY() == blockStateA.getY() && blockState.getZ() == blockStateA.getZ())
+                    .toList()
+                    .getFirst();
+
+            if (blockStateA instanceof InventoryHolder holderA && blockStateB instanceof InventoryHolder holderB) {
+                if (!compareInventories(holderA.getInventory(), holderB.getInventory())) {
+                    return false;
+                }
+            }
+        }
+
         return true;
     }
 
@@ -347,5 +370,25 @@ public class WorldManagement {
     private static CompletableFuture<String> getBlockAsync(Location loc) {
         return loc.getWorld().getChunkAtAsync(loc)
                 .thenApply(chunk -> loc.getBlock().getType().toString());
+    }
+
+/**
+     * Compares two inventories.
+     * @param a Inventory a.
+     * @param b Inventory b.
+     * @return Whether inventories have same content.
+     */
+    private static boolean compareInventories(Inventory a, Inventory b) {
+        if (a.getSize() != b.getSize()) {
+            return false;
+        }
+
+        for (int i = 0; i < a.getSize(); i++) {
+            if (!Objects.equals(a.getItem(i), b.getItem(i))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

@@ -12,18 +12,6 @@
 
 > Bugs found by Codex
 
-### BUG-005: Build comparison ignores inventories, block-entity state and entities
-
-- **Severity:** High
-- **Location:** paper/common/src/main/java/org/diskium/management/WorldManagement.java:203, WorldManagement.compareChunks
-- **Description:** Only BlockData is compared. A natural chest with changed contents, edited sign text or a player entity can be classified as unchanged.
-- **Reproduction:** In two matching disposable flat chunks place identically oriented chests at the same local coordinate, put 64 diamonds in only one chest, and invoke compareChunks.
-- **Expected behavior:** Changes to persistent player data make a chunk unsafe to discard.
-- **Actual behavior:** Chunks with unequal chest inventories compare equal.
-- **Impact:** Build protection can destroy stored items and other non-block-data state.
-- **Evidence:** runtime-stage3.log: unequalChestInventoriesCompareEqual=true. The method never reads block entities or entities.
-- **Suggested fix:** Compare relevant persistent NBT/state and entities, or conservatively refuse to delete chunks containing potentially player-owned state.
-
 ### BUG-006: Single-chunk deletion edits live region files outside Papers I/O coordination
 
 - **Severity:** High
@@ -568,3 +556,4 @@ These are unverified risk hypotheses or incomplete end-to-end investigations, **
 ### Changes
 
 ### Fixes
+- Compare BlockStates and content of containers.
