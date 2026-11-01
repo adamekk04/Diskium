@@ -10,5 +10,34 @@ permissions:
   diskium:
     description: Allows access to Diskium commands
     default: op
+    children:
+      diskium.backup: true
+      diskium.config: true
+      diskium.delete: true
+      diskium.logs: true
+      diskium.plugins: true
+      diskium.task: true
+      diskium.world: true
+  diskium.backup:
+    description: Allows access to backup commands
+    default: op
+  diskium.config:
+    description: Allows access to config commands
+    default: op
+  diskium.delete:
+    description: Allows access to delete commands
+    default: op
+  diskium.logs:
+    description: Allows access to log commands
+    default: op
+  diskium.plugins:
+    description: Allows access to plugin commands
+    default: op
+  diskium.task:
+    description: Allows access to task commands
+    default: op
+  diskium.world:
+    description: Allows access to world commands
+    default: op
 
 authors: [ adamekk04 ]

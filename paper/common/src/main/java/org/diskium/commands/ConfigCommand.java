@@ -26,7 +26,8 @@ public class ConfigCommand {
       */
     public static LiteralArgumentBuilder<CommandSourceStack> entry(File dir) {
         List<LiteralArgumentBuilder<CommandSourceStack>> subcommands = configs(dir);
-        LiteralArgumentBuilder<CommandSourceStack> configRoot = Commands.literal("config");
+        LiteralArgumentBuilder<CommandSourceStack> configRoot = Commands.literal("config")
+                .requires(commandSourceStack -> commandSourceStack.getSender().hasPermission("diskium.config"));
 
         for (LiteralArgumentBuilder<CommandSourceStack> subcommand : subcommands) {
             configRoot.then(subcommand);

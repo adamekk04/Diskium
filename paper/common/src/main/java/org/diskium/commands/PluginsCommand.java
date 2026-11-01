@@ -25,6 +25,7 @@ public class PluginsCommand {
       */
     public static LiteralArgumentBuilder<CommandSourceStack> entry() {
         return Commands.literal("plugins")
+                .requires(commandSourceStack -> commandSourceStack.getSender().hasPermission("diskium.plugins"))
                 .then(
                         Commands.literal("disable")
                                 .then(

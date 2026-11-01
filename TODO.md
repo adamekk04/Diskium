@@ -557,3 +557,4 @@ These are unverified risk hypotheses or incomplete end-to-end investigations, **
 
 ### Fixes
 - Compare BlockStates and content of containers.
+- Add permissions for subcommands

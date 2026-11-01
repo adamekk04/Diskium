@@ -29,6 +29,7 @@ public class TaskCommand {
       */
     public static LiteralArgumentBuilder<CommandSourceStack> entry() {
         return Commands.literal("task")
+                .requires(commandSourceStack -> commandSourceStack.getSender().hasPermission("diskium.task"))
                 .then(
                         Commands.literal("list")
                                 .executes(

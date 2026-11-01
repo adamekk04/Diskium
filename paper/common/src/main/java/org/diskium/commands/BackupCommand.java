@@ -30,6 +30,7 @@ public class BackupCommand {
       */
     public static LiteralArgumentBuilder<CommandSourceStack> entry() {
         return Commands.literal("backup")
+                .requires(commandSourceStack -> commandSourceStack.getSender().hasPermission("diskium.backup"))
                 .then(
                         Commands.literal("list")
                                 .executes(

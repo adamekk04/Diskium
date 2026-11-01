@@ -25,6 +25,7 @@ public class LogsCommand {
       */
     public static LiteralArgumentBuilder<CommandSourceStack> entry() {
         return Commands.literal("logs")
+                .requires(commandSourceStack -> commandSourceStack.getSender().hasPermission("diskium.logs"))
                 .then(
                         Commands.literal("list")
                                 .executes(

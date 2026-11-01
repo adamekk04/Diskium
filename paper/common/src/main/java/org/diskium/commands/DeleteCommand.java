@@ -33,6 +33,7 @@ public class DeleteCommand {
       */
     public static LiteralArgumentBuilder<CommandSourceStack> entry() {
         return Commands.literal("delete")
+                .requires(commandSourceStack -> commandSourceStack.getSender().hasPermission("diskium.delete"))
                 .then(Commands.literal("backup").then(backups()))
                 .then(
                         Commands.literal("logs")

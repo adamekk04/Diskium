@@ -32,6 +32,7 @@ public class WorldCommand {
       */
     public static LiteralArgumentBuilder<CommandSourceStack> entry() {
         return Commands.literal("world")
+                .requires(commandSourceStack -> commandSourceStack.getSender().hasPermission("diskium.world"))
                 .then(Commands.literal("getBlock").then(getBlock(true)).then(getBlock(false)))
                 .then(
                         Commands.literal("info")
