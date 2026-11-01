@@ -1,12 +1,11 @@
 package org.diskium.utils;
 
-import org.diskium.objects.BackupObj;
-import org.diskium.MultiplatformLogger;
-import org.diskium.objects.TaskObj;
-
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
+import org.diskium.MultiplatformLogger;
+import org.diskium.objects.BackupObj;
+import org.diskium.objects.TaskObj;
 
 public class TasksUtils {
 
@@ -14,11 +13,11 @@ public class TasksUtils {
     private static File pluginFile;
 
     /**
-     * Creates the plugin directory and any missing {@code backups.txt} or {@code tasks.txt} files.
-     *
-     * @return {@code true} if at least one registry file was created and no I/O error occurred;
-     * {@code false} if both files already existed or creation failed
-     */
+      * Creates the plugin directory and any missing {@code backups.txt} or {@code tasks.txt} files.
+      *
+      * @return {@code true} if at least one registry file was created and no I/O error occurred;
+      *     {@code false} if both files already existed or creation failed
+      */
     public static boolean mkFiles() {
         boolean buffer = false;
 
@@ -51,10 +50,10 @@ public class TasksUtils {
     }
 
     /**
-     * Fetches all tasks from {@code tasks.txt}
-     *
-     * @return Array of {@code TaskObj}
-     */
+      * Fetches all tasks from {@code tasks.txt}
+      *
+      * @return Array of {@code TaskObj}
+      */
     public static TaskObj[] getTasks() {
         List<TaskObj> tasks = new ArrayList<>();
         File taskFile = new File(pluginFile, "tasks.txt");
@@ -88,10 +87,10 @@ public class TasksUtils {
     }
 
     /**
-     * Fetches all backups from {@code backups.txt}
-     *
-     * @return Array of {@code BackupObj}
-     */
+      * Fetches all backups from {@code backups.txt}
+      *
+      * @return Array of {@code BackupObj}
+      */
     public static BackupObj[] getBackups() {
         List<BackupObj> backups = new ArrayList<>();
         File backupFile = new File(pluginFile, "backups.txt");
@@ -120,11 +119,11 @@ public class TasksUtils {
     }
 
     /**
-     * Adds a task into {@code tasks.txt}.
-     *
-     * @param task Task you want to add.
-     * @return Whether the action was successful
-     */
+      * Adds a task into {@code tasks.txt}.
+      *
+      * @param task Task you want to add.
+      * @return Whether the action was successful
+      */
     public static boolean add(TaskObj task) {
         File taskFile = new File(pluginFile, "tasks.txt");
 
@@ -152,12 +151,11 @@ public class TasksUtils {
     }
 
     /**
-     * Adds a backup into {@code backups.txt} and creates
-     * a backup of that file.
-     *
-     * @param backup Backup you want to add.
-     * @return Whether the action was successful
-     */
+      * Adds a backup into {@code backups.txt} and creates a backup of that file.
+      *
+      * @param backup Backup you want to add.
+      * @return Whether the action was successful
+      */
     public static boolean add(BackupObj backup) {
         File backupFile = new File(pluginFile, "backups.txt");
 
@@ -184,10 +182,10 @@ public class TasksUtils {
     }
 
     /**
-     * Executes each deletion or move and then removes its task record.
-     *
-     * @param tasks the tasks to execute
-     */
+      * Executes each deletion or move and then removes its task record.
+      *
+      * @param tasks the tasks to execute
+      */
     public static void complete(TaskObj[] tasks) {
         for (TaskObj task : tasks) {
             boolean success;
@@ -203,11 +201,11 @@ public class TasksUtils {
     }
 
     /**
-     * Moves each backup to its original path, replacing an existing destination,
-     * and removes its registry record.
-     *
-     * @param backups the backups to restore
-     */
+      * Moves each backup to its original path, replacing an existing destination, and removes its
+      * registry record.
+      *
+      * @param backups the backups to restore
+      */
     public static void complete(BackupObj[] backups) {
         for (BackupObj backup : backups) {
             if (FileUtils.move(backup.getItself(), backup.getFile())) {
@@ -217,10 +215,10 @@ public class TasksUtils {
     }
 
     /**
-     * Removes a task from {@code tasks.txt}.
-     *
-     * @param task The task you want to remove.
-     */
+      * Removes a task from {@code tasks.txt}.
+      *
+      * @param task The task you want to remove.
+      */
     public static void remove(TaskObj task) {
         Path taskFile = new File(pluginFile, "tasks.txt").toPath();
 
@@ -249,10 +247,10 @@ public class TasksUtils {
     }
 
     /**
-     * Removes a backup from {@code backups.txt}.
-     *
-     * @param backup The backup you want to remove.
-     */
+      * Removes a backup from {@code backups.txt}.
+      *
+      * @param backup The backup you want to remove.
+      */
     public static void remove(BackupObj backup) {
         FileUtils.forceDel(backup.getItself());
         Path backupFile = new File(pluginFile, "backups.txt").toPath();
@@ -282,37 +280,38 @@ public class TasksUtils {
     }
 
     /**
-     * Classifies a path by its location or filename suffix.
-     *
-     * @param file the path to classify
-     * @return {@code PLUGINS} for paths starting with the plugins directory,
-     * {@code WORLD} for the {@code .mca} suffix,
-     * {@code LOGS} for paths starting with the logs directory,
-     * or {@code OTHER}
-     */
+      * Classifies a path by its location or filename suffix.
+      *
+      * @param file the path to classify
+      * @return {@code PLUGINS} for paths starting with the plugins directory, {@code WORLD} for the
+      *     {@code .mca} suffix, {@code LOGS} for paths starting with the logs directory, or {@code
+      *     OTHER}
+      */
     public static TaskObj.Types getType(File file) {
-        if (file.getPath().startsWith(new File(serverRoot, "plugins").toString())) return TaskObj.Types.PLUGINS;
+        if (file.getPath().startsWith(new File(serverRoot, "plugins").toString()))
+            return TaskObj.Types.PLUGINS;
         if (file.getPath().endsWith(".mca")) return TaskObj.Types.WORLD;
-        if (file.getPath().startsWith(new File(serverRoot, "logs").toString())) return TaskObj.Types.LOGS;
+        if (file.getPath().startsWith(new File(serverRoot, "logs").toString()))
+            return TaskObj.Types.LOGS;
         else return TaskObj.Types.OTHER;
     }
 
     /**
-     * Gives you a maximum of 0 and {@code x}
-     *
-     * @param x Number, you want ot get.
-     * @return {@code x}, but 0, if it's negative.
-     */
+      * Gives you a maximum of 0 and {@code x}
+      *
+      * @param x Number, you want ot get.
+      * @return {@code x}, but 0, if it's negative.
+      */
     public static int nonNegative(int x) {
         return Math.max(x, 0);
     }
 
     /**
-     * Sets server directory and plugin directory.
-     *
-     * @param serverDir Server directory.
-     * @param pluginDir Plugin directory.
-     */
+      * Sets server directory and plugin directory.
+      *
+      * @param serverDir Server directory.
+      * @param pluginDir Plugin directory.
+      */
     public static void setFiles(File serverDir, File pluginDir) {
         serverRoot = serverDir;
         pluginFile = pluginDir;

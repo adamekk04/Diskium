@@ -1,11 +1,11 @@
 package org.diskium.utils;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
 
 class WorldUtilsTest {
 
@@ -20,10 +20,10 @@ class WorldUtilsTest {
 
     @Test
     void chunkToRegionHandlesPositiveAndNegativeCoordinates() {
-        assertArrayEquals(new int[]{0, 0}, WorldUtils.chunkToRegion(0, 31));
-        assertArrayEquals(new int[]{1, 1}, WorldUtils.chunkToRegion(32, 63));
-        assertArrayEquals(new int[]{-1, -1}, WorldUtils.chunkToRegion(-1, -32));
-        assertArrayEquals(new int[]{-2, -2}, WorldUtils.chunkToRegion(-33, -64));
+        assertArrayEquals(new int[] {0, 0}, WorldUtils.chunkToRegion(0, 31));
+        assertArrayEquals(new int[] {1, 1}, WorldUtils.chunkToRegion(32, 63));
+        assertArrayEquals(new int[] {-1, -1}, WorldUtils.chunkToRegion(-1, -32));
+        assertArrayEquals(new int[] {-2, -2}, WorldUtils.chunkToRegion(-33, -64));
     }
 
     @Test

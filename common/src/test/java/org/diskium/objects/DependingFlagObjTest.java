@@ -1,23 +1,18 @@
 package org.diskium.objects;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
 
 class DependingFlagObjTest {
 
     @Test
     void isFlagDependingRejectsAllValuesWhenNoneAreAllowed() {
-        DependingFlagObj<String> flag = new DependingFlagObj<>(
-                "output",
-                "mode",
-                new Object[]{},
-                "console", "file"
-        );
+        DependingFlagObj<String> flag =
+                new DependingFlagObj<>("output", "mode", new Object[] {}, "console", "file");
 
         assertFalse(flag.isFlagDepending(Map.of("mode", "fast")));
         assertFalse(flag.isFlagDepending(Map.of("mode", "full")));
@@ -26,12 +21,8 @@ class DependingFlagObjTest {
 
     @Test
     void isFlagDependingDistinguishesValueTypes() {
-        DependingFlagObj<String> flag = new DependingFlagObj<>(
-                "output",
-                "level",
-                new Object[]{1},
-                "console", "file"
-        );
+        DependingFlagObj<String> flag =
+                new DependingFlagObj<>("output", "level", new Object[] {1}, "console", "file");
 
         assertTrue(flag.isFlagDepending(Map.of("level", 1)));
         assertFalse(flag.isFlagDepending(Map.of("level", "1")));
@@ -40,12 +31,8 @@ class DependingFlagObjTest {
 
     @Test
     void isFlagDependingRequiresAllowedValue() {
-        DependingFlagObj<String> flag = new DependingFlagObj<>(
-                "output",
-                "mode",
-                new Object[]{"fast", "full"},
-                "console", "file"
-        );
+        DependingFlagObj<String> flag =
+                new DependingFlagObj<>("output", "mode", new Object[] {"fast", "full"}, "console", "file");
 
         assertTrue(flag.isFlagDepending(Map.of("mode", "fast")));
         assertTrue(flag.isFlagDepending(Map.of("mode", "full")));

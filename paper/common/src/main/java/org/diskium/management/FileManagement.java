@@ -1,33 +1,30 @@
 package org.diskium.management;
 
-import org.bukkit.Bukkit;
+import java.io.File;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.diskium.Diskium;
 import org.diskium.MultiplatformLogger;
 import org.diskium.mca.Parser;
-import org.diskium.objects.BackupObj;
 import org.diskium.objects.Region;
 import org.diskium.objects.TaskObj;
 import org.diskium.utils.FileUtils;
 import org.diskium.utils.TasksUtils;
 import org.diskium.utils.WorldUtils;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
 public class FileManagement {
     /**
-     * Gets a .mca region file from given world and coordinates.
-     *
-     * @param x     X coordinate of the chunk.
-     * @param z     Z coordinate of the chunk.
-     * @param world World whose region directory contains the file.
-     * @return Region file from given coordinates and world.
-     */
+      * Gets a .mca region file from given world and coordinates.
+      *
+      * @param x X coordinate of the chunk.
+      * @param z Z coordinate of the chunk.
+      * @param world World whose region directory contains the file.
+      * @return Region file from given coordinates and world.
+      */
     public static File getRegionFile(int x, int z, World world) {
         int[] reg = WorldUtils.chunkToRegion(x, z);
 
@@ -35,20 +32,22 @@ public class FileManagement {
     }
 
     /**
-     * Gets a .mca region file from given region.
-     *
-     * @param region Region object.
-     * @return Region file from given region.
-     */
+      * Gets a .mca region file from given region.
+      *
+      * @param region Region object.
+      * @return Region file from given region.
+      */
     public static File getRegionFile(Region region) {
-        return new File(region.getWorld().getWorldFolder(), "region/r." + region.getX() + "." + region.getZ() + ".mca");
+        return new File(
+                region.getWorld().getWorldFolder(),
+                "region/r." + region.getX() + "." + region.getZ() + ".mca");
     }
 
     /**
-     * Safely deletes all region files of all given chunks.
-     *
-     * @param chunks All chunks to get checked and safely deleted.
-     */
+      * Safely deletes all region files of all given chunks.
+      *
+      * @param chunks All chunks to get checked and safely deleted.
+      */
     public static void deleteRegions(Map<Chunk, Boolean> chunks) {
         Map<Region, Boolean> del = new HashMap<>(); // true: safe; false: unsafe
 
@@ -70,13 +69,13 @@ public class FileManagement {
     }
 
     /**
-     * Safely deletes a sector in a given world from coordinates.
-     *
-     * @param x       X coordinate of the sector.
-     * @param z       Z coordinate of the sector.
-     * @param world   World the sector is located in.
-     * @param isChunk Whether the sector is a chunk or a region.
-     */
+      * Safely deletes a sector in a given world from coordinates.
+      *
+      * @param x X coordinate of the sector.
+      * @param z Z coordinate of the sector.
+      * @param world World the sector is located in.
+      * @param isChunk Whether the sector is a chunk or a region.
+      */
     public static void makeFiles(int x, int z, World world, boolean isChunk) {
         if (isChunk) {
             Chunk chunk = world.getChunkAt(x, z);
@@ -95,14 +94,18 @@ public class FileManagement {
             File originalRegion = getRegionFile(regionObj);
             File region = new File(worldCopies, originalRegion.getName());
 
-            Optional<TaskObj> task = Arrays.stream(TasksUtils.getTasks()).filter(taskObj -> !taskObj.getDelete() && originalRegion.equals(taskObj.getReplacementFile())).findFirst();
+            Optional<TaskObj> task =
+                    Arrays.stream(TasksUtils.getTasks())
+                            .filter(
+                                    taskObj ->
+                                            !taskObj.getDelete() && originalRegion.equals(taskObj.getReplacementFile()))
+                            .findFirst();
             if (task.isPresent()) {
                 region = task.get().getFile();
             } else {
                 if (!FileUtils.copy(originalRegion, region)) {
                     return;
                 }
-
             }
 
             if (!FileUtils.createBackup(originalRegion)) {
@@ -120,19 +123,20 @@ public class FileManagement {
             int chunkX = WorldUtils.regionToChunk(x);
             int chunkZ = WorldUtils.regionToChunk(z);
 
-            FileUtils.safeDel(getRegionFile(chunkX, chunkZ, world), FileUtils.DelSpecifier.USE_TASK_QUEUE);
+            FileUtils.safeDel(
+                    getRegionFile(chunkX, chunkZ, world), FileUtils.DelSpecifier.USE_TASK_QUEUE);
         }
     }
 
     /**
-     * Removes selected chunks from a region copy and queues replacement of the original.
-     * Attempts a separate backup if enabled in the configuration.
-     *
-     * <p>All chunks must belong to the same region and world.
-     *
-     * @param safeToDelete chunks mapped to {@code true} for removal or {@code false}
-     *                     for retention; keys and values must be non-null
-     */
+      * Removes selected chunks from a region copy and queues replacement of the original. Attempts a
+      * separate backup if enabled in the configuration.
+      *
+      * <p>All chunks must belong to the same region and world.
+      *
+      * @param safeToDelete chunks mapped to {@code true} for removal or {@code false} for retention;
+      *     keys and values must be non-null
+      */
     public static void makeFiles(Map<Chunk, Boolean> safeToDelete) {
         File pluginDir = Diskium.getInstance().getDataFolder();
         File worldCopies = new File(pluginDir, "world-copies/" + WorldUtils.getSalt());
@@ -151,7 +155,12 @@ public class FileManagement {
         File originalRegion = getRegionFile(regionObj);
         File region = new File(worldCopies, originalRegion.getName());
 
-        Optional<TaskObj> task = Arrays.stream(TasksUtils.getTasks()).filter(taskObj -> !taskObj.getDelete() && originalRegion.equals(taskObj.getReplacementFile())).findFirst();
+        Optional<TaskObj> task =
+                Arrays.stream(TasksUtils.getTasks())
+                        .filter(
+                                taskObj ->
+                                        !taskObj.getDelete() && originalRegion.equals(taskObj.getReplacementFile()))
+                        .findFirst();
         if (task.isPresent()) {
             region = task.get().getFile();
         } else {

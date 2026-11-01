@@ -1,15 +1,14 @@
 package org.diskium.utils;
 
-import org.diskium.objects.FlagObj;
-import org.diskium.objects.DependingFlagObj;
-import org.junit.jupiter.api.Test;
-
-import java.util.Map;
-
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.Map;
+import org.diskium.objects.DependingFlagObj;
+import org.diskium.objects.FlagObj;
+import org.junit.jupiter.api.Test;
 
 class FlagsTest {
 
@@ -35,25 +34,22 @@ class FlagsTest {
                     Flags flags = new Flags(new FlagObj<Boolean>("verbose"));
                     flags.suggest("--verbose=yes");
                     assertThrows(IllegalArgumentException.class, flags::getAll);
-                }
-        );
+                });
     }
 
     @Test
     void suggestDoesNotParsePartialDependentFlagAsCompletedFlag() {
-        Flags flags = new Flags(
-                new FlagObj<String>("mode", "fast", "safe"),
-                new DependingFlagObj<String>(
-                        "output", "mode", new Object[]{"fast"}, "console", "file"
-                )
-        );
+        Flags flags =
+                new Flags(
+                        new FlagObj<String>("mode", "fast", "safe"),
+                        new DependingFlagObj<String>(
+                                "output", "mode", new Object[] {"fast"}, "console", "file"));
 
         String[] suggestions = flags.suggest("--mode=fast --out");
 
         assertAll(
-                () -> assertArrayEquals(new String[]{"--output="}, suggestions),
-                () -> assertEquals(Map.of("mode", "fast"), flags.getAll())
-        );
+                () -> assertArrayEquals(new String[] {"--output="}, suggestions),
+                () -> assertEquals(Map.of("mode", "fast"), flags.getAll()));
     }
 
     @Test
@@ -66,35 +62,30 @@ class FlagsTest {
 
     @Test
     void suggestResolvesDependencyNameIgnoringCase() {
-        Flags flags = new Flags(
-                new FlagObj<String>("mode", "fast", "safe"),
-                new DependingFlagObj<String>(
-                        "output", "mode", new Object[]{"fast"}, "console", "file"
-                )
-        );
+        Flags flags =
+                new Flags(
+                        new FlagObj<String>("mode", "fast", "safe"),
+                        new DependingFlagObj<String>(
+                                "output", "mode", new Object[] {"fast"}, "console", "file"));
 
-        assertArrayEquals(new String[]{"--output="}, flags.suggest("--MODE=fast --"));
+        assertArrayEquals(new String[] {"--output="}, flags.suggest("--MODE=fast --"));
     }
 
     @Test
     void suggestListsAvailableFlagsForEmptyInput() {
-        Flags flags = new Flags(
-                new FlagObj<Boolean>("verbose"),
-                new FlagObj<String>("mode", "fast", "safe"),
-                new DependingFlagObj<String>(
-                        "output", "mode", new Object[]{"fast"}, "console", "file"
-                )
-        );
+        Flags flags =
+                new Flags(
+                        new FlagObj<Boolean>("verbose"),
+                        new FlagObj<String>("mode", "fast", "safe"),
+                        new DependingFlagObj<String>(
+                                "output", "mode", new Object[] {"fast"}, "console", "file"));
 
-        assertArrayEquals(new String[]{"--verbose", "--mode="}, flags.suggest(""));
+        assertArrayEquals(new String[] {"--verbose", "--mode="}, flags.suggest(""));
     }
 
     @Test
     void getAllPreservesSpacesInsideStringValue() {
-        Flags flags = new Flags(
-                new FlagObj<String>("name"),
-                new FlagObj<Boolean>("verbose")
-        );
+        Flags flags = new Flags(new FlagObj<String>("name"), new FlagObj<Boolean>("verbose"));
         flags.suggest("--name=My World --verbose");
 
         assertEquals(Map.of("name", "My World", "verbose", true), flags.getAll());
@@ -102,15 +93,10 @@ class FlagsTest {
 
     @Test
     void suggestReturnsEmptyWhenAllFlagsAreUsed() {
-        Flags flags = new Flags(
-                new FlagObj<String>("mode", "fast", "full"),
-                new FlagObj<Boolean>("verbose")
-        );
+        Flags flags =
+                new Flags(new FlagObj<String>("mode", "fast", "full"), new FlagObj<Boolean>("verbose"));
 
-        assertArrayEquals(
-                new String[]{},
-                flags.suggest("--mode=fast --verbose --")
-        );
+        assertArrayEquals(new String[] {}, flags.suggest("--mode=fast --verbose --"));
     }
 
     @Test
@@ -126,73 +112,48 @@ class FlagsTest {
 
     @Test
     void suggestReturnsEmptyForUnknownFlagPrefix() {
-        Flags flags = new Flags(
-                new FlagObj<Boolean>("verbose"),
-                new FlagObj<String>("mode", "fast", "full")
-        );
+        Flags flags =
+                new Flags(new FlagObj<Boolean>("verbose"), new FlagObj<String>("mode", "fast", "full"));
 
-        assertArrayEquals(new String[]{}, flags.suggest("--unknown"));
+        assertArrayEquals(new String[] {}, flags.suggest("--unknown"));
     }
 
     @Test
     void suggestUsesOptionsOfLastFlag() {
-        Flags flags = new Flags(
-                new FlagObj<String>("mode", "fast", "full"),
-                new FlagObj<String>("output", "console", "file")
-        );
+        Flags flags =
+                new Flags(
+                        new FlagObj<String>("mode", "fast", "full"),
+                        new FlagObj<String>("output", "console", "file"));
 
-        assertArrayEquals(
-                new String[]{"file"},
-                flags.suggest("--mode=fast --output=FI")
-        );
+        assertArrayEquals(new String[] {"file"}, flags.suggest("--mode=fast --output=FI"));
     }
 
     @Test
     void suggestOffersDependentFlagForEnabledSwitch() {
-        Flags flags = new Flags(
-                new FlagObj<Boolean>("verbose"),
-                new DependingFlagObj<String>(
-                        "output", "verbose", new Object[]{true},
-                        "console", "file"
-                )
-        );
+        Flags flags =
+                new Flags(
+                        new FlagObj<Boolean>("verbose"),
+                        new DependingFlagObj<String>(
+                                "output", "verbose", new Object[] {true}, "console", "file"));
 
-        assertArrayEquals(
-                new String[]{"--output="},
-                flags.suggest("--verbose --")
-        );
-        assertArrayEquals(
-                new String[]{},
-                flags.suggest("--verbose=false --")
-        );
+        assertArrayEquals(new String[] {"--output="}, flags.suggest("--verbose --"));
+        assertArrayEquals(new String[] {}, flags.suggest("--verbose=false --"));
     }
 
     @Test
     void suggestOffersDependentFlagForParsedInteger() {
-        Flags flags = new Flags(
-                new FlagObj<Integer>("level"),
-                new DependingFlagObj<String>(
-                        "output", "level", new Object[]{2},
-                        "console", "file"
-                )
-        );
+        Flags flags =
+                new Flags(
+                        new FlagObj<Integer>("level"),
+                        new DependingFlagObj<String>("output", "level", new Object[] {2}, "console", "file"));
 
-        assertArrayEquals(
-                new String[]{"--output="},
-                flags.suggest("--level=2 --")
-        );
-        assertArrayEquals(
-                new String[]{},
-                flags.suggest("--level=3 --")
-        );
+        assertArrayEquals(new String[] {"--output="}, flags.suggest("--level=2 --"));
+        assertArrayEquals(new String[] {}, flags.suggest("--level=3 --"));
     }
 
     @Test
     void getAllReflectsOnlyLatestInput() {
-        Flags flags = new Flags(
-                new FlagObj<String>("mode"),
-                new FlagObj<Boolean>("verbose")
-        );
+        Flags flags = new Flags(new FlagObj<String>("mode"), new FlagObj<Boolean>("verbose"));
 
         flags.suggest("--mode=fast --verbose");
         assertEquals(Map.of("mode", "fast", "verbose", true), flags.getAll());
@@ -232,85 +193,63 @@ class FlagsTest {
 
     @Test
     void getAllParsesDeclaredValueTypes() {
-        Flags flags = new Flags(
-                new FlagObj<String>("mode"),
-                new FlagObj<Integer>("limit"),
-                new FlagObj<Boolean>("verbose")
-        );
+        Flags flags =
+                new Flags(
+                        new FlagObj<String>("mode"),
+                        new FlagObj<Integer>("limit"),
+                        new FlagObj<Boolean>("verbose"));
 
         flags.suggest("--mode=fast --limit=10 --verbose=false");
 
-        assertEquals(
-                Map.of("mode", "fast", "limit", 10, "verbose", false),
-                flags.getAll()
-        );
+        assertEquals(Map.of("mode", "fast", "limit", 10, "verbose", false), flags.getAll());
     }
 
     @Test
     void suggestExcludesAlreadyEnteredDependentFlag() {
-        Flags flags = new Flags(
-                new FlagObj<String>("mode", "fast", "safe"),
-                new DependingFlagObj<String>(
-                        "output", "mode", new Object[]{"fast"},
-                        "console", "file"
-                ),
-                new FlagObj<Boolean>("verbose")
-        );
+        Flags flags =
+                new Flags(
+                        new FlagObj<String>("mode", "fast", "safe"),
+                        new DependingFlagObj<String>(
+                                "output", "mode", new Object[] {"fast"}, "console", "file"),
+                        new FlagObj<Boolean>("verbose"));
 
-        assertArrayEquals(
-                new String[]{"--verbose"},
-                flags.suggest("--mode=fast --output=console --")
-        );
+        assertArrayEquals(new String[] {"--verbose"}, flags.suggest("--mode=fast --output=console --"));
     }
 
     @Test
     void suggestOffersDependentFlagOnlyForAllowedValue() {
-        Flags flags = new Flags(
-                new FlagObj<String>("mode", "fast", "safe"),
-                new DependingFlagObj<String>(
-                        "output", "mode", new Object[]{"fast"},
-                        "console", "file"
-                )
-        );
+        Flags flags =
+                new Flags(
+                        new FlagObj<String>("mode", "fast", "safe"),
+                        new DependingFlagObj<String>(
+                                "output", "mode", new Object[] {"fast"}, "console", "file"));
 
-        assertArrayEquals(new String[]{"--output="}, flags.suggest("--mode=fast --"));
-        assertArrayEquals(new String[]{}, flags.suggest("--mode=safe --"));
-        assertArrayEquals(new String[]{"--mode="}, flags.suggest("--"));
+        assertArrayEquals(new String[] {"--output="}, flags.suggest("--mode=fast --"));
+        assertArrayEquals(new String[] {}, flags.suggest("--mode=safe --"));
+        assertArrayEquals(new String[] {"--mode="}, flags.suggest("--"));
     }
 
     @Test
     void suggestMatchesFlagNamesIgnoringCase() {
-        Flags flags = new Flags(
-                new FlagObj<Boolean>("verbose"),
-                new FlagObj<String>("mode", "fast", "full")
-        );
+        Flags flags =
+                new Flags(new FlagObj<Boolean>("verbose"), new FlagObj<String>("mode", "fast", "full"));
 
-        assertArrayEquals(new String[]{"--verbose"}, flags.suggest("--VER"));
-        assertArrayEquals(new String[]{"--mode="}, flags.suggest("--Mo"));
+        assertArrayEquals(new String[] {"--verbose"}, flags.suggest("--VER"));
+        assertArrayEquals(new String[] {"--mode="}, flags.suggest("--Mo"));
     }
 
     @Test
     void suggestListsAllValuesAfterEquals() {
-        Flags flags = new Flags(
-                new FlagObj<String>("mode", "fast", "full", "safe")
-        );
+        Flags flags = new Flags(new FlagObj<String>("mode", "fast", "full", "safe"));
 
-        assertArrayEquals(
-                new String[]{"fast", "full", "safe"},
-                flags.suggest("--mode=")
-        );
+        assertArrayEquals(new String[] {"fast", "full", "safe"}, flags.suggest("--mode="));
     }
 
     @Test
     void suggestListsFlagsWhenOnlyPrefixIsEntered() {
-        Flags flags = new Flags(
-                new FlagObj<Boolean>("verbose"),
-                new FlagObj<String>("mode", "fast", "full")
-        );
+        Flags flags =
+                new Flags(new FlagObj<Boolean>("verbose"), new FlagObj<String>("mode", "fast", "full"));
 
-        assertArrayEquals(
-                new String[]{"--verbose", "--mode="},
-                flags.suggest("--")
-        );
+        assertArrayEquals(new String[] {"--verbose", "--mode="}, flags.suggest("--"));
     }
 }

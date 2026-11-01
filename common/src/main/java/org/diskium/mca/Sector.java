@@ -1,12 +1,11 @@
 package org.diskium.mca;
 
-import org.diskium.MultiplatformLogger;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.diskium.MultiplatformLogger;
 
 public class Sector {
     static final int SECTOR_SIZE = 4096;
@@ -14,11 +13,11 @@ public class Sector {
     private int x;
     private int z;
 
-/**
-     * Creates sector from region file.
-     *
-     * @param file Region file.
-     */
+    /**
+      * Creates sector from region file.
+      *
+      * @param file Region file.
+      */
     public Sector(File file) {
         try (FileInputStream input = new FileInputStream(file)) {
             byte[] data = new byte[SECTOR_SIZE];
@@ -46,11 +45,11 @@ public class Sector {
         }
     }
 
-/**
-     * Reads global chunk coordinates from non-empty entries in the loaded location table.
-     *
-     * @return coordinate pairs {@code {x, z}} in chunk units
-     */
+    /**
+      * Reads global chunk coordinates from non-empty entries in the loaded location table.
+      *
+      * @return coordinate pairs {@code {x, z}} in chunk units
+      */
     public int[][] getChunks() {
         List<int[]> buffer = new ArrayList<>();
 
@@ -62,7 +61,7 @@ public class Sector {
             byte b3 = this.data[locationOffset + 3];
 
             if (!(b0 == 0 && b1 == 0 && b2 == 0 && b3 == 0)) {
-                buffer.add(new int[]{this.x * 32 + i % 32, this.z * 32 + i / 32});
+                buffer.add(new int[] {this.x * 32 + i % 32, this.z * 32 + i / 32});
             }
         }
 

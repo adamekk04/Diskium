@@ -2,28 +2,29 @@ package org.diskium;
 
 public final class MultiplatformLogger {
 
-    private static Logger logger = new Logger() {
-        @Override
-        public void info(String message) {
-            System.out.println(message);
-        }
+    private static Logger logger =
+            new Logger() {
+                @Override
+                public void info(String message) {
+                    System.out.println(message);
+                }
 
-        @Override
-        public void warn(String message) {
-            System.err.println(message);
-        }
+                @Override
+                public void warn(String message) {
+                    System.err.println(message);
+                }
 
-        @Override
-        public void error(String message) {
-            System.err.println(message);
-        }
+                @Override
+                public void error(String message) {
+                    System.err.println(message);
+                }
 
-        @Override
-        public void error(String message, Throwable throwable) {
-            System.err.println(message);
-            throwable.printStackTrace(System.err);
-        }
-    };
+                @Override
+                public void error(String message, Throwable throwable) {
+                    System.err.println(message);
+                    throwable.printStackTrace(System.err);
+                }
+            };
 
     public static void setLogger(Logger logger) {
         MultiplatformLogger.logger = logger;
@@ -47,8 +48,11 @@ public final class MultiplatformLogger {
 
     public interface Logger {
         void info(String message);
+
         void warn(String message);
+
         void error(String message);
+
         void error(String message, Throwable throwable);
     }
 }

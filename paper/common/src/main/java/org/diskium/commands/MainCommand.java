@@ -3,22 +3,19 @@ package org.diskium.commands;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
-
 import java.io.File;
 
 public class MainCommand {
 
-/**
-     * Builds the entire diskium command tree.
-     *
-     * @param dir Plugin's directory.
-     * @return Command's node ready to register.
-     */
+    /**
+      * Builds the entire diskium command tree.
+      *
+      * @param dir Plugin's directory.
+      * @return Command's node ready to register.
+      */
     public static LiteralCommandNode<CommandSourceStack> register(File dir) {
         return Commands.literal("diskium")
-                .requires(commandSourceStack ->
-                        commandSourceStack.getSender().hasPermission("diskium")
-                )
+                .requires(commandSourceStack -> commandSourceStack.getSender().hasPermission("diskium"))
                 .then(ConfigCommand.entry(dir))
                 .then(LogsCommand.entry())
                 .then(PluginsCommand.entry())

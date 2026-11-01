@@ -1,26 +1,24 @@
 package org.diskium.utils;
 
-import org.diskium.objects.BackupObj;
-import org.diskium.objects.TaskObj;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.diskium.objects.BackupObj;
+import org.diskium.objects.TaskObj;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class TasksUtilsTest {
 
     private File pluginDir;
     private File serverDir;
 
-    @TempDir
-    Path tempDir;
+    @TempDir Path tempDir;
 
     @BeforeEach
     void setFiles() {
@@ -69,13 +67,7 @@ public class TasksUtilsTest {
 
         Files.write(
                 pluginDir.toPath().resolve("tasks.txt"),
-                List.of(
-                        original1.toString(),
-                        "1",
-                        original2.toString(),
-                        replacement.toString()
-                )
-        );
+                List.of(original1.toString(), "1", original2.toString(), replacement.toString()));
 
         TaskObj[] tasks = TasksUtils.getTasks();
 
@@ -85,25 +77,20 @@ public class TasksUtilsTest {
                 () -> assertTrue(tasks[0].getDelete()),
                 () -> assertEquals(original1.toFile(), tasks[0].getFile()),
                 () -> assertNull(tasks[0].getReplacementFile()),
-                () -> assertEquals(TaskObj.Types.PLUGINS, tasks[0].getType())
-        );
+                () -> assertEquals(TaskObj.Types.PLUGINS, tasks[0].getType()));
 
         assertAll(
                 () -> assertFalse(tasks[1].getDelete()),
                 () -> assertEquals(original2.toFile(), tasks[1].getFile()),
                 () -> assertEquals(replacement.toFile(), tasks[1].getReplacementFile()),
-                () -> assertEquals(TaskObj.Types.WORLD, tasks[1].getType())
-        );
+                () -> assertEquals(TaskObj.Types.WORLD, tasks[1].getType()));
     }
 
     @Test
     void getTasksIgnoresIncompleteRecord() throws IOException {
         TasksUtils.mkFiles();
 
-        Files.write(
-                pluginDir.toPath().resolve("tasks.txt"),
-                List.of("/some/file/without/mode")
-        );
+        Files.write(pluginDir.toPath().resolve("tasks.txt"), List.of("/some/file/without/mode"));
 
         assertEquals(0, TasksUtils.getTasks().length);
     }
@@ -116,9 +103,7 @@ public class TasksUtilsTest {
         Path backup = tempDir.resolve("backup/r.0.0.mca");
 
         Files.write(
-                pluginDir.toPath().resolve("backups.txt"),
-                List.of(original.toString(), backup.toString())
-        );
+                pluginDir.toPath().resolve("backups.txt"), List.of(original.toString(), backup.toString()));
 
         BackupObj[] backups = TasksUtils.getBackups();
 
@@ -138,9 +123,7 @@ public class TasksUtilsTest {
         assertTrue(TasksUtils.add(task));
 
         assertEquals(
-                List.of(file.toString(), "1"),
-                Files.readAllLines(pluginDir.toPath().resolve("tasks.txt"))
-        );
+                List.of(file.toString(), "1"), Files.readAllLines(pluginDir.toPath().resolve("tasks.txt")));
     }
 
     @Test
@@ -150,19 +133,13 @@ public class TasksUtilsTest {
         File original = tempDir.resolve("server/world/region/r.0.0.mca").toFile();
         File replacement = tempDir.resolve("backup/r.0.0.mca").toFile();
 
-        TaskObj task = new TaskObj(
-                false,
-                original,
-                replacement,
-                TaskObj.Types.WORLD
-        );
+        TaskObj task = new TaskObj(false, original, replacement, TaskObj.Types.WORLD);
 
         assertTrue(TasksUtils.add(task));
 
         assertEquals(
                 List.of(original.toString(), replacement.toString()),
-                Files.readAllLines(pluginDir.toPath().resolve("tasks.txt"))
-        );
+                Files.readAllLines(pluginDir.toPath().resolve("tasks.txt")));
     }
 
     @Test
@@ -182,8 +159,7 @@ public class TasksUtilsTest {
 
         assertEquals(
                 List.of(original.toString(), backup.toString()),
-                Files.readAllLines(pluginDir.toPath().resolve("backups.txt"))
-        );
+                Files.readAllLines(pluginDir.toPath().resolve("backups.txt")));
     }
 
     @Test
@@ -194,14 +170,9 @@ public class TasksUtilsTest {
         Files.createDirectories(replacement.getParent());
         Files.writeString(original, "region data");
 
-        TaskObj task = new TaskObj(
-                false,
-                original.toFile(),
-                replacement.toFile(),
-                TaskObj.Types.WORLD
-        );
+        TaskObj task = new TaskObj(false, original.toFile(), replacement.toFile(), TaskObj.Types.WORLD);
 
-        TasksUtils.complete(new TaskObj[]{task});
+        TasksUtils.complete(new TaskObj[] {task});
 
         assertFalse(Files.exists(original));
         assertEquals("region data", Files.readString(replacement));
@@ -212,7 +183,7 @@ public class TasksUtilsTest {
         Path file = Files.createFile(tempDir.resolve("delete-me.txt"));
         TaskObj task = new TaskObj(true, file.toFile(), null, TaskObj.Types.OTHER);
 
-        TasksUtils.complete(new TaskObj[]{task});
+        TasksUtils.complete(new TaskObj[] {task});
 
         assertFalse(Files.exists(file));
     }
@@ -227,11 +198,9 @@ public class TasksUtilsTest {
         Files.createDirectories(backup.getParent());
         Files.writeString(backup, "backup data");
         Files.write(
-                pluginDir.toPath().resolve("backups.txt"),
-                List.of(original.toString(), backup.toString())
-        );
+                pluginDir.toPath().resolve("backups.txt"), List.of(original.toString(), backup.toString()));
 
-        TasksUtils.complete(new BackupObj[]{new BackupObj(original.toFile(), backup.toFile())});
+        TasksUtils.complete(new BackupObj[] {new BackupObj(original.toFile(), backup.toFile())});
 
         assertFalse(Files.exists(backup));
         assertEquals("backup data", Files.readString(original));
@@ -247,16 +216,12 @@ public class TasksUtilsTest {
         File last = tempDir.resolve("last.jar").toFile();
         Path tasksFile = pluginDir.toPath().resolve("tasks.txt");
         Files.write(
-                tasksFile,
-                List.of(first.toString(), "1", removed.toString(), "1", last.toString(), "1")
-        );
+                tasksFile, List.of(first.toString(), "1", removed.toString(), "1", last.toString(), "1"));
 
         TasksUtils.remove(new TaskObj(true, removed, null, TaskObj.Types.OTHER));
 
         assertEquals(
-                List.of(first.toString(), "1", last.toString(), "1"),
-                Files.readAllLines(tasksFile)
-        );
+                List.of(first.toString(), "1", last.toString(), "1"), Files.readAllLines(tasksFile));
     }
 
     @Test
@@ -275,41 +240,36 @@ public class TasksUtilsTest {
                 List.of(
                         first.toString(), firstBackup.toString(),
                         removed.toString(), removedBackup.toString(),
-                        last.toString(), lastBackup.toString()
-                )
-        );
+                        last.toString(), lastBackup.toString()));
 
         TasksUtils.remove(new BackupObj(removed, removedBackup));
 
         assertEquals(
                 List.of(
                         first.toString(), firstBackup.toString(),
-                        last.toString(), lastBackup.toString()
-                ),
-                Files.readAllLines(backupsFile)
-        );
+                        last.toString(), lastBackup.toString()),
+                Files.readAllLines(backupsFile));
     }
 
     @Test
     void getTypeRecognizesAllSupportedTypes() {
         assertAll(
-                () -> assertEquals(
-                        TaskObj.Types.PLUGINS,
-                        TasksUtils.getType(tempDir.resolve("server/plugins/example.jar").toFile())
-                ),
-                () -> assertEquals(
-                        TaskObj.Types.WORLD,
-                        TasksUtils.getType(tempDir.resolve("server/world/region/r.0.0.mca").toFile())
-                ),
-                () -> assertEquals(
-                        TaskObj.Types.LOGS,
-                        TasksUtils.getType(tempDir.resolve("server/logs/latest.log").toFile())
-                ),
-                () -> assertEquals(
-                        TaskObj.Types.OTHER,
-                        TasksUtils.getType(tempDir.resolve("server/server.properties").toFile())
-                )
-        );
+                () ->
+                        assertEquals(
+                                TaskObj.Types.PLUGINS,
+                                TasksUtils.getType(tempDir.resolve("server/plugins/example.jar").toFile())),
+                () ->
+                        assertEquals(
+                                TaskObj.Types.WORLD,
+                                TasksUtils.getType(tempDir.resolve("server/world/region/r.0.0.mca").toFile())),
+                () ->
+                        assertEquals(
+                                TaskObj.Types.LOGS,
+                                TasksUtils.getType(tempDir.resolve("server/logs/latest.log").toFile())),
+                () ->
+                        assertEquals(
+                                TaskObj.Types.OTHER,
+                                TasksUtils.getType(tempDir.resolve("server/server.properties").toFile())));
     }
 
     @Test
@@ -317,8 +277,7 @@ public class TasksUtilsTest {
         assertAll(
                 () -> assertEquals(0, TasksUtils.nonNegative(-10)),
                 () -> assertEquals(0, TasksUtils.nonNegative(0)),
-                () -> assertEquals(10, TasksUtils.nonNegative(10))
-        );
+                () -> assertEquals(10, TasksUtils.nonNegative(10)));
     }
 
     @Test
@@ -333,8 +292,6 @@ public class TasksUtilsTest {
         assertTrue(otherPluginDir.toPath().resolve("backups.txt").toFile().isFile());
         assertEquals(
                 TaskObj.Types.PLUGINS,
-                TasksUtils.getType(otherServerDir.toPath().resolve("plugins/example.jar").toFile())
-        );
+                TasksUtils.getType(otherServerDir.toPath().resolve("plugins/example.jar").toFile()));
     }
-
 }

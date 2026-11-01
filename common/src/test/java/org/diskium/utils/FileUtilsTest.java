@@ -1,24 +1,22 @@
 package org.diskium.utils;
 
-import org.diskium.objects.TaskObj;
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.diskium.objects.BackupObj;
+import org.diskium.objects.TaskObj;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 public class FileUtilsTest {
 
-    @TempDir
-    Path tempDir;
+    @TempDir Path tempDir;
 
     @BeforeEach
     void setDelWhileRunning() {
@@ -105,19 +103,24 @@ public class FileUtilsTest {
 
     @ParameterizedTest
     @CsvSource({
-            "true, false, false, LOGS, true",
-            "true, false, true, LOGS, true",
-            "false, true, false, LOGS, false",
-            "false, true, true, LOGS, false",
-            "false, true, false, PLUGINS, true",
-            "false, true, true, PLUGINS, true",
-            "true, false, false, PLUGINS, false",
-            "true, false, true, PLUGINS, false",
-            "true, true, false, USE_TASK_QUEUE, false",
-            "true, true, true, USE_TASK_QUEUE, false"
+        "true, false, false, LOGS, true",
+        "true, false, true, LOGS, true",
+        "false, true, false, LOGS, false",
+        "false, true, true, LOGS, false",
+        "false, true, false, PLUGINS, true",
+        "false, true, true, PLUGINS, true",
+        "true, false, false, PLUGINS, false",
+        "true, false, true, PLUGINS, false",
+        "true, true, false, USE_TASK_QUEUE, false",
+        "true, true, true, USE_TASK_QUEUE, false"
     })
-    void safeDelAppliesPolicyAndRegistersBackups(boolean logs, boolean plugins, boolean backups,
-                                                FileUtils.DelSpecifier type, boolean immediate) throws IOException {
+    void safeDelAppliesPolicyAndRegistersBackups(
+            boolean logs,
+            boolean plugins,
+            boolean backups,
+            FileUtils.DelSpecifier type,
+            boolean immediate)
+            throws IOException {
         File pluginDir = tempDir.resolve("plugin").toFile();
         FileUtils.setUseTasks(logs, plugins, backups, pluginDir);
         Path file = tempDir.resolve("server/world/region/r.0.0.mca");
@@ -159,7 +162,7 @@ public class FileUtilsTest {
     @Test
     void safeDelKeepsSameNamedBackupsSeparate() throws IOException {
         FileUtils.setUseTasks(true, true, true, tempDir.resolve("plugin").toFile());
-        for (String world : new String[]{"world", "nether"}) {
+        for (String world : new String[] {"world", "nether"}) {
             Path file = tempDir.resolve(world).resolve("r.0.0.mca");
             Files.createDirectories(file.getParent());
             Files.writeString(file, world);
@@ -187,5 +190,4 @@ public class FileUtilsTest {
         assertEquals(0, TasksUtils.getTasks().length);
         assertEquals(0, TasksUtils.getBackups().length);
     }
-
 }

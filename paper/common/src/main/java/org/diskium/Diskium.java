@@ -1,10 +1,9 @@
 package org.diskium;
 
+import java.util.logging.Level;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.diskium.utils.DateUtils;
 import org.diskium.utils.FileUtils;
-
-import java.util.logging.Level;
 
 public final class Diskium extends JavaPlugin {
 
@@ -18,31 +17,31 @@ public final class Diskium extends JavaPlugin {
                 getConfig().getBoolean("delete-while-running.logs"),
                 getConfig().getBoolean("delete-while-running.plugins"),
                 getConfig().getBoolean("backups"),
-                getDataFolder()
-        );
+                getDataFolder());
         DateUtils.setDateFormat(getConfig().getString("date-format"));
 
-        MultiplatformLogger.setLogger(new MultiplatformLogger.Logger() {
-            @Override
-            public void info(String message) {
-                getLogger().info(message);
-            }
+        MultiplatformLogger.setLogger(
+                new MultiplatformLogger.Logger() {
+                    @Override
+                    public void info(String message) {
+                        getLogger().info(message);
+                    }
 
-            @Override
-            public void warn(String message) {
-                getLogger().warning(message);
-            }
+                    @Override
+                    public void warn(String message) {
+                        getLogger().warning(message);
+                    }
 
-            @Override
-            public void error(String message) {
-                getLogger().severe(message);
-            }
+                    @Override
+                    public void error(String message) {
+                        getLogger().severe(message);
+                    }
 
-            @Override
-            public void error(String message, Throwable throwable) {
-                getLogger().log(Level.SEVERE, message, throwable);
-            }
-        });
+                    @Override
+                    public void error(String message, Throwable throwable) {
+                        getLogger().log(Level.SEVERE, message, throwable);
+                    }
+                });
     }
 
     @Override

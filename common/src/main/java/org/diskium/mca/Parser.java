@@ -1,21 +1,20 @@
 package org.diskium.mca;
 
-import org.diskium.MultiplatformLogger;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
+import org.diskium.MultiplatformLogger;
 
 public class Parser {
 
-/**
-     * Reads global coordinates of chunks listed in a region file's location table.
-     *
-     * @param file the region file
-     * @return coordinate pairs {@code {x, z}}, or an empty array if the initial file check fails
-     */
+    /**
+      * Reads global coordinates of chunks listed in a region file's location table.
+      *
+      * @param file the region file
+      * @return coordinate pairs {@code {x, z}}, or an empty array if the initial file check fails
+      */
     public static int[][] parse(File file) {
         if (!isValid(file)) return new int[0][0];
 
@@ -24,14 +23,14 @@ public class Parser {
         return sector.getChunks();
     }
 
-/**
-     * Removes chunk from region file.
-     *
-     * @param x X coordinate of the chunk.
-     * @param z Z coordinate of the chunk.
-     * @param file Region file.
-     * @return Status of the action.
-     */
+    /**
+      * Removes chunk from region file.
+      *
+      * @param x X coordinate of the chunk.
+      * @param z Z coordinate of the chunk.
+      * @param file Region file.
+      * @return Status of the action.
+      */
     public static boolean removeChunk(int x, int z, File file) {
         if (!isValid(file)) {
             MultiplatformLogger.error("Cannot read file " + file.getAbsolutePath());
@@ -97,13 +96,13 @@ public class Parser {
         }
     }
 
-/**
-     * Checks the file size without validating the region contents.
-     *
-     * @param file the region file
-     * @return {@code true} if the size is at least 8192 bytes and a multiple of 4096;
-     *         {@code false} if the size is invalid or cannot be read
-     */
+    /**
+      * Checks the file size without validating the region contents.
+      *
+      * @param file the region file
+      * @return {@code true} if the size is at least 8192 bytes and a multiple of 4096; {@code false}
+      *     if the size is invalid or cannot be read
+      */
     private static boolean isValid(File file) {
         try {
             long size = Files.size(file.toPath());
@@ -114,18 +113,19 @@ public class Parser {
         } catch (NullPointerException e) {
             MultiplatformLogger.error("File to validate is null");
         } catch (IOException e) {
-            MultiplatformLogger.error("Something went wrong while trying to validate " + file.getName(), e);
+            MultiplatformLogger.error(
+                    "Something went wrong while trying to validate " + file.getName(), e);
         }
         return false;
     }
 
-/**
-     * Gets index of chunk in region file.
-     *
-     * @param chunkX X coordinate of the chunk.
-     * @param chunkZ Z coordinate of the chunk.
-     * @return Index of the chunk in region file.
-     */
+    /**
+      * Gets index of chunk in region file.
+      *
+      * @param chunkX X coordinate of the chunk.
+      * @param chunkZ Z coordinate of the chunk.
+      * @return Index of the chunk in region file.
+      */
     private static int getIndex(int chunkX, int chunkZ) {
         int localX = Math.floorMod(chunkX, 32);
         int localZ = Math.floorMod(chunkZ, 32);
