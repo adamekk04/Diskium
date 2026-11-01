@@ -14,14 +14,8 @@ public class ASCII {
         return "\n"
                 + "   ####  \n"
                 + " ##    ##    DISKIUM\n"
-                + "#        #   v"
-                + version
-                + "\n"
-                + " ##    ##    Platform: "
-                + platform
-                + " "
-                + mcVersion
-                + "\n"
+                + "#        #   v" + version + "\n"
+                + " ##    ##    Platform: " + platform + " " + mcVersion + "\n"
                 + "   ####   ";
     }
 }
