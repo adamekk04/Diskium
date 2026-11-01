@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 import org.diskium.MultiplatformLogger;
+import org.diskium.mca.Parser;
 import org.diskium.objects.BackupObj;
 import org.diskium.objects.TaskObj;
 
@@ -192,7 +193,14 @@ public class TasksUtils {
             if (task.getDelete()) {
                 success = FileUtils.forceDel(task.getFile());
             } else {
-                success = FileUtils.move(task.getFile(), task.getReplacementFile());
+                File modifiedRegion = task.getFile();
+                File region = task.getReplacementFile();
+
+                if (!Parser.areModified(region, modifiedRegion)) {
+                    success = FileUtils.move(task.getFile(), task.getReplacementFile());
+                } else {
+                    success = false;
+                }
             }
             if (success) {
                 remove(task);

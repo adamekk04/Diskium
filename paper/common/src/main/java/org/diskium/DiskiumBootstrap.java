@@ -65,7 +65,7 @@ class DiskiumBootstrap implements PluginBootstrap {
 
         TaskObj[] tasks = TasksUtils.getTasks();
 
-        if (tasks == null) {
+        if (tasks.length == 0) {
             context.getLogger().info("No tasks found.");
             return;
         }

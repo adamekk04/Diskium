@@ -97,6 +97,61 @@ public class Parser {
     }
 
     /**
+     * Checks, if both files have different chunks. Deleted chunks doesn't count.
+     * 
+     * @param r1 First region chunk.
+     * @param r2 Second region chunk.
+     * @return Whether both files are different.
+     */
+    public static boolean areModified(File r1, File r2) {
+        for (File f : new File[]{ r1, r2 }) {
+            if (!isValid(f)) {
+                MultiplatformLogger.error("Cannot read file " + f.getAbsolutePath());
+                MultiplatformLogger.error("Size: " + f.length());
+                return false;
+            }
+        }
+
+        try (RandomAccessFile raf1 = new RandomAccessFile(r1, "rw")) {
+            try (RandomAccessFile raf2 = new RandomAccessFile(r2, "rw")) {
+                for (int i = 0; i < 1024; i++) {
+                    raf1.seek(i * 4L);
+                    raf2.seek(i * 4L);
+
+                    int location1 = raf1.readInt();
+                    int location2 = raf2.readInt();
+                    int offset1 = (location1 >>> 8) & 0xFFFFFF; // offset of the chunk in sectors
+                    int offset2 = (location2 >>> 8) & 0xFFFFFF;
+                    int length1 = location1 & 0xFF; // length of the chunk in sectors
+                    int length2 = location2 & 0xFF;
+
+                    if (!(length1 == 0 || length1 == length2 || length2 == 0)) {
+                        continue;
+                    }
+
+                    byte[] tail1 = new byte[length1 * 4096];
+                    byte[] tail2 = new byte[length2 * 4096];
+
+                    raf1.seek(offset1 * 4096L);
+                    raf1.readFully(tail1);
+                    raf2.seek(offset2 * 4096L);
+                    raf2.readFully(tail2);
+
+                    if (tail1 != tail2) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        } catch (IOException e) {
+            MultiplatformLogger.error("Something went wrong while reading region files.", e);
+        }
+
+        return false;
+    }
+
+    /**
       * Checks the file size without validating the region contents.
       *
       * @param file the region file

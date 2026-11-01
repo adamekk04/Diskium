@@ -12,18 +12,6 @@
 
 > Bugs found by Codex
 
-### BUG-006: Single-chunk deletion edits live region files outside Papers I/O coordination
-
-- **Severity:** High
-- **Location:** paper/common/src/main/java/org/diskium/management/FileManagement.java:76, FileManagement.makeFiles; common/src/main/java/org/diskium/mca/Parser.java:44, removeChunk
-- **Description:** Unlike region deletion, the chunk branch directly opens RandomAccessFile while the server is running. It ignores the unload result and other chunks in the same region may remain loaded. Default task-queue policy does not protect this branch.
-- **Reproduction:** Code-confirmed: in a disposable world keep two chunks from r.0.0.mca loaded, then invoke makeFiles(0,0,world,true). Trace the direct RandomAccessFile path; do not use a production world.
-- **Expected behavior:** Perform offline coordinated world edits after a verified save/unload, or use a supported server mechanism.
-- **Actual behavior:** Raw header writes happen immediately, without a server region lock or a queued task.
-- **Impact:** Cached state and concurrent save operations can overwrite the edit or corrupt the region; exact save-race timing was not forced.
-- **Evidence:** makeFiles calls chunk.unload(false) without checking its boolean, then Parser.removeChunk directly. Only the region branch uses safeDel(...USE_TASK_QUEUE).
-- **Suggested fix:** Queue chunk operations for a verified offline phase and validate identity and integrity immediately before applying them.
-
 ### BUG-007: Whole-world deletion rejects every normal region filename
 
 - **Severity:** High
@@ -549,12 +537,3 @@ These are unverified risk hypotheses or incomplete end-to-end investigations, **
 ## 💡 Ideas
 
 ---
-
-## Changelog
-### Additions
-
-### Changes
-
-### Fixes
-- Compare BlockStates and content of containers.
-- Add permissions for subcommands

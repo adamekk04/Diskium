@@ -1,10 +1,8 @@
 package org.diskium.management;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.diskium.Diskium;
@@ -80,7 +78,21 @@ public class FileManagement {
         if (isChunk) {
             Chunk chunk = world.getChunkAt(x, z);
 
-            chunk.unload(false);
+            if (chunk.unload(false)) {
+                MultiplatformLogger.error("Unable to unload chunk at " + x + " " + z + " in " + world.getName());
+                return;
+            }
+
+            List<Chunk> chunks = WorldManagement.getGeneratedChunksInRegion(
+                    new Region(chunk));
+
+            for (Chunk c : chunks) {
+                if (c.unload()) {
+                    MultiplatformLogger.error("Unable to unload chunk at " + c.getX() + " " + c.getZ() + " in " + world.getName());
+                    return;
+                }
+            }
+
 
             File pluginDir = Diskium.getInstance().getDataFolder();
             File worldCopies = new File(pluginDir, "world-copies/" + WorldUtils.getSalt());
