@@ -56,8 +56,7 @@ public class FileUtils {
             MultiplatformLogger.error(
                     "Couldn't delete file " + file.getName() + ", because it doesn't exist.");
         } catch (DirectoryNotEmptyException e) {
-            delWithSubDirs(file);
-            return true;
+            return delWithSubDirs(file);
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong." + e);
         }
@@ -118,17 +117,21 @@ public class FileUtils {
       *
       * @param file Folder to delete.
       */
-    private static void delWithSubDirs(File file) {
+    private static boolean delWithSubDirs(File file) {
         try (Stream<Path> paths = Files.walk(file.toPath())) {
-            paths
-                    .sorted(Comparator.reverseOrder())
-                    .forEach(
-                            path -> {
-                                forceDel(path.toFile());
-                            });
+            Stream<Path> sorted = paths.sorted(Comparator.reverseOrder());
+
+            for (Path p : sorted.toList()) {
+                if (!forceDel(p.toFile())) {
+                    return false;
+                }
+            }
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong.", e);
+            return false;
         }
+
+        return true;
     }
 
     /**

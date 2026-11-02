@@ -1,7 +1,7 @@
 # TODO
 
 ## Release 1.0-alpha.3
-- Fix high priority bugs
+- Fix a part of high priority bugs
 
 ## Release 1.0-beta.1
 - Fix high and medium priority bugs
