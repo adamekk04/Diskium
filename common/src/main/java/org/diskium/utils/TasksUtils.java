@@ -126,6 +126,11 @@ public class TasksUtils {
       * @return Whether the action was successful
       */
     public static boolean add(TaskObj task) {
+        if (task.getFile().toString().contains("\n") || (task.getReplacementFile() != null && task.getReplacementFile().toString().contains("\n"))) {
+            MultiplatformLogger.error("Cannot add new task, because file contains line break.");
+            return false;
+        }
+
         File taskFile = new File(pluginFile, "tasks.txt");
 
         try (FileWriter fw = new FileWriter(taskFile, true)) {
@@ -158,6 +163,11 @@ public class TasksUtils {
       * @return Whether the action was successful
       */
     public static boolean add(BackupObj backup) {
+        if (backup.getFile().toString().contains("\n") || backup.getItself().toString().contains("\n")) {
+            MultiplatformLogger.error("Cannot add new backup, because file contains line break.");
+            return false;
+        }
+
         File backupFile = new File(pluginFile, "backups.txt");
 
         if (!FileUtils.copy(backup.getFile(), backup.getItself())) {

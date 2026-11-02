@@ -360,30 +360,6 @@
 - **Evidence:** Audit.java confirms the surviving parsed record is a deletion of A. The loop increments i by one and removes two lines starting at the first string match.
 - **Suggested fix:** Parse records structurally, identify complete tasks with stable IDs, and serialize atomically after validated removal.
 
-### BUG-036: Newlines in a valid filesystem name inject additional startup deletion tasks
-
-- **Severity:** Critical
-- **Location:** common/src/main/java/org/diskium/utils/TasksUtils.java:126, add(TaskObj), and :58, getTasks; paper/common/src/main/java/org/diskium/management/LogsManagement.java:52, delete
-- **Description:** Task paths are serialized verbatim into a newline-delimited two-line format. Unix filenames may contain newlines; getTasks treats each injected pair as another operation without containment checks.
-- **Reproduction:** Only in a disposable server directory, create a log named "harmless\n1\nvictim\n1\ntail.log.gz" (actual newline characters), plus a harmless server-root victim file. Queue that log through safeDel(LOGS); inspect getTasks and execute only the disposable queue.
-- **Expected behavior:** Treat the filename as one path and never synthesize extra operations.
-- **Actual behavior:** One real log filename produces three tasks, including deletion of the unrelated relative path victim.
-- **Impact:** A filesystem actor able to introduce crafted log/plugin filenames can redirect later privileged cleanup outside its selected area. This is not a demonstrated unprivileged Minecraft-command exploit.
-- **Evidence:** extra-audit.log: real newline log filename creates 3 tasks; injected relative target=victim. common-audit.log independently verifies injected target deletion in an isolated fixture.
-- **Suggested fix:** Use structured escaped serialization with stable IDs and schema validation; reject control characters and validate allowed roots at execution time.
-
-### BUG-037: Failed recursive deletion reports success and drops the pending task
-
-- **Severity:** High
-- **Location:** common/src/main/java/org/diskium/utils/FileUtils.java:43, forceDel and :88, delWithSubDirs; common/src/main/java/org/diskium/utils/TasksUtils.java:195, complete
-- **Description:** forceDel returns true after calling delWithSubDirs even when traversal or child deletion failed. Recursive return values are discarded.
-- **Reproduction:** Create a disposable nonempty directory, remove its read/write/search permissions, queue deletion and complete the task; restore fixture permissions afterward.
-- **Expected behavior:** Return failure and retain a retryable task with accurate diagnostics.
-- **Actual behavior:** AccessDeniedException is logged, the directory survives, but completion removes the task.
-- **Impact:** Silent incomplete cleanup and loss of retry/accounting information.
-- **Evidence:** common-audit.log contains the permission-denied trace and confirms failed recursive task removed from queue.
-- **Suggested fix:** Propagate aggregate deletion success, handle traversal failures, and only acknowledge a task after verifying the target was deleted.
-
 ### BUG-038: Failure to persist task removal replays deletion against replacement data
 
 - **Severity:** High
