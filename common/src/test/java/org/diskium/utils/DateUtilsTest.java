@@ -3,9 +3,15 @@ package org.diskium.utils;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class DateUtilsTest {
+
+    @BeforeEach
+    void setFormatBeforeRunning() {
+        DateUtils.setDateFormat("yyyy-mm-dd");
+    }
 
     @Test
     void isValidDateValidatesRangeAndFormat() {
