@@ -96,7 +96,7 @@ public class BackupCommand {
                                         Commands.argument("id", IntegerArgumentType.integer(1))
                                                 .suggests(
                                                         (context, builder) -> {
-                                                            for (int i = 0; i < TasksUtils.getBackups().length; i++) {
+                                                            for (int i = 1; i <= TasksUtils.getBackups().length; i++) {
                                                                 builder.suggest(i);
                                                             }
 
@@ -107,7 +107,7 @@ public class BackupCommand {
                                                             BackupObj[] backups = TasksUtils.getBackups();
                                                             int index = IntegerArgumentType.getInteger(context, "id");
 
-                                                            if (index <= backups.length) {
+                                                            if (backups.length > index - 1) {
                                                                 BackupObj backup = backups[index - 1];
                                                                 TasksUtils.add(
                                                                         new TaskObj(

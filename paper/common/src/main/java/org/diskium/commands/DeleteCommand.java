@@ -222,10 +222,10 @@ public class DeleteCommand {
       * @return Builder ready to attach to the parent command.
       */
     public static RequiredArgumentBuilder<CommandSourceStack, ?> tasks() {
-        return Commands.argument("id", IntegerArgumentType.integer(0))
+        return Commands.argument("id", IntegerArgumentType.integer(1))
                 .suggests(
                         (context, builder) -> {
-                            for (int i = 0; i < TasksUtils.getTasks().length; i++) {
+                            for (int i = 1; i <= TasksUtils.getTasks().length; i++) {
                                 builder.suggest(i);
                             }
 
@@ -236,13 +236,13 @@ public class DeleteCommand {
                             int index = IntegerArgumentType.getInteger(context, "id");
                             TaskObj[] tasks = TasksUtils.getTasks();
 
-                            if (index <= tasks.length) {
-                                TasksUtils.remove(tasks[index]);
+                            if (tasks.length > index - 1) {
+                                TasksUtils.remove(tasks[index - 1]);
                                 context
                                         .getSource()
                                         .getSender()
                                         .sendMessage(
-                                                Component.text("Deleted task with id")
+                                                Component.text("Deleted task with id ")
                                                         .append(Component.text(index, NamedTextColor.GREEN)));
                             }
 

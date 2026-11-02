@@ -89,10 +89,10 @@ public class TaskCommand {
                 .then(
                         Commands.literal("info")
                                 .then(
-                                        Commands.argument("id", IntegerArgumentType.integer(0))
+                                        Commands.argument("id", IntegerArgumentType.integer(1))
                                                 .suggests(
                                                         (context, builder) -> {
-                                                            for (int i = 0; i < TasksUtils.getTasks().length; i++) {
+                                                            for (int i = 1; i <= TasksUtils.getTasks().length; i++) {
                                                                 builder.suggest(i);
                                                             }
 
@@ -104,8 +104,8 @@ public class TaskCommand {
                                                             int index = IntegerArgumentType.getInteger(context, "id");
                                                             TaskObj[] tasks = TasksUtils.getTasks();
                                                             if (tasks != null) {
-                                                                if (tasks.length >= index) {
-                                                                    task = tasks[index];
+                                                                if (tasks.length > index - 1) {
+                                                                    task = tasks[index - 1];
                                                                     context.getSource().getSender().sendMessage("ID: " + index);
                                                                     context
                                                                             .getSource()

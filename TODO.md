@@ -99,18 +99,6 @@
 - **Evidence:** Code-confirmed: listFiles suffix-only filter at line 28 feeds substring(0,10) and LocalDate.parse at lines 156-161 with no catch.
 - **Suggested fix:** Match supported log filename patterns and handle each invalid archive independently.
 
-### BUG-019: Task deletion uses different IDs from task listing and admits out-of-range indexes
-
-- **Severity:** High
-- **Location:** paper/common/src/main/java/org/diskium/commands/DeleteCommand.java:200, tasks; paper/common/src/main/java/org/diskium/commands/TaskCommand.java:95, info and :172, lister
-- **Description:** Listing numbers from 1; delete/info use the supplied integer as a zero-based index. Their checks also permit index == array.length.
-- **Reproduction:** Seed three disposable move tasks, list them, delete ID 1, and inspect the survivors. With an empty registry execute task info 0 and task delete 0.
-- **Expected behavior:** Use the displayed ID consistently and reject nonexistent IDs.
-- **Actual behavior:** Deleting displayed ID 1 removes the second record. Empty ID 0 and the upper boundary throw ArrayIndexOutOfBoundsException.
-- **Impact:** An administrator may cancel the wrong destructive job and leave the intended deletion scheduled.
-- **Evidence:** runtime-stage1.log shows both empty-array crashes and fixture-a surviving delete 1. Source indexes tasks[index] at DeleteCommand:214 and TaskCommand:107.
-- **Suggested fix:** Use one-based stable identifiers throughout and strict bounds checks; preferably persist immutable task IDs.
-
 ### BUG-020: Task listing crashes on ordinary deletion tasks
 
 - **Severity:** Medium
