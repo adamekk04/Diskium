@@ -153,13 +153,15 @@ public class LogsManagement {
       * @return Whether the log is between those two days.
       */
     private static boolean supposedToAdd(File file, LocalDate start, LocalDate end) {
+        LocalDate fileDate = LocalDate.parse(file.getName().substring(0, 10));
+
         if (start == null) {
-            return end.isAfter(LocalDate.parse(file.getName().substring(0, 10)));
+            return fileDate.isBefore(end);
         }
         if (end == null) {
-            return start.isAfter(LocalDate.parse(file.getName().substring(0, 10)));
+            return fileDate.isAfter(start);
         }
-        return start.isBefore(LocalDate.parse(file.getName().substring(0, 10)))
-                && end.isAfter(LocalDate.parse(file.getName().substring(0, 10)));
+        return fileDate.isAfter(start)
+                && fileDate.isBefore(end);
     }
 }
