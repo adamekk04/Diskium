@@ -324,7 +324,7 @@ public class WorldManagement {
     private static File[] getRegionFiles(World world) {
         File dir = new File(world.getWorldFolder(), "region");
 
-        return dir.listFiles(file -> !file.isDirectory() && file.toPath().endsWith(".mca"));
+        return dir.listFiles(file -> !file.isDirectory() && file.toString().endsWith(".mca"));
     }
 
     /**

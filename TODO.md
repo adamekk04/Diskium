@@ -12,18 +12,6 @@
 
 > Bugs found by Codex
 
-### BUG-007: Whole-world deletion rejects every normal region filename
-
-- **Severity:** High
-- **Location:** paper/common/src/main/java/org/diskium/management/WorldManagement.java:283, WorldManagement.getRegionFiles(World)
-- **Description:** Path.endsWith(".mca") compares a complete path component, not a filename extension.
-- **Reproduction:** Create region/r.0.0.mca in a disposable world and invoke the private getRegionFiles(World) through AuditProbe, or execute whole_world deletion and inspect the queue.
-- **Expected behavior:** Normal r.x.z.mca files are discovered.
-- **Actual behavior:** The returned region array is empty, so whole_world deletion performs no terrain deletion.
-- **Impact:** A major advertised world-cleanup operation silently does nothing.
-- **Evidence:** runtime-stage2.log: wholeWorldRegionCount=0 with a fixture present; common-audit.log independently confirms the Path.endsWith behavior.
-- **Suggested fix:** Use a validated region filename matcher or getFileName().toString().endsWith(".mca").
-
 ### BUG-008: Radius selection has incorrect outside and negative-center geometry
 
 - **Severity:** Medium
@@ -47,18 +35,6 @@
 - **Impact:** Repeated cleanup consumes disk, memory and world-management overhead instead of freeing them.
 - **Evidence:** runtime-stage2.log lists worldptr9czb00h after the command and logs its shutdown save; no delWorld call exists in these paths.
 - **Suggested fix:** Use try/finally or structured asynchronous cleanup, verify unload success, and delete only identified temporary-world data.
-
-### BUG-010: Range deletion always reads an unregistered flag name
-
-- **Severity:** High
-- **Location:** paper/common/src/main/java/org/diskium/commands/WorldCommand.java:255, WorldCommand.deleteLogic
-- **Description:** The command declares radius but accesses map.get("range"). The parser never stores that key.
-- **Reproduction:** Run /diskium world delete minecraft:overworld --checker=range --radius=512 --in=true --checkForBuilds=false on a disposable server.
-- **Expected behavior:** Validate and use the provided radius.
-- **Actual behavior:** NullPointerException occurs before range deletion.
-- **Impact:** Every otherwise valid range command fails.
-- **Evidence:** runtime-stage1.log: WorldCommand.deleteLogic(WorldCommand.java:255), Cannot invoke Object.toString() because Map.get(...) is null.
-- **Suggested fix:** Read radius, validate required flags and nonnegative bounds, and return a command syntax error for incomplete inputs.
 
 ### BUG-011: Explicit naturally boolean values cannot be parsed
 

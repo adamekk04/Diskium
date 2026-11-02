@@ -208,14 +208,14 @@ public class WorldCommand {
                         (context, builder) -> {
                             Flags flags =
                                     new Flags(
-                                            new FlagObj<>("checker", "range", "border", "whole_world", "chunk", "region"),
+                                            new FlagObj<>("checker", "radius", "border", "whole_world", "chunk", "region"),
                                             new FlagObj<>("checkForBuilds", true, false),
-                                            new DependingFlagObj<Integer>("radius", "checker", new String[] {"range"}),
+                                            new DependingFlagObj<Integer>("radius", "checker", new String[] {"radius"}),
                                             new DependingFlagObj<Integer>(
                                                     "x", "checker", new String[] {"chunk", "region"}),
                                             new DependingFlagObj<Integer>(
                                                     "z", "checker", new String[] {"chunk", "region"}),
-                                            new DependingFlagObj<>("in", "checker", new String[] {"range"}, true, false));
+                                            new DependingFlagObj<>("in", "checker", new String[] {"radius"}, true, false));
                             String typed = builder.getRemaining();
                             String[] suggestions = flags.suggest(typed);
 
@@ -239,14 +239,14 @@ public class WorldCommand {
                         context -> {
                             Flags flags =
                                     new Flags(
-                                            new FlagObj<>("checker", "range", "border", "whole_world", "chunk", "region"),
+                                            new FlagObj<>("checker", "radius", "border", "whole_world", "chunk", "region"),
                                             new FlagObj<>("checkForBuilds", true, false),
-                                            new DependingFlagObj<Integer>("radius", "checker", new String[] {"range"}),
+                                            new DependingFlagObj<Integer>("radius", "checker", new String[] {"radius"}),
                                             new DependingFlagObj<Integer>(
                                                     "x", "checker", new String[] {"chunk", "region"}),
                                             new DependingFlagObj<Integer>(
                                                     "z", "checker", new String[] {"chunk", "region"}),
-                                            new DependingFlagObj<>("in", "checker", new String[] {"range"}, true, false));
+                                            new DependingFlagObj<>("in", "checker", new String[] {"radius"}, true, false));
                             flags.suggest(StringArgumentType.getString(context, "flags"));
 
                             if (singleWorld) {
@@ -282,11 +282,11 @@ public class WorldCommand {
                     world.getWorldBorder().getCenter());
         } else if (checker.equalsIgnoreCase("whole_world")) {
             WorldManagement.del(world, checkForBuilds);
-        } else if (checker.equalsIgnoreCase("range")) {
+        } else if (checker.equalsIgnoreCase("radius")) {
             WorldManagement.del(
                     world,
                     Boolean.parseBoolean(flags.getAll().get("in").toString()),
-                    Integer.parseInt(map.get("range").toString()),
+                    Integer.parseInt(map.get("radius").toString()),
                     checkForBuilds,
                     new Location(world, 0, 0, 0));
         } else if (checker.equalsIgnoreCase("chunk")) {
