@@ -60,18 +60,6 @@
 - **Evidence:** runtime-stage3.log: world: DIAMOND_BLOCK after --naturally. runtime-stage2.log shows clone generation for the flag-free command.
 - **Suggested fix:** Align flag and method semantics and report generation only when the natural-world path is actually used.
 
-### BUG-015: Date-limited log deletion always includes the active latest.log
-
-- **Severity:** High
-- **Location:** paper/common/src/main/java/org/diskium/management/LogsManagement.java:28, getLogs; :52, delete
-- **Description:** getLatestLog is appended after date filtering regardless of the requested interval.
-- **Reproduction:** On a disposable server run logs delete --until=1900-01-01 with the default queued deletion policy, then inspect tasks.txt.
-- **Expected behavior:** A historical interval with no matching logs does not target the current active log.
-- **Actual behavior:** latest.log is queued even when no archive matches.
-- **Impact:** Unexpected loss of current diagnostics; a queued path may target a newer latest.log on the next boot.
-- **Evidence:** runtime-stage2.log: Found 1 log, DELETING; tasks.txt contained ./logs/latest.log and deletion marker 1.
-- **Suggested fix:** Exclude active logs by default, require an explicit active-log option, and apply date constraints consistently.
-
 ### BUG-016: Every log search leaks a file handle while trying to decompress latest.log
 
 - **Severity:** Medium

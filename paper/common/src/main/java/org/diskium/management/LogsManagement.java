@@ -34,7 +34,11 @@ public class LogsManagement {
             if (startDate != null || endDate != null) {
                 logsList = filter(logsList, startDate, endDate);
             }
-            logsList.add(getLatestLog());
+
+            if (endDate == null || endDate.isEqual(LocalDate.now())) {
+                logsList.add(getLatestLog());
+            }
+
             return logsList.toArray(File[]::new);
         }
 
@@ -81,15 +85,6 @@ public class LogsManagement {
             } catch (IOException e) {
                 MultiplatformLogger.error("Something went wrong while searching in logs.", e);
             }
-        }
-
-        try (FileInputStream fis = new FileInputStream(getLatestLog())) {
-            String content = new String(fis.readAllBytes(), StandardCharsets.UTF_8);
-            map.put(getLatestLog(), searchLog(content, keyword));
-        } catch (FileNotFoundException e) {
-            MultiplatformLogger.error("latest.log not found.");
-        } catch (IOException e) {
-            MultiplatformLogger.error("Something went wrong while reading latest.log.", e);
         }
         return map;
     }
