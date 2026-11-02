@@ -20,8 +20,8 @@ public class DateUtils {
     }
 
     /**
-      * Checks that non-null bounds are valid dates and that the start does not follow the end. Does
-      * not use the configured date format.
+     * Checks that non-null bounds are valid dates in the configured format and that the start does
+     * not follow the end.
       *
       * @param start the lower date bound, or {@code null} for no lower limit
       * @param end the upper date bound, or {@code null} for no upper limit
@@ -29,26 +29,12 @@ public class DateUtils {
       */
     public static boolean isValidDate(String start, String end) {
         try {
-            LocalDate parsedStart;
-            LocalDate parsedEnd;
+            LocalDate parsedStart = start == null ? null : parse(start);
+            LocalDate parsedEnd = end == null ? null : parse(end);
 
-            if (start != null) {
-                parsedStart = LocalDate.parse(start);
-            } else {
-                parsedStart = null;
-            }
-
-            if (end != null) {
-                parsedEnd = LocalDate.parse(end);
-            } else {
-                parsedEnd = null;
-            }
-
-            if (parsedStart == null || parsedEnd == null) {
-                return true;
-            }
-
-            return !LocalDate.parse(start).isAfter(LocalDate.parse(end));
+            return (start == null || parsedStart != null)
+                    && (end == null || parsedEnd != null)
+                    && (parsedStart == null || parsedEnd == null || !parsedStart.isAfter(parsedEnd));
         } catch (DateTimeParseException e) {
             return false;
         }
@@ -74,14 +60,12 @@ public class DateUtils {
       * @return Parsed date or null, if it couldn't be parsed (that also logs as error).
       */
     public static LocalDate parse(String s) {
-        String pattern = dateFormat.replace("yyyy", "uuuu").replace("mm", "MM");
-
-        DateTimeFormatter formatter =
-                DateTimeFormatter.ofPattern(pattern).withResolverStyle(ResolverStyle.STRICT);
-
         try {
+            String pattern = dateFormat.replace("yyyy", "uuuu").replace("mm", "MM");
+            DateTimeFormatter formatter =
+                    DateTimeFormatter.ofPattern(pattern).withResolverStyle(ResolverStyle.STRICT);
             return LocalDate.parse(s, formatter);
-        } catch (DateTimeParseException e) {
+        } catch (IllegalArgumentException | DateTimeParseException e) {
             MultiplatformLogger.error("Can't parse date: " + s);
             return null;
         }

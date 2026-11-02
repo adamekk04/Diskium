@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.util.Map;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.diskium.MultiplatformLogger;
 import org.diskium.management.LogsManagement;
 import org.diskium.objects.FlagObj;
 import org.diskium.utils.DateUtils;
@@ -19,10 +20,10 @@ import org.diskium.utils.Flags;
 public class LogsCommand {
 
     /**
-      * Builds the logs command with its subcommands.
-      *
-      * @return Builder ready to attach to the parent command.
-      */
+     * Builds the logs command with its subcommands.
+     *
+     * @return Builder ready to attach to the parent command.
+     */
     public static LiteralArgumentBuilder<CommandSourceStack> entry() {
         return Commands.literal("logs")
                 .requires(commandSourceStack -> commandSourceStack.getSender().hasPermission("diskium.logs"))
@@ -84,16 +85,17 @@ public class LogsCommand {
                                                             String arg = StringArgumentType.getString(context, "flags");
                                                             flags.suggest(arg);
 
-                                                            LocalDate since = null;
-                                                            LocalDate until = null;
+                                                            Map<String, Object> values = flags.getAll();
+                                                            String sinceValue = values.containsKey("since") ? values.get("since").toString() : null;
+                                                            String untilValue = values.containsKey("until") ? values.get("until").toString() : null;
 
-                                                            for (Map.Entry<String, Object> entry : flags.getAll().entrySet()) {
-                                                                if (entry.getKey().equalsIgnoreCase("since")) {
-                                                                    since = DateUtils.parse(entry.getValue().toString());
-                                                                } else {
-                                                                    until = DateUtils.parse(entry.getValue().toString());
-                                                                }
+                                                            if (!DateUtils.isValidDate(sinceValue, untilValue)) {
+                                                                MultiplatformLogger.error("Invalid date range.");
+                                                                return Command.SINGLE_SUCCESS;
                                                             }
+
+                                                            LocalDate since = sinceValue == null ? null : DateUtils.parse(sinceValue);
+                                                            LocalDate until = untilValue == null ? null : DateUtils.parse(untilValue);
 
                                                             File[] logs = LogsManagement.getLogs(since, until);
 
@@ -162,16 +164,17 @@ public class LogsCommand {
                                                             String arg = StringArgumentType.getString(context, "flags");
                                                             flags.suggest(arg);
 
-                                                            LocalDate since = null;
-                                                            LocalDate until = null;
+                                                            Map<String, Object> values = flags.getAll();
+                                                            String sinceValue = values.containsKey("since") ? values.get("since").toString() : null;
+                                                            String untilValue = values.containsKey("until") ? values.get("until").toString() : null;
 
-                                                            for (Map.Entry<String, Object> entry : flags.getAll().entrySet()) {
-                                                                if (entry.getKey().equalsIgnoreCase("since")) {
-                                                                    since = DateUtils.parse(entry.getValue().toString());
-                                                                } else {
-                                                                    until = DateUtils.parse(entry.getValue().toString());
-                                                                }
+                                                            if (!DateUtils.isValidDate(sinceValue, untilValue)) {
+                                                                MultiplatformLogger.error("Invalid date range.");
+                                                                return Command.SINGLE_SUCCESS;
                                                             }
+
+                                                            LocalDate since = sinceValue == null ? null : DateUtils.parse(sinceValue);
+                                                            LocalDate until = untilValue == null ? null : DateUtils.parse(untilValue);
 
                                                             DeleteCommand.logsExec(context, since, until);
 

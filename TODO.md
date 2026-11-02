@@ -60,30 +60,6 @@
 - **Evidence:** runtime-stage3.log: world: DIAMOND_BLOCK after --naturally. runtime-stage2.log shows clone generation for the flag-free command.
 - **Suggested fix:** Align flag and method semantics and report generation only when the natural-world path is actually used.
 
-### BUG-013: Since-only log filters select older logs instead of newer ones
-
-- **Severity:** High
-- **Location:** paper/common/src/main/java/org/diskium/management/LogsManagement.java:154, supposedToAdd
-- **Description:** The start-only branch uses start.isAfter(fileDate), reversing the lower bound. Both-bound and end-bound cases also exclude the boundary dates.
-- **Reproduction:** Create 2026-01-01-1.log.gz, 2026-06-01-1.log.gz and 2026-10-01-1.log.gz in isolated logs. Execute logs list --since=2026-06-01 using the default date format.
-- **Expected behavior:** Include logs on/after the requested lower bound and consistently document boundary semantics.
-- **Actual behavior:** Only the January archive and latest.log are listed; the same selection feeds deletion.
-- **Impact:** Deletes the opposite historical logs from those the administrator selected.
-- **Evidence:** runtime-stage1.log at 11:40:13 lists 2026-01-01-1.log.gz for the June lower bound.
-- **Suggested fix:** Validate ordered dates and implement inclusive lower/upper bounds with explicit tests for equality and single-sided ranges.
-
-### BUG-014: Invalid dates silently remove deletion filters
-
-- **Severity:** High
-- **Location:** paper/common/src/main/java/org/diskium/commands/LogsCommand.java:145, delete execution; common/src/main/java/org/diskium/utils/DateUtils.java:75, parse
-- **Description:** DateUtils.parse returns null on invalid input, and commands treat null as no bound. The existing date-range validator is never called. Unknown bare flags are also silently ignored by the parser.
-- **Reproduction:** In an isolated logs directory run logs list --since=invalid; compare with an unfiltered list. The corresponding logs delete command uses the identical conversion and selection.
-- **Expected behavior:** Reject invalid supplied dates and perform no destructive work.
-- **Actual behavior:** An error is logged, but all archives and latest.log are selected.
-- **Impact:** A typo in a supposedly constrained deletion can delete the entire log history.
-- **Evidence:** runtime-stage1.log: Cannot parse date invalid followed by Found 5 logs, covering every fixture. LogsCommand passes the resulting null bounds to DeleteCommand.logsExec.
-- **Suggested fix:** Distinguish absent bounds from failed parsing, validate the complete range, and abort on unknown or invalid filtering options.
-
 ### BUG-015: Date-limited log deletion always includes the active latest.log
 
 - **Severity:** High
