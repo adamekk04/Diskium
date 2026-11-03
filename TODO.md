@@ -159,18 +159,6 @@
 - **Evidence:** runtime-stage1.log: Incorrect argument ... config backups. runtime-stage3.log: backups = true. The clean-start command event precedes onEnable.
 - **Suggested fix:** Make defaults available before command tree construction or build a stable config schema independently of the on-disk file.
 
-### BUG-025: Configuration updates do not update active deletion and date settings
-
-- **Severity:** High
-- **Location:** paper/common/src/main/java/org/diskium/management/ConfigManagement.java:51, setSingleConfig; paper/common/src/main/java/org/diskium/Diskium.java:17, onEnable
-- **Description:** setSingleConfig changes YAML/in-memory Bukkit configuration but never refreshes FileUtils policy or DateUtils format, which are copied only at enable.
-- **Reproduction:** On a disposable server set delete-while-running.logs true and delete a fixture; it is still queued. Set date-format dd-mm-yyyy then run logs list --since=01-06-2026.
-- **Expected behavior:** Confirmed setting changes immediately govern subsequent operations, or the command explicitly requires restart.
-- **Actual behavior:** The old policy remains active; the new date spelling fails and broadens selection. The reverse true-to-false policy change can leave immediate deletion enabled.
-- **Impact:** An administrator can believe running-file deletion has been disabled while it remains active.
-- **Evidence:** runtime-stage2.log confirms both settings were accepted, followed by a queued latest.log and Cannot parse date 01-06-2026.
-- **Suggested fix:** Validate and atomically apply dependent runtime settings together with persistence, and communicate any restart-only settings.
-
 ### BUG-026: Bootstrap configuration is ignored
 
 - **Severity:** Medium

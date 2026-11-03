@@ -6,6 +6,8 @@ import java.util.Map;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.diskium.Diskium;
+import org.diskium.utils.DateUtils;
+import org.diskium.utils.FileUtils;
 
 public class ConfigManagement {
 
@@ -54,6 +56,9 @@ public class ConfigManagement {
         Diskium.getInstance().getConfig().set(configName, input);
         Diskium.getInstance().saveConfig();
         Diskium.getInstance().getLogger().info("Set " + configName + " to " + input);
+
+        Diskium.update();
+
         return true;
     }
 }

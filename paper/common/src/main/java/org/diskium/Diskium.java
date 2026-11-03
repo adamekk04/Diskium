@@ -1,6 +1,7 @@
 package org.diskium;
 
 import java.util.logging.Level;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.diskium.utils.DateUtils;
 import org.diskium.utils.FileUtils;
@@ -13,12 +14,7 @@ public final class Diskium extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
         instance = this;
-        FileUtils.setUseTasks(
-                getConfig().getBoolean("delete-while-running.logs"),
-                getConfig().getBoolean("delete-while-running.plugins"),
-                getConfig().getBoolean("backups"),
-                getDataFolder());
-        DateUtils.setDateFormat(getConfig().getString("date-format"));
+        update();
 
         MultiplatformLogger.setLogger(
                 new MultiplatformLogger.Logger() {
@@ -51,5 +47,16 @@ public final class Diskium extends JavaPlugin {
 
     public static Diskium getInstance() {
         return instance;
+    }
+
+    public static void update() {
+        FileConfiguration config = instance.getConfig();
+
+        FileUtils.setUseTasks(
+                config.getBoolean("delete-while-running.logs"),
+                config.getBoolean("delete-while-running.plugins"),
+                config.getBoolean("backups"),
+                instance.getDataFolder());
+        DateUtils.setDateFormat(config.getString("date-format"));
     }
 }
