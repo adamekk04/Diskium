@@ -14,13 +14,6 @@ subprojects {
     apply(plugin = "xyz.jpenilla.run-paper")
     apply(plugin = "com.gradleup.shadow")
 
-    val paperVersion = name
-
-    dependencies {
-        "implementation"(project(":common"))
-        "compileOnly"("io.papermc.paper:paper-api:$paperVersion.build.+")
-    }
-
     extensions.configure<JavaPluginExtension> {
         toolchain.languageVersion.set(JavaLanguageVersion.of(25))
         sourceSets.named("main") {
@@ -29,29 +22,37 @@ subprojects {
         }
     }
 
-    tasks.named("build") {
-        dependsOn("shadowJar")
-    }
-    tasks.named("jar") {
-        enabled = false
-    }
-    tasks.named<ShadowJar>("shadowJar") {
-        archiveBaseName.set("Diskium-paper-$paperVersion")
-        archiveClassifier.set("")
-    }
-    tasks.named<RunServer>("runServer") {
-        minecraftVersion(paperVersion)
-        jvmArgs("-Xms2G", "-Xmx2G")
-    }
-    tasks.named<ProcessResources>("processResources") {
-        val props = mapOf(
-            "version" to project.version,
-            "apiVersion" to paperVersion,
-            "description" to project.description
-        )
-        inputs.properties(props)
-        filesMatching("paper-plugin.yml") {
-            expand(props)
+    afterEvaluate {
+        val paperVersion = extensions.extraProperties["paperVersion"] as String
+
+        dependencies {
+            "implementation"(project(":common"))
+        }
+
+        tasks.named("build") {
+            dependsOn("shadowJar")
+        }
+        tasks.named("jar") {
+            enabled = false
+        }
+        tasks.named<ShadowJar>("shadowJar") {
+            archiveBaseName.set("Diskium-paper-$paperVersion")
+            archiveClassifier.set("")
+        }
+        tasks.named<RunServer>("runServer") {
+            minecraftVersion(paperVersion)
+            jvmArgs("-Xms2G", "-Xmx2G")
+        }
+        tasks.named<ProcessResources>("processResources") {
+            val props = mapOf(
+                "version" to project.version,
+                "apiVersion" to paperVersion,
+                "description" to project.description
+            )
+            inputs.properties(props)
+            filesMatching("paper-plugin.yml") {
+                expand(props)
+            }
         }
     }
 }
