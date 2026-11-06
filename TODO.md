@@ -171,18 +171,6 @@
 - **Evidence:** runtime-stage2.log shows Found 1 task and the marker is absent; runtime-stage3.log confirms bootstrapFalseMarkerExists=false. There is no configuration read in bootstrap.
 - **Suggested fix:** Load and validate bootstrap policy before processing the queue; document an unambiguous meaning for true and false.
 
-### BUG-027: Enable cannot reverse temporary or persistent plugin disabling
-
-- **Severity:** High
-- **Location:** paper/common/src/main/java/org/diskium/management/PluginManagement.java:37 and :55, permDisablePlugin/permEnablePlugin; paper/common/src/main/java/org/diskium/commands/PluginsCommand.java:163, pluginEnabler
-- **Description:** After rename, a loaded class retains its original code-source URI, so enable returns because the URI lacks the disable suffix. After restart the disabled JAR is not loaded and is absent from getPlugins. The temporary-disable path also has no corresponding enablePlugin call.
-- **Reproduction:** On a disposable server disable the audit helper with --persistentlyDisabled=true and immediately enable it; inspect plugins. Separately temporarily disable a harmless test plugin and call enable.
-- **Expected behavior:** Restore the renamed JAR and/or enable a temporarily disabled plugin as requested.
-- **Actual behavior:** AuditProbe.jardiskiumdisable remains after enable; temporary disabling has no re-enable implementation.
-- **Impact:** Plugins remain disabled until manual filesystem intervention or restart, depending on the mode.
-- **Evidence:** Observed renamed helper JAR after both commands. permEnablePlugin only checks the unchanged code-source suffix and never calls Bukkit enablePlugin.
-- **Suggested fix:** Track original/disabled JAR paths independently of loaded classes, enumerate disabled files safely, and define supported enable semantics for each plugin type.
-
 ### BUG-028: Plugin info mutates author metadata
 
 - **Severity:** Medium

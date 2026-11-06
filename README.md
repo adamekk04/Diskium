@@ -14,7 +14,7 @@ Diskium is a Minecraft Paper plugin to manage server files and free up disk spac
 
 ## Requirements
 
-- Paper **26.1.2**, **26.2** or **26.3**
+- Paper **26.1.2** or **26.3**
 - **Java 25**
 
 ## Installation
