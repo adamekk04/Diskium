@@ -192,20 +192,18 @@ public class PluginsCommand {
                         Commands.argument("plugin", StringArgumentType.word())
                                 .suggests(
                                         (context, builder) -> {
-                                            Plugin[] plugins = Bukkit.getPluginManager().getPlugins();
+                                            String[] suggestions = PluginManagement.getPlugins(
+                                                    new PluginManagement.Status[]{PluginManagement.Status.DISABLED, PluginManagement.Status.RENAMED});
 
-                                            for (Plugin plugin : plugins) {
-                                                builder.suggest(plugin.toString());
+                                            for (String s : suggestions) {
+                                                builder.suggest(s);
                                             }
 
                                             return builder.buildFuture();
                                         })
                                 .executes(
                                         context -> {
-                                            Plugin plugin =
-                                                    Bukkit.getPluginManager()
-                                                            .getPlugin(StringArgumentType.getString(context, "plugin"));
-                                            PluginManagement.permEnablePlugin(plugin);
+                                            PluginManagement.enablePlugin(StringArgumentType.getString(context, "plugin"));
 
                                             return Command.SINGLE_SUCCESS;
                                         }));

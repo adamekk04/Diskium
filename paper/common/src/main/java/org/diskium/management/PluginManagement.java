@@ -4,11 +4,15 @@ import io.papermc.paper.plugin.configuration.PluginMeta;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.diskium.MultiplatformLogger;
 import org.diskium.objects.BackupObj;
 import org.diskium.objects.TaskObj;
@@ -23,9 +27,7 @@ public class PluginManagement {
       * @param pl Plugin to disable.
       */
     public static void tempDisablePlugin(Plugin pl) {
-        if (Arrays.asList(getPlugins()).contains(pl)) {
-            Bukkit.getPluginManager().disablePlugin(pl);
-        }
+        Bukkit.getPluginManager().disablePlugin(pl);
     }
 
     /**
@@ -34,37 +36,55 @@ public class PluginManagement {
       * @param pl Plugin to permanently disable.
       */
     public static void permDisablePlugin(Plugin pl) {
-        if (Arrays.asList(getPlugins()).contains(pl)) {
-            if (pl == null) return;
-            try {
-                File oldFile =
-                        new File(pl.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
-                File newFile = new File(oldFile.getPath() + "diskiumdisable");
-                oldFile.renameTo(newFile);
-            } catch (URISyntaxException e) {
-                MultiplatformLogger.error("Something went wrong while permanently disabling plugin." + e);
-            }
+        if (pl == null) {
+            return;
+        }
+
+        try {
+            File oldFile =
+                    new File(pl.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
+            File newFile = new File(oldFile.getPath() + "diskiumdisable");
+            oldFile.renameTo(newFile);
+
+        } catch (URISyntaxException e) {
+            MultiplatformLogger.error("Something went wrong while permanently disabling plugin." + e);
         }
     }
 
     /**
-      * Enables plugin by removing subfix 'diskiumdisable' after its name.
+      * Enables plugin by removing subfix 'diskiumdisable' after its name or simply enabling it through BukkitAPI.
       *
-      * @param pl Plugin it should enable.
+      * @param s Name of the plugin it should enable.
       */
-    public static void permEnablePlugin(Plugin pl) {
-        if (Arrays.asList(getPlugins()).contains(pl)) {
-            try {
-                File oldFile =
-                        new File(pl.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
-                if (!oldFile.getPath().endsWith("diskiumdisable")) return;
-                String oldPath = oldFile.getPath();
-                String newPath = oldPath.substring(0, oldPath.length() - 14);
-                File newFile = new File(newPath);
-                oldFile.renameTo(newFile);
-            } catch (URISyntaxException e) {
-                MultiplatformLogger.error("Something went wrong while enabling plugin." + e);
+    public static void enablePlugin(String s) {
+        Plugin plugin = Bukkit.getPluginManager().getPlugin(s);
+
+        if (plugin != null) {
+            Bukkit.getPluginManager().enablePlugin(plugin);
+            return;
+        }
+
+        try {
+            File oldFile = getPlugin(s);
+
+            if (oldFile == null || !oldFile.toString().endsWith("diskiumdisable")) {
+                return;
             }
+
+            String oldPath = oldFile.getPath();
+            String newPath = oldPath.substring(0, oldPath.length() - 14);
+            File newFile = new File(newPath);
+
+            if (!oldFile.renameTo(newFile)) {
+                return;
+            }
+
+            Plugin pl = Bukkit.getPluginManager().loadPlugin(newFile);
+            if (pl != null) {
+                Bukkit.getPluginManager().enablePlugin(pl);
+            }
+        } catch (Exception e) {
+            MultiplatformLogger.error("Something went wrong while enabling plugin." + e);
         }
     }
 
@@ -113,7 +133,7 @@ public class PluginManagement {
       * @return A TextComponent with all information about a plugin. Ready to send.
       */
     public static TextComponent info(Plugin pl) {
-        if (!Arrays.asList(getPlugins()).contains(pl)) {
+        if (!Arrays.asList(Bukkit.getPluginManager().getPlugins()).contains(pl)) {
             return null;
         }
 
@@ -204,11 +224,93 @@ public class PluginManagement {
     }
 
     /**
+     * Reads plugin's meta from file.
+     * @param file Jar file of plugin.
+     * @return PluginMeta of the jar.
+     */
+    public static PluginMeta readPluginMeta(File file) {
+        try (JarFile jar = new JarFile(file)) {
+            JarEntry entry = jar.getJarEntry("plugin.yml");
+
+            if (entry == null) {
+                entry = jar.getJarEntry("paper-plugin.yml");
+            } if (entry == null) {
+                return null;
+            }
+
+            try (InputStream input = jar.getInputStream(entry)) {
+                return new PluginDescriptionFile(input);
+            }
+        } catch (Exception e) {
+            MultiplatformLogger.error("Cannot read PluginMeta of " + file.getName(), e);
+            return null;
+        }
+    }
+
+    /**
       * Gets all plugins
       *
       * @return Array of all plugins
       */
-    public static Plugin[] getPlugins() {
-        return Bukkit.getPluginManager().getPlugins();
+    public static String[] getPlugins(Status[] statuses) {
+        List<String> plugins = new ArrayList<>();
+
+        if (Arrays.stream(statuses).toList().contains(Status.ENABLED)) {
+            Arrays.stream(Bukkit.getPluginManager().getPlugins())
+                    .filter(Plugin::isEnabled)
+                    .forEach(plugin -> plugins.add(plugin.getName()));
+        }
+
+        if (Arrays.stream(statuses).toList().contains(Status.DISABLED)) {
+            Arrays.stream(Bukkit.getPluginManager().getPlugins())
+                    .filter(plugin -> !plugin.isEnabled())
+                    .forEach(plugin -> plugins.add(plugin.getName()));
+        }
+
+        if (Arrays.stream(statuses).toList().contains(Status.RENAMED)) {
+            Arrays.stream(Bukkit.getPluginsFolder()
+                    .listFiles(file -> file.toString().endsWith("diskiumdisable")))
+                    .forEach(plugin -> {
+                        PluginMeta meta = readPluginMeta(plugin);
+
+                        if (meta == null) {
+                            return;
+                        }
+
+                        plugins.add(meta.getName());
+                    });
+        }
+
+        return plugins.toArray(String[]::new);
+    }
+
+    /**
+     * Gets a plugin from its name.
+     * @param s Name of the plugin.
+     * @return Plugin from its name as a file.
+     */
+    private static File getPlugin(String s) {
+        File[] files = Bukkit.getPluginsFolder().listFiles(file -> {
+            PluginMeta meta = readPluginMeta(file);
+
+            if (meta == null) {
+                MultiplatformLogger.warn("PluginMeta of " + s + " is null, skipping.");
+                return false;
+            }
+
+            return meta.getName().equalsIgnoreCase(s);
+        });
+
+        if (files.length == 0) {
+            return null;
+        }
+
+        return files[0];
+    }
+
+    public enum Status {
+        ENABLED,
+        DISABLED,
+        RENAMED
     }
 }
