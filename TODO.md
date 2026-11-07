@@ -1,8 +1,5 @@
 # TODO
 
-## Release 1.0-alpha.4
-- Fix all high priority bugs
-
 ## Release 1.0-alpha.5
 - Fix a part of medium priority bugs
 
