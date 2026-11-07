@@ -231,18 +231,6 @@
 - **Evidence:** common-audit.log confirms the stale entry; runtime-stage3.log lists the backup after bootstrap restored fixture-original and consumed fixture-backup.
 - **Suggested fix:** Persist restoration as a distinct operation with a backup ID, and atomically update task/backup metadata after verification.
 
-### BUG-033: Corrupt backup data overwrites good destination data without validation
-
-- **Severity:** High
-- **Location:** common/src/main/java/org/diskium/utils/TasksUtils.java:206, complete(BackupObj[]); common/src/main/java/org/diskium/utils/FileUtils.java:66, move; paper/common/src/main/java/org/diskium/commands/BackupCommand.java:110, restore
-- **Description:** Restoration is an unconditional REPLACE_EXISTING move. It checks no integrity marker, completeness, size or content, and keeps no rollback copy of the current destination.
-- **Reproduction:** Create a disposable destination containing valuable text and a zero-byte backup, register it and restore via complete or the equivalent queued move.
-- **Expected behavior:** Reject an incomplete/corrupt backup and preserve the existing destination.
-- **Actual behavior:** The good file becomes zero bytes and the only backup is consumed.
-- **Impact:** Restoration can destroy the last good copy of server/world/plugin data.
-- **Evidence:** Audit.java: zero-byte corrupt backup overwrites existing good data; both complete overloads reach FileUtils.move with REPLACE_EXISTING.
-- **Suggested fix:** Record and validate backup checksums/completion metadata, stage restoration, and preserve the previous destination until success is verified.
-
 ### BUG-038: Failure to persist task removal replays deletion against replacement data
 
 - **Severity:** High

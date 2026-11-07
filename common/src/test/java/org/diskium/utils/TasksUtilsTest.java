@@ -222,21 +222,24 @@ public class TasksUtilsTest {
         Files.writeString(original, "backup data");
         Files.writeString(backup, "backup data");
         String backupHash = FileUtils.getSha(backup.toFile());
-        BackupObj backupObj = new BackupObj(original.toFile(), backup.toFile());
+        BackupObj backupObj = new BackupObj(original.toFile(), backup.toFile(), backupHash);
         Files.writeString(original, "old data");
         Files.write(
                 pluginDir.toPath().resolve("backups.txt"),
                 List.of(original.toString(), backupHash, backup.toString()));
 
-        TasksUtils.complete(new BackupObj[] {backupObj});
+        TasksUtils.restore(backupObj);
+        TaskObj[] tasks = TasksUtils.getTasks();
+        assertEquals(1, tasks.length);
+        TasksUtils.complete(tasks);
 
         assertFalse(Files.exists(backup));
         assertEquals("backup data", Files.readString(original));
-        assertTrue(Files.readAllLines(pluginDir.toPath().resolve("backups.txt")).isEmpty());
+        assertEquals(3, Files.readAllLines(pluginDir.toPath().resolve("backups.txt")).size());
     }
 
     @Test
-    void completeRejectsModifiedBackupAndPreservesDestination() throws IOException {
+    void completeRejectsBackupModifiedAfterRestoreWasQueued() throws IOException {
         TasksUtils.mkFiles();
 
         Path original = tempDir.resolve("server/world/region/r.0.0.mca");
@@ -246,18 +249,19 @@ public class TasksUtilsTest {
         Files.writeString(original, "valid backup");
         Files.writeString(backup, "valid backup");
         String backupHash = FileUtils.getSha(backup.toFile());
-        BackupObj backupObj = new BackupObj(original.toFile(), backup.toFile());
+        BackupObj backupObj = new BackupObj(original.toFile(), backup.toFile(), backupHash);
         Files.writeString(original, "good destination");
-        Files.writeString(backup, "corrupt backup");
         Path registry = pluginDir.toPath().resolve("backups.txt");
         Files.write(registry, List.of(original.toString(), backupHash, backup.toString()));
 
-        TasksUtils.complete(new BackupObj[] {backupObj});
+        TasksUtils.restore(backupObj);
+        Files.writeString(backup, "corrupt backup");
+        TaskObj[] tasks = TasksUtils.getTasks();
 
+        assertEquals(0, tasks.length);
         assertEquals("good destination", Files.readString(original));
         assertEquals("corrupt backup", Files.readString(backup));
-        assertEquals(
-                List.of(original.toString(), backupHash, backup.toString()), Files.readAllLines(registry));
+        assertEquals(4, Files.readAllLines(pluginDir.toPath().resolve("tasks.txt")).size());
     }
 
     @Test
@@ -295,18 +299,21 @@ public class TasksUtilsTest {
         File oldBackup = tempDir.resolve("old.backup").toFile();
         File newBackup = tempDir.resolve("new.backup").toFile();
         Files.writeString(original.toPath(), "same original");
-        String hash = FileUtils.getSha(original);
+        Files.writeString(oldBackup.toPath(), "old version");
+        Files.writeString(newBackup.toPath(), "new version");
+        String oldHash = FileUtils.getSha(oldBackup);
+        String newHash = FileUtils.getSha(newBackup);
         Path backupsFile = pluginDir.toPath().resolve("backups.txt");
         Files.write(
                 backupsFile,
                 List.of(
-                        original.toString(), hash, oldBackup.toString(),
-                        original.toString(), hash, newBackup.toString()));
+                        original.toString(), oldHash, oldBackup.toString(),
+                        original.toString(), newHash, newBackup.toString()));
 
-        TasksUtils.remove(new BackupObj(original, newBackup));
+        TasksUtils.remove(new BackupObj(original, newBackup, newHash));
 
         assertEquals(
-                List.of(original.toString(), hash, oldBackup.toString()),
+                List.of(original.toString(), oldHash, oldBackup.toString()),
                 Files.readAllLines(backupsFile));
     }
 

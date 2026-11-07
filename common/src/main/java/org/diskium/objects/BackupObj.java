@@ -22,6 +22,12 @@ public class BackupObj {
         this.fileHash = FileUtils.getSha(file);
     }
 
+    public BackupObj(File file, File itself, String hash) {
+        this.file = file;
+        this.itself = itself;
+        this.fileHash = hash;
+    }
+
     public File getFile() {
         return file;
     }

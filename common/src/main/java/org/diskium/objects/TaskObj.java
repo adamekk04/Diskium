@@ -29,6 +29,11 @@ public class TaskObj {
         this.replacementFileHash = replacementFile == null ? null : FileUtils.getSha(replacementFile);
     }
 
+    public TaskObj(boolean delete, File file, File replacementFile, String hash, Types type) {
+        this(delete, file, replacementFile, type);
+        this.fileHash = hash;
+    }
+
     public boolean getDelete() {
         return delete;
     }

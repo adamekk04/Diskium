@@ -110,12 +110,7 @@ public class BackupCommand {
 
                                                             if (backups.length > index - 1) {
                                                                 BackupObj backup = backups[index - 1];
-                                                                TasksUtils.add(
-                                                                        new TaskObj(
-                                                                                false,
-                                                                                backup.getItself(),
-                                                                                backup.getFile(),
-                                                                                TaskObj.Types.BACKUP));
+                                                                TasksUtils.restore(backup);
                                                             } else {
                                                                 context
                                                                         .getSource()

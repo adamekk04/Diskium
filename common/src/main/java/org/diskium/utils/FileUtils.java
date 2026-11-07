@@ -153,13 +153,12 @@ public class FileUtils {
             Path backupDir = PLUGIN_DIR.toPath().resolve("backups").resolve(UUID.randomUUID().toString());
 
             try {
-                Files.createDirectories(backupDir);
+                Path destination = Files.createDirectories(backupDir);
+                return TasksUtils.add(new BackupObj(file, new File(destination.toFile(), file.getName())));
             } catch (IOException e) {
                 MultiplatformLogger.error("Couldn't create backup directory.", e);
                 return false;
             }
-
-            return TasksUtils.add(new BackupObj(file, backupDir.resolve(file.getName()).toFile()));
         }
 
         return true;

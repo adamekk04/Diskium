@@ -136,10 +136,9 @@ public class TasksUtils {
                     && (itselfLine = br.readLine()) != null) {
                 File path = new File(fileLine);
                 File itself = new File(itselfLine);
-                BackupObj backup = new BackupObj(path, itself);
+                BackupObj backup = new BackupObj(path, itself, fileLineHash);
 
-                if (fileLineHash != null
-                        && Objects.equals(backup.getFileHash(), FileUtils.getSha(itself))) {
+                if (Objects.equals(FileUtils.getSha(backup.getItself()), fileLineHash)) {
                     backups.add(backup);
                 } else {
                     MultiplatformLogger.warn("Invalid sha of backup " + backup);
@@ -251,21 +250,25 @@ public class TasksUtils {
       */
     public static void complete(TaskObj[] tasks) {
         for (TaskObj task : tasks) {
-            boolean success;
-            if (task.getDelete()) {
-                success = FileUtils.forceDel(task.getFile());
-            } else {
-                File modifiedRegion = task.getFile();
-                File region = task.getReplacementFile();
+            if (Objects.equals(task.getFileHash(), FileUtils.getSha(task.getFile()))
+            && Objects.equals(task.getReplacementFileHash(), FileUtils.getSha(task.getReplacementFile()))) {
+                boolean success;
 
-                if (!Parser.areModified(region, modifiedRegion)) {
-                    success = FileUtils.move(task.getFile(), task.getReplacementFile());
+                if (task.getDelete()) {
+                    success = FileUtils.forceDel(task.getFile());
                 } else {
-                    success = false;
+                    File modifiedRegion = task.getFile();
+                    File region = task.getReplacementFile();
+
+                    if (!Parser.areModified(region, modifiedRegion)) {
+                        success = FileUtils.move(task.getFile(), task.getReplacementFile());
+                    } else {
+                        success = false;
+                    }
                 }
-            }
-            if (success) {
-                remove(task);
+                if (success) {
+                    remove(task);
+                }
             }
         }
     }
@@ -281,6 +284,8 @@ public class TasksUtils {
             if (Objects.equals(backup.getFileHash(), FileUtils.getSha(backup.getItself()))
                     && FileUtils.move(backup.getItself(), backup.getFile())) {
                 remove(backup);
+            } else {
+                MultiplatformLogger.warn("Backup " + backup + " skipped, because it has invalid sha.");
             }
         }
     }
@@ -348,6 +353,26 @@ public class TasksUtils {
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong while removing backup from backups.txt.", e);
         }
+    }
+
+    /**
+     * Restores a backup. It checks, if hash of the backup is correct.
+     *
+     * @param backup A backup you want to restore.
+     */
+    public static void restore(BackupObj backup) {
+        if (!backup.getFileHash().equals(FileUtils.getSha(backup.getItself()))) {
+            MultiplatformLogger.warn("Hash of " + backup + " is wrong.");
+            return;
+        }
+
+        add(new TaskObj(
+                false,
+                backup.getItself(),
+                backup.getFile(),
+                backup.getFileHash(),
+                TaskObj.Types.BACKUP
+        ));
     }
 
     /**
