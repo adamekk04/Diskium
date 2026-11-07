@@ -86,9 +86,10 @@ public class TasksUtils {
                 if (mode == null) {
                     return tasks.toArray(TaskObj[]::new);
                 } else if (mode.equals("1")) {
-                    TaskObj task = new TaskObj(true, path, null, getType(path));
+                    TaskObj task = new TaskObj(true, path, null, sha, getType(path));
 
-                    if (Objects.equals(task.getFileHash(), sha)) {
+                    if (Objects.equals(task.getFileHash(), FileUtils.getSha(path))
+                            || Files.exists(deletionQuarantine(task))) {
                         tasks.add(task);
                     } else {
                         MultiplatformLogger.warn("Invalid sha of task " + task);
@@ -250,32 +251,111 @@ public class TasksUtils {
       */
     public static void complete(TaskObj[] tasks) {
         for (TaskObj task : tasks) {
+            if (task.getDelete()) {
+                Path quarantine = deletionQuarantine(task);
+                try {
+                    if (!Files.exists(quarantine)) {
+                        if (!Objects.equals(task.getFileHash(), FileUtils.getSha(task.getFile()))) {
+                            continue;
+                        }
+                        Files.move(task.getFile().toPath(), quarantine);
+                    }
+
+                    if (remove(task)) {
+                        if (!FileUtils.forceDel(quarantine.toFile())) {
+                            MultiplatformLogger.warn("Couldn't delete quarantined task file: " + quarantine);
+                        }
+                    } else {
+                        MultiplatformLogger.error(
+                                "File moved to deletion quarantine, but task remains registered: " + task);
+                    }
+                } catch (IOException | SecurityException e) {
+                    MultiplatformLogger.error("Couldn't move task file to deletion quarantine: " + task, e);
+                }
+                continue;
+            }
+
             if (Objects.equals(task.getFileHash(), FileUtils.getSha(task.getFile()))
             && Objects.equals(task.getReplacementFileHash(), FileUtils.getSha(task.getReplacementFile()))) {
                 boolean success;
 
-                if (task.getDelete()) {
-                    success = FileUtils.forceDel(task.getFile());
-                } else {
-                    File modifiedRegion = task.getFile();
-                    File region = task.getReplacementFile();
+                File modifiedRegion = task.getFile();
+                File region = task.getReplacementFile();
 
-                    if (!Parser.areModified(region, modifiedRegion)) {
-                        success = FileUtils.move(task.getFile(), task.getReplacementFile());
-                    } else {
-                        success = false;
-                    }
+                if (!Parser.areModified(region, modifiedRegion)) {
+                    success = FileUtils.move(task.getFile(), task.getReplacementFile());
+                } else {
+                    success = false;
                 }
-                if (success) {
-                    remove(task);
+
+                if (success && !remove(task)) {
+                    MultiplatformLogger.error("Task completed, but couldn't remove it from tasks.txt: " + task);
                 }
             }
         }
     }
 
     /**
-      * Moves each backup to its original path, replacing an existing destination, and removes its
-      * registry record.
+      * Removes a task from {@code tasks.txt}.
+      *
+      * @param task The task you want to remove.
+      */
+    public static boolean remove(TaskObj task) {
+        Path taskFile = new File(pluginFile, "tasks.txt").toPath();
+
+        try {
+            List<String> lines = Files.readAllLines(taskFile);
+            String mode = task.getDelete() ? "1" : task.getReplacementFile().toString();
+            String replacementHash = task.getDelete() ? "1" : task.getReplacementFileHash();
+
+            for (int i = 0; i + 3 < lines.size(); i += 4) {
+                if (Objects.equals(lines.get(i), task.getFile().toString())
+                        && Objects.equals(lines.get(i + 1), task.getFileHash())
+                        && Objects.equals(lines.get(i + 2), mode)
+                        && Objects.equals(lines.get(i + 3), replacementHash)) {
+                    lines.subList(i, i + 4).clear();
+                    Path temporaryFile = Files.createTempFile(taskFile.getParent(), ".tasks-", ".tmp");
+                    try {
+                        Files.write(temporaryFile, lines);
+                        try {
+                            Files.move(
+                                    temporaryFile,
+                                    taskFile,
+                                    StandardCopyOption.ATOMIC_MOVE,
+                                    StandardCopyOption.REPLACE_EXISTING);
+                        } catch (AtomicMoveNotSupportedException e) {
+                            Files.move(temporaryFile, taskFile, StandardCopyOption.REPLACE_EXISTING);
+                        }
+                    } finally {
+                        Files.deleteIfExists(temporaryFile);
+                    }
+                    return true;
+                }
+            }
+
+            return false;
+        } catch (SecurityException e) {
+            MultiplatformLogger.error("Cannot remove task from tasks.txt, due to security reasons.");
+        } catch (FileNotFoundException e) {
+            MultiplatformLogger.warn("File tasks.txt do not exist, creating a new one");
+            mkFiles();
+        } catch (IOException e) {
+            MultiplatformLogger.error("Something went wrong while removing task from tasks.txt.", e);
+        }
+        return false;
+    }
+
+    static Path deletionQuarantine(TaskObj task) {
+        String id = UUID.nameUUIDFromBytes(
+                (task.getFile().getAbsolutePath() + "\n" + task.getFileHash())
+                        .getBytes(java.nio.charset.StandardCharsets.UTF_8))
+                .toString();
+        Path file = task.getFile().toPath();
+        return file.resolveSibling(file.getFileName() + ".diskium-delete-" + id);
+    }
+
+    /**
+      * Moves each verified backup to its original path and removes its registry record.
       *
       * @param backups the backups to restore
       */
@@ -291,45 +371,11 @@ public class TasksUtils {
     }
 
     /**
-      * Removes a task from {@code tasks.txt}.
-      *
-      * @param task The task you want to remove.
-      */
-    public static void remove(TaskObj task) {
-        Path taskFile = new File(pluginFile, "tasks.txt").toPath();
-
-        try {
-            List<String> lines = Files.readAllLines(taskFile);
-            String mode = task.getDelete() ? "1" : task.getReplacementFile().toString();
-            String replacementHash = task.getDelete() ? "1" : task.getReplacementFileHash();
-
-            for (int i = 0; i + 3 < lines.size(); i += 4) {
-                if (Objects.equals(lines.get(i), task.getFile().toString())
-                        && Objects.equals(lines.get(i + 1), task.getFileHash())
-                        && Objects.equals(lines.get(i + 2), mode)
-                        && Objects.equals(lines.get(i + 3), replacementHash)) {
-                    lines.subList(i, i + 4).clear();
-                    break;
-                }
-            }
-
-            Files.write(taskFile, lines);
-        } catch (SecurityException e) {
-            MultiplatformLogger.error("Cannot remove task from tasks.txt, due to security reasons.");
-        } catch (FileNotFoundException e) {
-            MultiplatformLogger.warn("File tasks.txt do not exist, creating a new one");
-            mkFiles();
-        } catch (IOException e) {
-            MultiplatformLogger.error("Something went wrong while removing task from tasks.txt.", e);
-        }
-    }
-
-    /**
       * Removes a backup from {@code backups.txt}.
       *
       * @param backup The backup you want to remove.
       */
-    public static void remove(BackupObj backup) {
+    public static boolean remove(BackupObj backup) {
         Path backupFile = new File(pluginFile, "backups.txt").toPath();
 
         try {
@@ -345,6 +391,7 @@ public class TasksUtils {
             }
 
             Files.write(backupFile, lines);
+            return true;
         } catch (SecurityException e) {
             MultiplatformLogger.error("Cannot remove backup from backups.txt, due to security reasons.");
         } catch (FileNotFoundException e) {
@@ -353,6 +400,8 @@ public class TasksUtils {
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong while removing backup from backups.txt.", e);
         }
+
+        return false;
     }
 
     /**
@@ -366,13 +415,17 @@ public class TasksUtils {
             return;
         }
 
-        add(new TaskObj(
+        TaskObj task = new TaskObj(
                 false,
                 backup.getItself(),
                 backup.getFile(),
                 backup.getFileHash(),
                 TaskObj.Types.BACKUP
-        ));
+        );
+
+        if (remove(backup)) {
+            add(task);
+        }
     }
 
     /**

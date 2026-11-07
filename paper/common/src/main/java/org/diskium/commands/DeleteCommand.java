@@ -72,7 +72,14 @@ public class DeleteCommand {
                             int arg = IntegerArgumentType.getInteger(context, "id") - 1;
 
                             if (backups != null && arg < backups.length) {
-                                TasksUtils.remove(backups[arg]);
+                                if (!TasksUtils.remove(backups[arg])) {
+                                    context
+                                            .getSource()
+                                            .getSender()
+                                            .sendMessage(
+                                                    Component.text("Cannot delete backup " + (arg + 1), NamedTextColor.RED)
+                                            );
+                                }
                                 context
                                         .getSource()
                                         .getSender()
@@ -237,7 +244,14 @@ public class DeleteCommand {
                             TaskObj[] tasks = TasksUtils.getTasks();
 
                             if (tasks.length > index - 1) {
-                                TasksUtils.remove(tasks[index - 1]);
+                                if (!TasksUtils.remove(tasks[index - 1])) {
+                                    context
+                                            .getSource()
+                                            .getSender()
+                                            .sendMessage(
+                                                    Component.text("Cannot delete task with id " + index, NamedTextColor.RED)
+                                            );
+                                }
                                 context
                                         .getSource()
                                         .getSender()

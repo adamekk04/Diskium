@@ -187,13 +187,16 @@ public class TasksUtilsTest {
 
     @Test
     void completeMovesReplacementTask() throws IOException {
+        TasksUtils.mkFiles();
         Path original = tempDir.resolve("server/world/region/r.0.0.mca");
         Path replacement = tempDir.resolve("backup/r.0.0.mca");
         Files.createDirectories(original.getParent());
         Files.createDirectories(replacement.getParent());
         Files.writeString(original, "region data");
+        Files.writeString(replacement, "old region");
 
         TaskObj task = new TaskObj(false, original.toFile(), replacement.toFile(), TaskObj.Types.WORLD);
+        assertTrue(TasksUtils.add(task));
 
         TasksUtils.complete(new TaskObj[] {task});
 
@@ -203,12 +206,65 @@ public class TasksUtilsTest {
 
     @Test
     void completeDeletesTaskFile() throws IOException {
+        TasksUtils.mkFiles();
         Path file = Files.createFile(tempDir.resolve("delete-me.txt"));
         TaskObj task = new TaskObj(true, file.toFile(), null, TaskObj.Types.OTHER);
+        assertTrue(TasksUtils.add(task));
 
         TasksUtils.complete(new TaskObj[] {task});
 
         assertFalse(Files.exists(file));
+        assertTrue(Files.readAllLines(pluginDir.toPath().resolve("tasks.txt")).isEmpty());
+    }
+
+    @Test
+    void retriesDeleteFromQuarantineWithoutDeletingReplacement() throws IOException {
+        TasksUtils.mkFiles();
+
+        Path file = tempDir.resolve("delete-me.txt");
+        Files.writeString(file, "same contents");
+        TaskObj task = new TaskObj(true, file.toFile(), null, TaskObj.Types.OTHER);
+        assertTrue(TasksUtils.add(task));
+
+        Path quarantine = TasksUtils.deletionQuarantine(task);
+        Files.move(file, quarantine);
+        Files.writeString(file, "same contents");
+
+        TaskObj[] pendingTasks = TasksUtils.getTasks();
+        assertEquals(1, pendingTasks.length);
+        TasksUtils.complete(pendingTasks);
+
+        assertEquals("same contents", Files.readString(file));
+        assertFalse(Files.exists(quarantine));
+        assertTrue(Files.readAllLines(pluginDir.toPath().resolve("tasks.txt")).isEmpty());
+    }
+
+    @Test
+    void staleDeleteTaskDoesNotDeleteReplacementFile() throws IOException {
+        TasksUtils.mkFiles();
+
+        Path file = tempDir.resolve("delete-me.txt");
+        Files.writeString(file, "original contents");
+        TaskObj task = new TaskObj(true, file.toFile(), null, TaskObj.Types.OTHER);
+        assertTrue(TasksUtils.add(task));
+
+        Files.delete(file);
+        Files.writeString(file, "replacement contents");
+
+        TaskObj[] pendingTasks = TasksUtils.getTasks();
+        assertEquals(0, pendingTasks.length);
+        TasksUtils.complete(pendingTasks);
+
+        assertEquals("replacement contents", Files.readString(file));
+    }
+
+    @Test
+    void removeReturnsFalseWhenTaskIsNotRegistered() throws IOException {
+        TasksUtils.mkFiles();
+        Path file = Files.createFile(tempDir.resolve("not-registered.txt"));
+        TaskObj task = new TaskObj(true, file.toFile(), null, TaskObj.Types.OTHER);
+
+        assertFalse(TasksUtils.remove(task));
     }
 
     @Test
@@ -235,7 +291,7 @@ public class TasksUtilsTest {
 
         assertFalse(Files.exists(backup));
         assertEquals("backup data", Files.readString(original));
-        assertEquals(3, Files.readAllLines(pluginDir.toPath().resolve("backups.txt")).size());
+        assertTrue(Files.readAllLines(pluginDir.toPath().resolve("backups.txt")).isEmpty());
     }
 
     @Test

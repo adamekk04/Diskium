@@ -231,18 +231,6 @@
 - **Evidence:** common-audit.log confirms the stale entry; runtime-stage3.log lists the backup after bootstrap restored fixture-original and consumed fixture-backup.
 - **Suggested fix:** Persist restoration as a distinct operation with a backup ID, and atomically update task/backup metadata after verification.
 
-### BUG-038: Failure to persist task removal replays deletion against replacement data
-
-- **Severity:** High
-- **Location:** common/src/main/java/org/diskium/utils/TasksUtils.java:186, complete and :217, remove
-- **Description:** The destructive action happens before registry removal. remove swallows write failures and returns void; an already executed task remains executable on subsequent startup.
-- **Reproduction:** In a disposable fixture queue a file deletion, make tasks.txt read-only, and complete it. Restore registry permissions, recreate the same path with new content and complete the remaining queue.
-- **Expected behavior:** A completed destructive operation must not silently replay against a new file identity.
-- **Actual behavior:** The initial file is deleted, its task remains, and the newly created replacement is deleted on replay.
-- **Impact:** Unrelated replacement data can be lost after a registry permission or persistence failure.
-- **Evidence:** extra-audit.log shows AccessDeniedException in TasksUtils.remove and confirms failed registry removal replays deletion against replacement data.
-- **Suggested fix:** Use durable task states/journaling, report acknowledgement failure, and bind destructive actions to verified file identity instead of path alone.
-
 ### BUG-039: Appending after a truncated registry corrupts the next task
 
 - **Severity:** High
