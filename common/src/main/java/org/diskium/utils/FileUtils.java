@@ -1,9 +1,13 @@
 package org.diskium.utils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Comparator;
+import java.util.HexFormat;
 import java.util.UUID;
 import java.util.stream.Stream;
 import org.diskium.MultiplatformLogger;
@@ -159,6 +163,38 @@ public class FileUtils {
         }
 
         return true;
+    }
+
+    /**
+     * Computes the SHA256 hash of {@code file}.
+     * @param file File you want to compute the hash from.
+     * @return Hash of the file or null, if exception occurs.
+     */
+    public static String getSha(File file) {
+        if (file == null) {
+            return null;
+        }
+
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+
+            try (FileInputStream inputStream = new FileInputStream(file)) {
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    digest.update(buffer, 0, bytesRead);
+                }
+
+                return HexFormat.of().formatHex(digest.digest());
+            }
+        } catch (NoSuchAlgorithmException e) {
+            MultiplatformLogger.error("Cannot find SHA-256 algorithm.");
+        } catch (IOException e) {
+            MultiplatformLogger.error("Something went wrong.", e);
+        }
+
+        return null;
     }
 
     /**

@@ -10,6 +10,19 @@ import org.diskium.objects.TaskObj;
 
 public class TasksUtils {
 
+    /*
+    tasks.txt has this format:
+    file
+    sha of file
+    replacementFile or '1', if its deletion task
+    sha of replacementFile or anything, if its deletion task
+
+    backups.txt has this format:
+    file
+    sha of file
+    destination
+     */
+
     private static File serverRoot;
     private static File pluginFile;
 
@@ -34,13 +47,11 @@ public class TasksUtils {
 
         try {
             if (!backups.exists()) {
-                backups.createNewFile();
-                buffer = true;
+                buffer = backups.createNewFile();
             }
 
             if (!tasks.exists()) {
-                tasks.createNewFile();
-                buffer = true;
+                buffer = tasks.createNewFile();
             }
         } catch (IOException e) {
             MultiplatformLogger.error("Something went wrong while creating new files", e);
@@ -64,14 +75,33 @@ public class TasksUtils {
 
             while ((pathLine = br.readLine()) != null) {
                 File path = new File(pathLine);
+                String sha = br.readLine();
                 String mode = br.readLine();
+                String sha2 = br.readLine();
+
+                if (sha == null || mode == null || sha2 == null) {
+                    MultiplatformLogger.error("tasks.txt may be corrupted.");
+                }
 
                 if (mode == null) {
                     return tasks.toArray(TaskObj[]::new);
                 } else if (mode.equals("1")) {
-                    tasks.add(new TaskObj(true, path, null, getType(path)));
+                    TaskObj task = new TaskObj(true, path, null, getType(path));
+
+                    if (Objects.equals(task.getFileHash(), sha)) {
+                        tasks.add(task);
+                    } else {
+                        MultiplatformLogger.warn("Invalid sha of task " + task);
+                    }
                 } else {
-                    tasks.add(new TaskObj(false, path, new File(mode), getType(path)));
+                    TaskObj task = new TaskObj(false, path, new File(mode), getType(path));
+
+                    if (Objects.equals(task.getFileHash(), sha)
+                            && Objects.equals(task.getReplacementFileHash(), sha2)) {
+                        tasks.add(task);
+                    } else {
+                        MultiplatformLogger.warn("Invalid sha of task " + task);
+                    }
                 }
             }
 
@@ -98,13 +128,22 @@ public class TasksUtils {
 
         try (BufferedReader br = new BufferedReader(new FileReader(backupFile))) {
             String fileLine;
+            String fileLineHash;
             String itselfLine;
 
-            while (((fileLine = br.readLine()) != null) && ((itselfLine = br.readLine()) != null)) {
+            while ((fileLine = br.readLine()) != null
+                    && (fileLineHash = br.readLine()) != null
+                    && (itselfLine = br.readLine()) != null) {
                 File path = new File(fileLine);
                 File itself = new File(itselfLine);
+                BackupObj backup = new BackupObj(path, itself);
 
-                backups.add(new BackupObj(path, itself));
+                if (fileLineHash != null
+                        && Objects.equals(backup.getFileHash(), FileUtils.getSha(itself))) {
+                    backups.add(backup);
+                } else {
+                    MultiplatformLogger.warn("Invalid sha of backup " + backup);
+                }
             }
 
             return backups.toArray(BackupObj[]::new);
@@ -136,11 +175,17 @@ public class TasksUtils {
         try (FileWriter fw = new FileWriter(taskFile, true)) {
             fw.write(task.getFile().toString());
             fw.write(System.lineSeparator());
+            fw.write(task.getFileHash());
+            fw.write(System.lineSeparator());
 
             if (task.getDelete()) {
                 fw.write("1");
+                fw.write(System.lineSeparator());
+                fw.write("1");
             } else {
                 fw.write(task.getReplacementFile().toString());
+                fw.write(System.lineSeparator());
+                fw.write(task.getReplacementFileHash());
             }
 
             fw.write(System.lineSeparator());
@@ -173,9 +218,16 @@ public class TasksUtils {
         if (!FileUtils.copy(backup.getFile(), backup.getItself())) {
             return false;
         }
+        if (!Objects.equals(backup.getFileHash(), FileUtils.getSha(backup.getItself()))) {
+            FileUtils.forceDel(backup.getItself());
+            MultiplatformLogger.warn("Corrupted backup got deleted");
+            return false;
+        }
 
         try (FileWriter fw = new FileWriter(backupFile, true)) {
             fw.write(backup.getFile().toString());
+            fw.write(System.lineSeparator());
+            fw.write(backup.getFileHash());
             fw.write(System.lineSeparator());
             fw.write(backup.getItself().toString());
             fw.write(System.lineSeparator());
@@ -226,7 +278,8 @@ public class TasksUtils {
       */
     public static void complete(BackupObj[] backups) {
         for (BackupObj backup : backups) {
-            if (FileUtils.move(backup.getItself(), backup.getFile())) {
+            if (Objects.equals(backup.getFileHash(), FileUtils.getSha(backup.getItself()))
+                    && FileUtils.move(backup.getItself(), backup.getFile())) {
                 remove(backup);
             }
         }
@@ -242,13 +295,15 @@ public class TasksUtils {
 
         try {
             List<String> lines = Files.readAllLines(taskFile);
+            String mode = task.getDelete() ? "1" : task.getReplacementFile().toString();
+            String replacementHash = task.getDelete() ? "1" : task.getReplacementFileHash();
 
-            for (int i = 0; i < lines.size(); i++) {
-                if (lines.get(i).equals(task.getFile().toString())) {
-                    lines.remove(i);
-                    if (i < lines.size()) {
-                        lines.remove(i);
-                    }
+            for (int i = 0; i + 3 < lines.size(); i += 4) {
+                if (Objects.equals(lines.get(i), task.getFile().toString())
+                        && Objects.equals(lines.get(i + 1), task.getFileHash())
+                        && Objects.equals(lines.get(i + 2), mode)
+                        && Objects.equals(lines.get(i + 3), replacementHash)) {
+                    lines.subList(i, i + 4).clear();
                     break;
                 }
             }
@@ -270,18 +325,16 @@ public class TasksUtils {
       * @param backup The backup you want to remove.
       */
     public static void remove(BackupObj backup) {
-        FileUtils.forceDel(backup.getItself());
         Path backupFile = new File(pluginFile, "backups.txt").toPath();
 
         try {
             List<String> lines = Files.readAllLines(backupFile);
 
-            for (int i = 0; i < lines.size(); i++) {
-                if (lines.get(i).equals(backup.getFile().toString())) {
-                    lines.remove(i);
-                    if (i < lines.size()) {
-                        lines.remove(i);
-                    }
+            for (int i = 0; i + 2 < lines.size(); i += 3) {
+                if (Objects.equals(lines.get(i), backup.getFile().toString())
+                        && Objects.equals(lines.get(i + 1), backup.getFileHash())
+                        && Objects.equals(lines.get(i + 2), backup.getItself().toString())) {
+                    lines.subList(i, i + 3).clear();
                     break;
                 }
             }
@@ -312,16 +365,6 @@ public class TasksUtils {
         if (file.getPath().startsWith(new File(serverRoot, "logs").toString()))
             return TaskObj.Types.LOGS;
         else return TaskObj.Types.OTHER;
-    }
-
-    /**
-      * Gives you a maximum of 0 and {@code x}
-      *
-      * @param x Number, you want ot get.
-      * @return {@code x}, but 0, if it's negative.
-      */
-    public static int nonNegative(int x) {
-        return Math.max(x, 0);
     }
 
     /**

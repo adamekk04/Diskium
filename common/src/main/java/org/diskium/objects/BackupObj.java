@@ -1,10 +1,13 @@
 package org.diskium.objects;
 
 import java.io.File;
+
+import org.diskium.utils.FileUtils;
 import org.diskium.utils.TasksUtils;
 
 public class BackupObj {
     File file;
+    String fileHash;
     File itself;
 
     /**
@@ -16,10 +19,15 @@ public class BackupObj {
     public BackupObj(File file, File itself) {
         this.file = file;
         this.itself = itself;
+        this.fileHash = FileUtils.getSha(file);
     }
 
     public File getFile() {
         return file;
+    }
+
+    public String getFileHash() {
+        return fileHash;
     }
 
     public File getItself() {

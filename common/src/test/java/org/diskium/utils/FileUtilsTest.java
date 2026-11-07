@@ -6,7 +6,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.diskium.objects.BackupObj;
+import java.util.List;
+import java.util.UUID;
 import org.diskium.objects.TaskObj;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -126,6 +127,7 @@ public class FileUtilsTest {
         Path file = tempDir.resolve("server/world/region/r.0.0.mca");
         Files.createDirectories(file.getParent());
         Files.writeString(file, "region data");
+        String fileHash = FileUtils.getSha(file.toFile());
 
         assertTrue(FileUtils.safeDel(file.toFile(), type));
 
@@ -142,20 +144,19 @@ public class FileUtilsTest {
             assertEquals(0, TasksUtils.getTasks().length);
         }
 
-        BackupObj[] registeredBackups = TasksUtils.getBackups();
-        assertEquals(backups ? 1 : 0, registeredBackups.length);
+        Path backupsFile = pluginDir.toPath().resolve("backups.txt");
+        List<String> backupRecords = Files.readAllLines(backupsFile);
         if (backups) {
-            assertEquals(file.toFile(), registeredBackups[0].getFile());
-            Path backup = registeredBackups[0].getItself().toPath();
+            assertEquals(
+                    List.of(file.toString(), fileHash, backupRecords.get(2)), backupRecords);
+            Path backup = Path.of(backupRecords.get(2));
             assertEquals(file.getFileName(), backup.getFileName());
             assertEquals(pluginDir.toPath().resolve("backups"), backup.getParent().getParent());
-            java.util.UUID.fromString(backup.getParent().getFileName().toString());
+            UUID.fromString(backup.getParent().getFileName().toString());
             assertEquals("region data", Files.readString(backup));
-            assertEquals(TaskObj.Types.WORLD, registeredBackups[0].getType());
-            TasksUtils.complete(registeredBackups);
-            assertEquals("region data", Files.readString(file));
-            assertFalse(Files.exists(backup));
-            assertEquals(0, TasksUtils.getBackups().length);
+            assertEquals(TaskObj.Types.WORLD, TasksUtils.getType(file.toFile()));
+        } else {
+            assertTrue(backupRecords.isEmpty());
         }
     }
 
@@ -169,11 +170,13 @@ public class FileUtilsTest {
             assertTrue(FileUtils.safeDel(file.toFile(), FileUtils.DelSpecifier.LOGS));
         }
 
-        BackupObj[] backups = TasksUtils.getBackups();
-        assertEquals(2, backups.length);
-        assertNotEquals(backups[0].getItself(), backups[1].getItself());
-        assertEquals("world", Files.readString(backups[0].getItself().toPath()));
-        assertEquals("nether", Files.readString(backups[1].getItself().toPath()));
+        List<String> backupRecords = Files.readAllLines(tempDir.resolve("plugin/backups.txt"));
+        assertEquals(6, backupRecords.size());
+        Path worldBackup = Path.of(backupRecords.get(2));
+        Path netherBackup = Path.of(backupRecords.get(5));
+        assertNotEquals(worldBackup, netherBackup);
+        assertEquals("world", Files.readString(worldBackup));
+        assertEquals("nether", Files.readString(netherBackup));
     }
 
     @ParameterizedTest

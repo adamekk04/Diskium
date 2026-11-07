@@ -81,4 +81,14 @@ public class WorldUtils {
 
         return in == isInside;
     }
+
+    /**
+     * Gives you a maximum of 0 and {@code x}
+     *
+     * @param x Number, you want ot get.
+     * @return {@code x}, but 0, if it's negative.
+     */
+    public static int nonNegative(int x) {
+        return Math.max(x, 0);
+    }
 }

@@ -20,6 +20,7 @@ import org.diskium.objects.FlagObj;
 import org.diskium.objects.TaskObj;
 import org.diskium.utils.Flags;
 import org.diskium.utils.TasksUtils;
+import org.diskium.utils.WorldUtils;
 
 public class BackupCommand {
 
@@ -186,8 +187,8 @@ public class BackupCommand {
       * @return Header of table ready to send.
       */
     private static TextComponent tableHeader(int idLength, int backupLength) {
-        String id = " ".repeat(TasksUtils.nonNegative(idLength - 2));
-        String backup = " ".repeat(TasksUtils.nonNegative(backupLength - 4));
+        String id = " ".repeat(WorldUtils.nonNegative(idLength - 2));
+        String backup = " ".repeat(WorldUtils.nonNegative(backupLength - 4));
 
         return Component.text("ID" + id, NamedTextColor.DARK_GREEN)
                 .append(Component.text(" | ", NamedTextColor.WHITE))
@@ -209,11 +210,11 @@ public class BackupCommand {
     private static TextComponent backupOutput(
             BackupObj backup, List<TaskObj.Types> types, int counter, int idLength, int backupLength) {
         String idOffset =
-                " ".repeat(TasksUtils.nonNegative(idLength - String.valueOf(counter).length()));
+                " ".repeat(WorldUtils.nonNegative(idLength - String.valueOf(counter).length()));
         String backupOffset =
                 " "
                         .repeat(
-                                TasksUtils.nonNegative(
+                                WorldUtils.nonNegative(
                                         backupLength - backup.getFile().toPath().toString().length()));
 
         TextComponent component =

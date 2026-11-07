@@ -64,10 +64,19 @@ public class TasksUtilsTest {
         Path original1 = tempDir.resolve("server/plugins/old.jar");
         Path original2 = tempDir.resolve("server/world/region/r.0.0.mca");
         Path replacement = tempDir.resolve("backup/r.0.0.mca");
+        Files.createDirectories(original1.getParent());
+        Files.createDirectories(original2.getParent());
+        Files.createDirectories(replacement.getParent());
+        Files.writeString(original1, "delete me");
+        Files.writeString(original2, "source");
+        Files.writeString(replacement, "replacement");
 
         Files.write(
                 pluginDir.toPath().resolve("tasks.txt"),
-                List.of(original1.toString(), "1", original2.toString(), replacement.toString()));
+                List.of(
+                        original1.toString(), FileUtils.getSha(original1.toFile()), "1", "1",
+                        original2.toString(), FileUtils.getSha(original2.toFile()), replacement.toString(),
+                        FileUtils.getSha(replacement.toFile())));
 
         TaskObj[] tasks = TasksUtils.getTasks();
 
@@ -101,9 +110,14 @@ public class TasksUtilsTest {
 
         Path original = tempDir.resolve("server/world/region/r.0.0.mca");
         Path backup = tempDir.resolve("backup/r.0.0.mca");
+        Files.createDirectories(original.getParent());
+        Files.createDirectories(backup.getParent());
+        Files.writeString(original, "backup content");
+        Files.writeString(backup, "backup content");
 
         Files.write(
-                pluginDir.toPath().resolve("backups.txt"), List.of(original.toString(), backup.toString()));
+                pluginDir.toPath().resolve("backups.txt"),
+                List.of(original.toString(), FileUtils.getSha(backup.toFile()), backup.toString()));
 
         BackupObj[] backups = TasksUtils.getBackups();
 
@@ -118,12 +132,15 @@ public class TasksUtilsTest {
         TasksUtils.mkFiles();
 
         File file = tempDir.resolve("server/plugins/example.jar").toFile();
+        Files.createDirectories(file.toPath().getParent());
+        Files.writeString(file.toPath(), "delete me");
         TaskObj task = new TaskObj(true, file, null, TaskObj.Types.PLUGINS);
 
         assertTrue(TasksUtils.add(task));
 
         assertEquals(
-                List.of(file.toString(), "1"), Files.readAllLines(pluginDir.toPath().resolve("tasks.txt")));
+                List.of(file.toString(), task.getFileHash(), "1", "1"),
+                Files.readAllLines(pluginDir.toPath().resolve("tasks.txt")));
     }
 
     @Test
@@ -132,13 +149,19 @@ public class TasksUtilsTest {
 
         File original = tempDir.resolve("server/world/region/r.0.0.mca").toFile();
         File replacement = tempDir.resolve("backup/r.0.0.mca").toFile();
+        Files.createDirectories(original.toPath().getParent());
+        Files.createDirectories(replacement.toPath().getParent());
+        Files.writeString(original.toPath(), "source");
+        Files.writeString(replacement.toPath(), "replacement");
 
         TaskObj task = new TaskObj(false, original, replacement, TaskObj.Types.WORLD);
 
         assertTrue(TasksUtils.add(task));
 
         assertEquals(
-                List.of(original.toString(), replacement.toString()),
+                List.of(
+                        original.toString(), task.getFileHash(), replacement.toString(),
+                        task.getReplacementFileHash()),
                 Files.readAllLines(pluginDir.toPath().resolve("tasks.txt")));
     }
 
@@ -158,7 +181,7 @@ public class TasksUtilsTest {
         assertEquals("region data", Files.readString(original.toPath()));
 
         assertEquals(
-                List.of(original.toString(), backup.toString()),
+                List.of(original.toString(), FileUtils.getSha(original), backup.toString()),
                 Files.readAllLines(pluginDir.toPath().resolve("backups.txt")));
     }
 
@@ -196,15 +219,45 @@ public class TasksUtilsTest {
         Path backup = tempDir.resolve("backup/r.0.0.mca");
         Files.createDirectories(original.getParent());
         Files.createDirectories(backup.getParent());
+        Files.writeString(original, "backup data");
         Files.writeString(backup, "backup data");
+        String backupHash = FileUtils.getSha(backup.toFile());
+        BackupObj backupObj = new BackupObj(original.toFile(), backup.toFile());
+        Files.writeString(original, "old data");
         Files.write(
-                pluginDir.toPath().resolve("backups.txt"), List.of(original.toString(), backup.toString()));
+                pluginDir.toPath().resolve("backups.txt"),
+                List.of(original.toString(), backupHash, backup.toString()));
 
-        TasksUtils.complete(new BackupObj[] {new BackupObj(original.toFile(), backup.toFile())});
+        TasksUtils.complete(new BackupObj[] {backupObj});
 
         assertFalse(Files.exists(backup));
         assertEquals("backup data", Files.readString(original));
         assertTrue(Files.readAllLines(pluginDir.toPath().resolve("backups.txt")).isEmpty());
+    }
+
+    @Test
+    void completeRejectsModifiedBackupAndPreservesDestination() throws IOException {
+        TasksUtils.mkFiles();
+
+        Path original = tempDir.resolve("server/world/region/r.0.0.mca");
+        Path backup = tempDir.resolve("backup/r.0.0.mca");
+        Files.createDirectories(original.getParent());
+        Files.createDirectories(backup.getParent());
+        Files.writeString(original, "valid backup");
+        Files.writeString(backup, "valid backup");
+        String backupHash = FileUtils.getSha(backup.toFile());
+        BackupObj backupObj = new BackupObj(original.toFile(), backup.toFile());
+        Files.writeString(original, "good destination");
+        Files.writeString(backup, "corrupt backup");
+        Path registry = pluginDir.toPath().resolve("backups.txt");
+        Files.write(registry, List.of(original.toString(), backupHash, backup.toString()));
+
+        TasksUtils.complete(new BackupObj[] {backupObj});
+
+        assertEquals("good destination", Files.readString(original));
+        assertEquals("corrupt backup", Files.readString(backup));
+        assertEquals(
+                List.of(original.toString(), backupHash, backup.toString()), Files.readAllLines(registry));
     }
 
     @Test
@@ -214,40 +267,46 @@ public class TasksUtilsTest {
         File first = tempDir.resolve("first.jar").toFile();
         File removed = tempDir.resolve("removed.jar").toFile();
         File last = tempDir.resolve("last.jar").toFile();
+        Files.writeString(first.toPath(), "first");
+        Files.writeString(removed.toPath(), "removed");
+        Files.writeString(last.toPath(), "last");
+        TaskObj removeTask = new TaskObj(true, removed, null, TaskObj.Types.OTHER);
         Path tasksFile = pluginDir.toPath().resolve("tasks.txt");
         Files.write(
-                tasksFile, List.of(first.toString(), "1", removed.toString(), "1", last.toString(), "1"));
+                tasksFile,
+                List.of(
+                        first.toString(), FileUtils.getSha(first), "1", "1",
+                        removed.toString(), removeTask.getFileHash(), "1", "1",
+                        last.toString(), FileUtils.getSha(last), "1", "1"));
 
-        TasksUtils.remove(new TaskObj(true, removed, null, TaskObj.Types.OTHER));
+        TasksUtils.remove(removeTask);
 
         assertEquals(
-                List.of(first.toString(), "1", last.toString(), "1"), Files.readAllLines(tasksFile));
+                List.of(first.toString(), FileUtils.getSha(first), "1", "1", last.toString(),
+                        FileUtils.getSha(last), "1", "1"),
+                Files.readAllLines(tasksFile));
     }
 
     @Test
     void removeDeletesOnlySelectedBackup() throws IOException {
         TasksUtils.mkFiles();
 
-        File first = tempDir.resolve("first.mca").toFile();
-        File firstBackup = tempDir.resolve("first.backup").toFile();
-        File removed = tempDir.resolve("removed.mca").toFile();
-        File removedBackup = tempDir.resolve("removed.backup").toFile();
-        File last = tempDir.resolve("last.mca").toFile();
-        File lastBackup = tempDir.resolve("last.backup").toFile();
+        File original = tempDir.resolve("original.mca").toFile();
+        File oldBackup = tempDir.resolve("old.backup").toFile();
+        File newBackup = tempDir.resolve("new.backup").toFile();
+        Files.writeString(original.toPath(), "same original");
+        String hash = FileUtils.getSha(original);
         Path backupsFile = pluginDir.toPath().resolve("backups.txt");
         Files.write(
                 backupsFile,
                 List.of(
-                        first.toString(), firstBackup.toString(),
-                        removed.toString(), removedBackup.toString(),
-                        last.toString(), lastBackup.toString()));
+                        original.toString(), hash, oldBackup.toString(),
+                        original.toString(), hash, newBackup.toString()));
 
-        TasksUtils.remove(new BackupObj(removed, removedBackup));
+        TasksUtils.remove(new BackupObj(original, newBackup));
 
         assertEquals(
-                List.of(
-                        first.toString(), firstBackup.toString(),
-                        last.toString(), lastBackup.toString()),
+                List.of(original.toString(), hash, oldBackup.toString()),
                 Files.readAllLines(backupsFile));
     }
 
@@ -270,14 +329,6 @@ public class TasksUtilsTest {
                         assertEquals(
                                 TaskObj.Types.OTHER,
                                 TasksUtils.getType(tempDir.resolve("server/server.properties").toFile())));
-    }
-
-    @Test
-    void nonNegativeClampsNegativeValuesToZero() {
-        assertAll(
-                () -> assertEquals(0, TasksUtils.nonNegative(-10)),
-                () -> assertEquals(0, TasksUtils.nonNegative(0)),
-                () -> assertEquals(10, TasksUtils.nonNegative(10)));
     }
 
     @Test

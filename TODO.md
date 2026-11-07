@@ -243,30 +243,6 @@
 - **Evidence:** Audit.java: zero-byte corrupt backup overwrites existing good data; both complete overloads reach FileUtils.move with REPLACE_EXISTING.
 - **Suggested fix:** Record and validate backup checksums/completion metadata, stage restoration, and preserve the previous destination until success is verified.
 
-### BUG-034: Removing a backup version can remove a different version instead
-
-- **Severity:** High
-- **Location:** common/src/main/java/org/diskium/utils/TasksUtils.java:251, remove(BackupObj)
-- **Description:** Backup identity is only the original path. Multiple versions of the same file are indistinguishable, and removal always erases the first matching original path.
-- **Reproduction:** Register (original,oldBackup) and (original,newBackup); remove the second BackupObj or select its displayed ID.
-- **Expected behavior:** Remove exactly the selected backup version.
-- **Actual behavior:** The old version record is removed; the selected new version remains.
-- **Impact:** Wrong backups disappear from recovery inventory; restoring a selected version may leave the wrong stale entry.
-- **Evidence:** Audit.java confirms removing newer backup deletes older version registry record.
-- **Suggested fix:** Use persistent unique backup IDs and match whole records, including backup storage path.
-
-### BUG-035: Task removal can match a destination line and corrupt another task
-
-- **Severity:** High
-- **Location:** common/src/main/java/org/diskium/utils/TasksUtils.java:217, remove(TaskObj)
-- **Description:** Removal scans every line rather than record boundaries and matches only the source path. A prior task destination can match the selected task source.
-- **Reproduction:** Write a move A to B followed by a delete B. Call remove on the delete-B task.
-- **Expected behavior:** Keep the A-to-B record and remove only delete-B.
-- **Actual behavior:** The first B is removed together with the following source line, turning the remaining pair into delete-A.
-- **Impact:** Cancelling a job can transform another job into an unintended destructive operation.
-- **Evidence:** Audit.java confirms the surviving parsed record is a deletion of A. The loop increments i by one and removes two lines starting at the first string match.
-- **Suggested fix:** Parse records structurally, identify complete tasks with stable IDs, and serialize atomically after validated removal.
-
 ### BUG-038: Failure to persist task removal replays deletion against replacement data
 
 - **Severity:** High

@@ -1,11 +1,8 @@
 package org.diskium.utils;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class WorldUtilsTest {
 
@@ -62,5 +59,13 @@ class WorldUtilsTest {
         assertTrue(WorldUtils.isRegionSafeToDelete(1024, -63, -63, true));
         assertFalse(WorldUtils.isRegionSafeToDelete(1024, -64, -64, true));
         assertTrue(WorldUtils.isRegionSafeToDelete(1024, -64, -64, false));
+    }
+
+    @Test
+    void nonNegativeClampsNegativeValuesToZero() {
+        assertAll(
+                () -> assertEquals(0, WorldUtils.nonNegative(-10)),
+                () -> assertEquals(0, WorldUtils.nonNegative(0)),
+                () -> assertEquals(10, WorldUtils.nonNegative(10)));
     }
 }

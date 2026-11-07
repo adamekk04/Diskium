@@ -1,11 +1,15 @@
 package org.diskium.objects;
 
+import org.diskium.utils.FileUtils;
+
 import java.io.File;
 
 public class TaskObj {
     boolean delete;
     File file;
     File replacementFile;
+    String fileHash;
+    String replacementFileHash;
     Types type;
 
     /**
@@ -21,6 +25,8 @@ public class TaskObj {
         this.file = file;
         this.replacementFile = replacementFile;
         this.type = type;
+        this.fileHash = FileUtils.getSha(file);
+        this.replacementFileHash = replacementFile == null ? null : FileUtils.getSha(replacementFile);
     }
 
     public boolean getDelete() {
@@ -33,6 +39,14 @@ public class TaskObj {
 
     public File getReplacementFile() {
         return replacementFile;
+    }
+
+    public String getFileHash() {
+        return fileHash;
+    }
+
+    public String getReplacementFileHash() {
+        return replacementFileHash;
     }
 
     public Types getType() {
