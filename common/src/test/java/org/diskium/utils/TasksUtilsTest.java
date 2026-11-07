@@ -144,6 +144,33 @@ public class TasksUtilsTest {
     }
 
     @Test
+    void addRejectsTruncatedTaskRegistry() throws IOException {
+        TasksUtils.mkFiles();
+        Path file = tempDir.resolve("new-task.txt");
+        Files.writeString(file, "new task");
+        TaskObj task = new TaskObj(true, file.toFile(), null, TaskObj.Types.OTHER);
+        Path registry = pluginDir.toPath().resolve("tasks.txt");
+        Files.writeString(registry, "/incomplete/path");
+
+        assertFalse(TasksUtils.add(task));
+        assertEquals("/incomplete/path", Files.readString(registry));
+    }
+
+    @Test
+    void addRejectsCompleteRecordWithoutFinalNewline() throws IOException {
+        TasksUtils.mkFiles();
+        Path file = tempDir.resolve("new-task.txt");
+        Files.writeString(file, "new task");
+        TaskObj task = new TaskObj(true, file.toFile(), null, TaskObj.Types.OTHER);
+        Path registry = pluginDir.toPath().resolve("tasks.txt");
+        String incompleteTerminator = String.join("\n", "/old/path", "old-hash", "1", "1");
+        Files.writeString(registry, incompleteTerminator);
+
+        assertFalse(TasksUtils.add(task));
+        assertEquals(incompleteTerminator, Files.readString(registry));
+    }
+
+    @Test
     void addStoresReplacementTask() throws IOException {
         TasksUtils.mkFiles();
 
@@ -183,6 +210,35 @@ public class TasksUtilsTest {
         assertEquals(
                 List.of(original.toString(), FileUtils.getSha(original), backup.toString()),
                 Files.readAllLines(pluginDir.toPath().resolve("backups.txt")));
+    }
+
+    @Test
+    void addBackupRejectsTruncatedRegistry() throws IOException {
+        TasksUtils.mkFiles();
+        Path original = tempDir.resolve("original.mca");
+        Path backup = tempDir.resolve("backup.mca");
+        Files.writeString(original, "original");
+        Path registry = pluginDir.toPath().resolve("backups.txt");
+        Files.writeString(registry, "/incomplete/path");
+
+        assertFalse(TasksUtils.add(new BackupObj(original.toFile(), backup.toFile())));
+        assertEquals("/incomplete/path", Files.readString(registry));
+        assertFalse(Files.exists(backup));
+    }
+
+    @Test
+    void addBackupRejectsCompleteRecordWithoutFinalNewline() throws IOException {
+        TasksUtils.mkFiles();
+        Path original = tempDir.resolve("original.mca");
+        Path backup = tempDir.resolve("backup.mca");
+        Files.writeString(original, "original");
+        Path registry = pluginDir.toPath().resolve("backups.txt");
+        String incompleteTerminator = String.join("\n", "/old/path", "old-hash", "/old/backup");
+        Files.writeString(registry, incompleteTerminator);
+
+        assertFalse(TasksUtils.add(new BackupObj(original.toFile(), backup.toFile())));
+        assertEquals(incompleteTerminator, Files.readString(registry));
+        assertFalse(Files.exists(backup));
     }
 
     @Test

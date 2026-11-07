@@ -231,18 +231,6 @@
 - **Evidence:** common-audit.log confirms the stale entry; runtime-stage3.log lists the backup after bootstrap restored fixture-original and consumed fixture-backup.
 - **Suggested fix:** Persist restoration as a distinct operation with a backup ID, and atomically update task/backup metadata after verification.
 
-### BUG-039: Appending after a truncated registry corrupts the next task
-
-- **Severity:** High
-- **Location:** common/src/main/java/org/diskium/utils/TasksUtils.java:58, getTasks and :126, add(TaskObj)
-- **Description:** A partial last record is silently ignored on read, but append neither validates nor repairs it. Missing final newlines concatenate the old path and new path; an unmatched path with a newline shifts pairing.
-- **Reproduction:** Write a single unterminated path into a disposable tasks.txt, call TasksUtils.add on a new deletion and read back the queue.
-- **Expected behavior:** Detect/quarantine partial records and preserve valid subsequent tasks.
-- **Actual behavior:** add returns true but getTasks parses a combined, nonexistent path; later records can be paired as unintended moves.
-- **Impact:** Crash/interrupted-write recovery loses or changes queued operations.
-- **Evidence:** extra-audit.log prints the merged target ending incomplete/tmp/.../later. Existing test only verifies incomplete records are ignored, not safely repaired.
-- **Suggested fix:** Use atomic structured persistence or an append log with framing/checksums and explicit recovery of incomplete records.
-
 ### BUG-040: Restoration cannot recover files whose parent directories were removed
 
 - **Severity:** Medium

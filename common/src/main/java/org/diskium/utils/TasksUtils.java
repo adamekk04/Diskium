@@ -172,6 +172,10 @@ public class TasksUtils {
 
         File taskFile = new File(pluginFile, "tasks.txt");
 
+        if (!hasCompleteRecords(taskFile.toPath(), 4)) {
+            return false;
+        }
+
         try (FileWriter fw = new FileWriter(taskFile, true)) {
             fw.write(task.getFile().toString());
             fw.write(System.lineSeparator());
@@ -201,6 +205,26 @@ public class TasksUtils {
         return false;
     }
 
+    private static boolean hasCompleteRecords(Path registry, int recordSize) {
+        try {
+            byte[] contents = Files.readAllBytes(registry);
+            if (contents.length > 0
+                    && contents[contents.length - 1] != '\n'
+                    && contents[contents.length - 1] != '\r') {
+                MultiplatformLogger.error(registry.getFileName() + " has no final line separator; refusing to append.");
+                return false;
+            }
+            if (Files.readAllLines(registry).size() % recordSize != 0) {
+                MultiplatformLogger.error(registry.getFileName() + " may be corrupted; refusing to append.");
+                return false;
+            }
+            return true;
+        } catch (IOException e) {
+            MultiplatformLogger.error("Something went wrong while reading " + registry.getFileName(), e);
+            return false;
+        }
+    }
+
     /**
       * Adds a backup into {@code backups.txt} and creates a backup of that file.
       *
@@ -214,6 +238,10 @@ public class TasksUtils {
         }
 
         File backupFile = new File(pluginFile, "backups.txt");
+
+        if (!hasCompleteRecords(backupFile.toPath(), 3)) {
+            return false;
+        }
 
         if (!FileUtils.copy(backup.getFile(), backup.getItself())) {
             return false;
