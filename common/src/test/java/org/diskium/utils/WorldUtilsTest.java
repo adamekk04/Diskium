@@ -25,6 +25,9 @@ class WorldUtilsTest {
 
     @Test
     void blockToRegionHandlesRegionBoundaries() {
+        assertEquals(-2, WorldUtils.blockToRegion(-513));
+        assertEquals(-1, WorldUtils.blockToRegion(-512));
+        assertEquals(-1, WorldUtils.blockToRegion(-1));
         assertEquals(0, WorldUtils.blockToRegion(0));
         assertEquals(0, WorldUtils.blockToRegion(511));
         assertEquals(1, WorldUtils.blockToRegion(512));

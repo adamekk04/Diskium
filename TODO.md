@@ -12,18 +12,6 @@
 
 > Bugs found by Codex
 
-### BUG-008: Radius selection has incorrect outside and negative-center geometry
-
-- **Severity:** Medium
-- **Location:** paper/common/src/main/java/org/diskium/management/WorldManagement.java:298, getRegionFiles(World,int,boolean,Location); common/src/main/java/org/diskium/utils/WorldUtils.java:37, blockToRegion
-- **Description:** Outside selection requires both axes to be beyond the radius, missing the side strips of the square. Region-center conversion truncates negative block coordinates toward zero. Later safety filtering also measures from the origin instead of the supplied center.
-- **Reproduction:** With fixture r.3.0.mca, call the range overload with radius 512, in=false and center 0,0. Separately evaluate blockToRegion(-1). The public range command currently also has BUG-010.
-- **Expected behavior:** Select regions outside either edge and calculate negative region coordinates and shifted centers consistently.
-- **Actual behavior:** r.3.0.mca is excluded although clearly outside; block -1 maps to region 0 instead of -1.
-- **Impact:** Cleanup selection omits intended regions and can disagree with shifted border locations.
-- **Evidence:** AuditProbe: outsideSquareRegion3_0Count=0. Source uses && at line 317, radius/512 at WorldUtils:38 and origin-relative coordinates at WorldUtils:69.
-- **Suggested fix:** Define exact bounds in block coordinates, use floor division and region extents, and apply the same center throughout selection and safety checks.
-
 ### BUG-009: Build-checking deletion leaks generated comparison worlds
 
 - **Severity:** Medium

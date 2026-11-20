@@ -136,8 +136,12 @@ public class WorldManagement {
                         chunk, compareChunks(chunk, tempWorld.getChunkAt(chunk.getX(), chunk.getZ())));
             }
         } else {
+            int centerChunkX = WorldUtils.regionToChunk(WorldUtils.blockToRegion(center.getBlockX()));
+            int centerChunkZ = WorldUtils.regionToChunk(WorldUtils.blockToRegion(center.getBlockZ()));
+
             for (Chunk chunk : chunks) {
-                if (WorldUtils.isRegionSafeToDelete(radius, chunk.getX(), chunk.getZ(), in)) {
+                if (WorldUtils.isRegionSafeToDelete(
+                        radius, chunk.getX() - centerChunkX, chunk.getZ() - centerChunkZ, in)) {
                     FileUtils.safeDel(
                             FileManagement.getRegionFile(chunk.getX(), chunk.getZ(), world),
                             FileUtils.DelSpecifier.USE_TASK_QUEUE);
@@ -356,7 +360,7 @@ public class WorldManagement {
                     if (in) {
                         return Math.abs(regionX - x) < regionRadius && Math.abs(regionZ - z) < regionRadius;
                     } else {
-                        return Math.abs(regionX - x) > regionRadius && Math.abs(regionZ - z) > regionRadius;
+                        return Math.abs(regionX - x) > regionRadius || Math.abs(regionZ - z) > regionRadius;
                     }
                 });
     }

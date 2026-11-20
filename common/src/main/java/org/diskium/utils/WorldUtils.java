@@ -28,11 +28,11 @@ public class WorldUtils {
     /**
       * Converts block to region.
       *
-      * @param radius Radius of blocks.
-      * @return Radius of regions.
+      * @param block the block coordinate
+      * @return the region coordinate, rounded down
       */
-    public static int blockToRegion(int radius) {
-        return radius / 512;
+    public static int blockToRegion(int block) {
+        return Math.floorDiv(block, 512);
     }
 
     /**
@@ -63,12 +63,12 @@ public class WorldUtils {
 
     /**
       * Tests the region-distance bucket derived from chunk coordinates against a block radius. Uses
-      * the larger absolute coordinate relative to the world origin; equality with the converted radius
+      * the larger absolute offset from the center; equality with the converted radius
       * counts as outside.
       *
       * @param radius the radius in blocks, converted using integer division by 512
-      * @param x the global chunk X coordinate
-      * @param z the global chunk Z coordinate
+      * @param x the chunk X offset from the center
+      * @param z the chunk Z offset from the center
       * @param in {@code true} to select inside the radius; {@code false} to select outside
       * @return whether the calculated bucket matches the requested side of the boundary
       */
