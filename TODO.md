@@ -12,30 +12,6 @@
 
 > Bugs found by Codex
 
-### BUG-011: Explicit naturally boolean values cannot be parsed
-
-- **Severity:** Medium
-- **Location:** paper/common/src/main/java/org/diskium/commands/WorldCommand.java:109 and :132, getBlockSeparator; common/src/main/java/org/diskium/utils/Flags.java:130, parseValue
-- **Description:** Raw new FlagObj(...) creates Object[] options, so getValueClass returns Object.class. parseValue handles String, Integer and Boolean only.
-- **Reproduction:** Execute /diskium world getBlock minecraft:overworld 0 64 0 --naturally=true and repeat with false.
-- **Expected behavior:** Both offered boolean values are accepted.
-- **Actual behavior:** IllegalArgumentException is thrown for the boolean value; suggestions nevertheless advertise --naturally=.
-- **Impact:** The explicit natural/current lookup option is unusable.
-- **Evidence:** runtime-stage1.log records Invalid value true for flag --naturally; the build also emits unchecked warnings for this class.
-- **Suggested fix:** Use a typed FlagObj<Boolean> and validate options independently of suggestion calls.
-
-### BUG-012: Natural block lookup returns the edited world and default lookup generates a clone
-
-- **Severity:** Medium
-- **Location:** paper/common/src/main/java/org/diskium/commands/WorldCommand.java:94 and :141, getBlockSeparator; paper/common/src/main/java/org/diskium/management/WorldManagement.java:29, getBlock
-- **Description:** The flag named naturally is passed as the existing parameter. True reads the existing world; the flag-free command passes false and generates a temporary world.
-- **Reproduction:** Place a diamond block at 0,64,0 in the disposable flat world. Run getBlock ... --naturally (bare flag avoids BUG-011), then run the same command without flags.
-- **Expected behavior:** Natural lookup uses the world template; default/current lookup observes the placed block.
-- **Actual behavior:** --naturally returns DIAMOND_BLOCK. The default path creates a new world. The flagged path also announces generation even when no world is generated.
-- **Impact:** Incorrect inspection results and unnecessary world generation.
-- **Evidence:** runtime-stage3.log: world: DIAMOND_BLOCK after --naturally. runtime-stage2.log shows clone generation for the flag-free command.
-- **Suggested fix:** Align flag and method semantics and report generation only when the natural-world path is actually used.
-
 ### BUG-016: Every log search leaks a file handle while trying to decompress latest.log
 
 - **Severity:** Medium

@@ -99,12 +99,12 @@ public class WorldCommand {
                             if (singleWorld) {
                                 Location location =
                                         blockPosition.toLocation(context.getArgument("world", World.class));
-                                WorldManagement.getBlock(location, false)
+                                WorldManagement.getBlock(location, true)
                                         .thenAccept(context.getSource().getSender()::sendMessage);
                             } else {
                                 for (World world : Bukkit.getWorlds()) {
                                     Location location = blockPosition.toLocation(world);
-                                    WorldManagement.getBlock(location, false)
+                                    WorldManagement.getBlock(location, true)
                                             .thenAccept(context.getSource().getSender()::sendMessage);
                                 }
                             }
@@ -151,26 +151,26 @@ public class WorldCommand {
                                             if (singleWorld) {
                                                 Location location =
                                                         blockPosition.toLocation(context.getArgument("world", World.class));
-                                                WorldManagement.getBlock(location, naturally)
+                                                WorldManagement.getBlock(location, !naturally)
                                                         .thenAccept(context.getSource().getSender()::sendMessage);
-                                                context
-                                                        .getSource()
-                                                        .getSender()
-                                                        .sendMessage(
-                                                                Component.text(
-                                                                        "Generating new world, it may take a while!",
-                                                                        NamedTextColor.GOLD));
+                                                if (naturally) {
+                                                    context
+                                                            .getSource()
+                                                            .getSender()
+                                                            .sendMessage(Component.text(
+                                                                            "Generating new world, it may take a while!", NamedTextColor.GOLD));
+                                                }
                                             } else {
-                                                context
-                                                        .getSource()
-                                                        .getSender()
-                                                        .sendMessage(
-                                                                Component.text(
-                                                                        "Generating new worlds, it may take a while!",
-                                                                        NamedTextColor.GOLD));
+                                                if (naturally) {
+                                                    context
+                                                            .getSource()
+                                                            .getSender()
+                                                            .sendMessage(Component.text(
+                                                                            "Generating new worlds, it may take a while!", NamedTextColor.GOLD));
+                                                }
                                                 for (World world : Bukkit.getWorlds()) {
                                                     Location location = blockPosition.toLocation(world);
-                                                    WorldManagement.getBlock(location, naturally)
+                                                    WorldManagement.getBlock(location, !naturally)
                                                             .thenAccept(context.getSource().getSender()::sendMessage);
                                                 }
                                             }
