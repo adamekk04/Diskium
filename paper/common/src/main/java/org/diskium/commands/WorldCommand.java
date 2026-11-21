@@ -115,7 +115,7 @@ public class WorldCommand {
                         Commands.argument("flags", StringArgumentType.greedyString())
                                 .suggests(
                                         (context, builder) -> {
-                                            Flags flags = new Flags(new FlagObj("naturally", true, false));
+                                            Flags flags = new Flags(new FlagObj<Boolean>("naturally", true, false));
                                             String typed = builder.getRemaining();
                                             String[] suggestions = flags.suggest(typed);
 
