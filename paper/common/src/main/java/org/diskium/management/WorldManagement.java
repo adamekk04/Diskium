@@ -123,8 +123,7 @@ public class WorldManagement {
       * @param checkForBuilds Whether it should be checked for players-made builds.
       * @param center The center of the target.
       */
-    public static void del(
-            World world, boolean in, int radius, boolean checkForBuilds, Location center) {
+    public static void del(World world, boolean in, int radius, boolean checkForBuilds, Location center) {
         Chunk[] chunks = getAllChunks(world, radius, in, center);
         Map<Chunk, Boolean> chunksQueue = new HashMap<>();
 
@@ -135,6 +134,8 @@ public class WorldManagement {
                 chunksQueue.put(
                         chunk, compareChunks(chunk, tempWorld.getChunkAt(chunk.getX(), chunk.getZ())));
             }
+
+            delWorld(tempWorld);
         } else {
             int centerChunkX = WorldUtils.regionToChunk(WorldUtils.blockToRegion(center.getBlockX()));
             int centerChunkZ = WorldUtils.regionToChunk(WorldUtils.blockToRegion(center.getBlockZ()));
@@ -169,6 +170,8 @@ public class WorldManagement {
                 chunksQueue.put(
                         chunk, compareChunks(chunk, tempWorld.getChunkAt(chunk.getX(), chunk.getZ())));
             }
+
+            delWorld(tempWorld);
         } else {
             for (Chunk chunk : chunks) {
                 chunksQueue.put(chunk, true);
@@ -207,6 +210,8 @@ public class WorldManagement {
                 }
                 FileManagement.makeFiles(safeToDelete);
             }
+
+            delWorld(newWorld);
         } else {
             FileManagement.makeFiles(x, z, world, isChunk);
         }

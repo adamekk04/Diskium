@@ -12,18 +12,6 @@
 
 > Bugs found by Codex
 
-### BUG-009: Build-checking deletion leaks generated comparison worlds
-
-- **Severity:** Medium
-- **Location:** paper/common/src/main/java/org/diskium/management/WorldManagement.java:120, :147 and :172, del and delSector
-- **Description:** All three build-checking paths create a world but never unload it or arrange deletion, including early return paths.
-- **Reproduction:** On a disposable server run /diskium world delete minecraft:overworld --checker=whole_world --checkForBuilds=true, then world info and inspect generated world directories.
-- **Expected behavior:** Comparison worlds are cleaned up in a guaranteed completion/failure path.
-- **Actual behavior:** A random-suffixed comparison world remains loaded and is saved on shutdown.
-- **Impact:** Repeated cleanup consumes disk, memory and world-management overhead instead of freeing them.
-- **Evidence:** runtime-stage2.log lists worldptr9czb00h after the command and logs its shutdown save; no delWorld call exists in these paths.
-- **Suggested fix:** Use try/finally or structured asynchronous cleanup, verify unload success, and delete only identified temporary-world data.
-
 ### BUG-011: Explicit naturally boolean values cannot be parsed
 
 - **Severity:** Medium
