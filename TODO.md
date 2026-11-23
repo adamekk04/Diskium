@@ -12,18 +12,6 @@
 
 > Bugs found by Codex
 
-### BUG-017: Missing latest.log propagates null into list, search and deletion
-
-- **Severity:** Medium
-- **Location:** paper/common/src/main/java/org/diskium/management/LogsManagement.java:35 and :102, getLogs/getLatestLog; paper/common/src/main/java/org/diskium/commands/LogsCommand.java:37, list
-- **Description:** getLatestLog returns null when absent, getLogs appends it, and consumers dereference it. The latest-log path also uses worldContainer whereas archive lookup uses the inferred server root.
-- **Reproduction:** Code-confirmed safe reproduction: use a disposable server with an empty logs directory or a custom world-container without logs/latest.log; call logs list/search/delete.
-- **Expected behavior:** Missing logs are omitted or reported without exceptions; all log paths use the same configured server log directory.
-- **Actual behavior:** The list contains null; log.getName(), safeDel(null,...) or new FileInputStream(null) throws.
-- **Impact:** All log operations can fail during rotation, after active-log removal or with custom world containers.
-- **Evidence:** getLogs unconditionally adds getLatestLog at line 35; getLatestLog returns null at line 108. NullPointerException is not caught by search.
-- **Suggested fix:** Use a non-null optional path, one consistent log root, and existence/type checks immediately before access.
-
 ### BUG-018: Unexpected archive filenames crash date-filtered log commands
 
 - **Severity:** Medium

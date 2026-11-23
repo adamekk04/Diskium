@@ -36,7 +36,11 @@ public class LogsManagement {
             }
 
             if (endDate == null || endDate.isEqual(LocalDate.now())) {
-                logsList.add(getLatestLog());
+                File latest = getLatestLog();
+
+                if (latest != null) {
+                    logsList.add(latest);
+                }
             }
 
             return logsList.toArray(File[]::new);
@@ -100,8 +104,8 @@ public class LogsManagement {
       */
     private static File getLatestLog() {
         File latest =
-                new File(Diskium.getInstance().getServer().getWorldContainer(), "logs/latest.log");
-        if (latest.exists()) {
+                new File(logsDir, "latest.log");
+        if (latest.exists() && latest.isFile()) {
             return latest;
         }
 
