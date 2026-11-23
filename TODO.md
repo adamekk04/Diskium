@@ -12,18 +12,6 @@
 
 > Bugs found by Codex
 
-### BUG-018: Unexpected archive filenames crash date-filtered log commands
-
-- **Severity:** Medium
-- **Location:** paper/common/src/main/java/org/diskium/management/LogsManagement.java:154, supposedToAdd
-- **Description:** Every name ending .log.gz is accepted but its first ten characters are parsed as an ISO date without validation or error handling.
-- **Reproduction:** In disposable logs create a.log.gz or not-a-date-1.log.gz, then run logs list --until=2026-12-31.
-- **Expected behavior:** Skip/report nonstandard files without aborting the whole command.
-- **Actual behavior:** A short name causes StringIndexOutOfBoundsException; an invalid prefix causes DateTimeParseException.
-- **Impact:** One renamed or third-party archive breaks listing and filtered deletion.
-- **Evidence:** Code-confirmed: listFiles suffix-only filter at line 28 feeds substring(0,10) and LocalDate.parse at lines 156-161 with no catch.
-- **Suggested fix:** Match supported log filename patterns and handle each invalid archive independently.
-
 ### BUG-020: Task listing crashes on ordinary deletion tasks
 
 - **Severity:** Medium

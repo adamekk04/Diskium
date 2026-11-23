@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipException;
@@ -156,7 +157,17 @@ public class LogsManagement {
       * @return Whether the log is between those two days.
       */
     private static boolean supposedToAdd(File file, LocalDate start, LocalDate end) {
-        LocalDate fileDate = LocalDate.parse(file.getName().substring(0, 10));
+        String name = file.getName();
+        if (name.length() < 10) {
+            return false;
+        }
+
+        LocalDate fileDate;
+        try {
+            fileDate = LocalDate.parse(name.substring(0, 10));
+        } catch (DateTimeParseException e) {
+            return false;
+        }
 
         if (start == null) {
             return fileDate.isBefore(end);
