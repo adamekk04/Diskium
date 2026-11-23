@@ -2,9 +2,9 @@ package org.diskium.management;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.zip.GZIPInputStream;
@@ -75,11 +75,15 @@ public class LogsManagement {
 
         for (File log : logs) {
             try {
-                FileInputStream fis = new FileInputStream(log);
-                GZIPInputStream gzip = new GZIPInputStream(fis);
-                String unzipped = new String(gzip.readAllBytes(), StandardCharsets.UTF_8);
-                gzip.close();
-                map.put(log, searchLog(unzipped, keyword));
+                if (log.getName().equals("latest.log")) {
+                    map.put(log, searchLog(Files.readString(log.toPath()), keyword));
+                } else {
+                    try (FileInputStream fis = new FileInputStream(log);
+                            GZIPInputStream gzip = new GZIPInputStream(fis)) {
+                        String unzipped = new String(gzip.readAllBytes(), StandardCharsets.UTF_8);
+                        map.put(log, searchLog(unzipped, keyword));
+                    }
+                }
             } catch (ZipException e) {
                 MultiplatformLogger.error("Cannot unzip file " + log.getName());
             } catch (IOException e) {

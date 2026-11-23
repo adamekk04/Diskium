@@ -12,18 +12,6 @@
 
 > Bugs found by Codex
 
-### BUG-016: Every log search leaks a file handle while trying to decompress latest.log
-
-- **Severity:** Medium
-- **Location:** paper/common/src/main/java/org/diskium/management/LogsManagement.java:67, LogsManagement.search
-- **Description:** getLogs includes the plain latest.log, but the archive loop wraps every input in GZIPInputStream. When that constructor or a later read throws, neither stream is closed.
-- **Reproduction:** Call search on ordinary logs 12 times in one disposable server process and count /proc/self/fd before/after, as AuditProbe does.
-- **Expected behavior:** Read latest.log once as plain text and close every stream on all exits.
-- **Actual behavior:** Each call logs Cannot unzip file latest.log and leaks an open descriptor until eventual cleaner activity.
-- **Impact:** Repeated searches and corrupt archives can exhaust file descriptors and spam errors.
-- **Evidence:** runtime-stage2.log: openFDdelta=12 after 12 searches, with 12 latest.log unzip errors.
-- **Suggested fix:** Separate plain and compressed paths and use nested try-with-resources for both streams.
-
 ### BUG-017: Missing latest.log propagates null into list, search and deletion
 
 - **Severity:** Medium
