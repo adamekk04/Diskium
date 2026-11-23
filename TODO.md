@@ -12,30 +12,6 @@
 
 > Bugs found by Codex
 
-### BUG-020: Task listing crashes on ordinary deletion tasks
-
-- **Severity:** Medium
-- **Location:** paper/common/src/main/java/org/diskium/commands/TaskCommand.java:150, TaskCommand.lister
-- **Description:** Deletion tasks deliberately have null replacementFile, but lister dereferences it while computing column widths and rendering rows.
-- **Reproduction:** Queue one disposable deletion and run /diskium task list.
-- **Expected behavior:** Show a deletion row with no replacement path.
-- **Actual behavior:** NullPointerException prevents the table from being shown.
-- **Impact:** Administrators cannot review the normal queued-deletion workload.
-- **Evidence:** runtime-stage2.log at 11:43:39: Cannot invoke java.io.File.toString() because TaskObj.getReplacementFile() is null, TaskCommand.java:150.
-- **Suggested fix:** Render an explicit empty/not-applicable destination for delete tasks and compute widths from displayed strings.
-
-### BUG-021: Task table crashes at the third move task and misaligns columns
-
-- **Severity:** Medium
-- **Location:** paper/common/src/main/java/org/diskium/commands/TaskCommand.java:171, TaskCommand.lister
-- **Description:** Padding subtracts the row number, not the rendered string length. With three tasks longestID is two, making the third repeat count negative. The Delete column value is also omitted.
-- **Reproduction:** Seed three ordinary move tasks in a disposable tasks.txt and run task list.
-- **Expected behavior:** Render every row and the Delete boolean with valid padding.
-- **Actual behavior:** Two malformed rows print, then String.repeat(-1) throws.
-- **Impact:** Even queues without deletion tasks cannot reliably be reviewed.
-- **Evidence:** runtime-stage1.log: IllegalArgumentException: count is negative: -1 at TaskCommand.java:172.
-- **Suggested fix:** Build row cells first, use their string lengths, clamp padding, and include every header column in the row.
-
 ### BUG-022: Task and backup type filters crash on their advertised flags
 
 - **Severity:** Medium

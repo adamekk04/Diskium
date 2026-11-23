@@ -8,6 +8,8 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -166,8 +168,10 @@ public class TaskCommand {
                 longestFile = task.getFile().toString().length();
             }
 
-            if (task.getReplacementFile().toString().length() > longestReplacementFile) {
-                longestReplacementFile = task.getReplacementFile().toString().length();
+            File replacementFile = task.getReplacementFile();
+
+            if (replacementFile != null && replacementFile.toString().length() > longestReplacementFile) {
+                longestReplacementFile = replacementFile.toString().length();
             }
 
             if (task.getType().toString().length() > longestType) {
@@ -196,24 +200,32 @@ public class TaskCommand {
         context.getSource().getSender().sendMessage(header);
 
         for (int i = 0; i < tasks.length; i++) {
+            TaskObj task = tasks[i];
+            String id = Integer.toString(i + 1);
+            String delete = Boolean.toString(task.getDelete());
+            String file = task.getFile().toString();
+            File replacementFile = task.getReplacementFile();
+            String replacement = replacementFile == null ? "-" : replacementFile.toString();
+            String type = task.getType().toString();
+
             TextComponent text =
-                    Component.text((i + 1) + " ".repeat(longestID - (i + 1)), NamedTextColor.DARK_GREEN)
+                    Component.text(id + " ".repeat(longestID - id.length()), NamedTextColor.DARK_GREEN)
+                            .append(Component.text(" | ", NamedTextColor.WHITE))
+                            .append(Component.text(delete + " ".repeat(6 - delete.length()), NamedTextColor.DARK_GREEN))
                             .append(Component.text(" | ", NamedTextColor.WHITE))
                             .append(
                                     Component.text(
-                                            tasks[i].getFile().toString() + " ".repeat(longestFile - (i + 1)),
+                                            file + " ".repeat(longestFile - file.length()),
                                             NamedTextColor.DARK_GREEN))
                             .append(Component.text(" | ", NamedTextColor.WHITE))
                             .append(
                                     Component.text(
-                                            tasks[i].getReplacementFile().toString()
-                                                    + " ".repeat(longestReplacementFile - (i + 1)),
+                                            replacement + " ".repeat(longestReplacementFile - replacement.length()),
                                             NamedTextColor.DARK_GREEN))
-                            .append(Component.text(" | ", NamedTextColor.WHITE))
                             .append(Component.text(" | ", NamedTextColor.WHITE))
                             .append(
                                     Component.text(
-                                            tasks[i].getType().toString() + " ".repeat(longestType - (i + 1)),
+                                            type + " ".repeat(longestType - type.length()),
                                             NamedTextColor.DARK_GREEN));
 
             context.getSource().getSender().sendMessage(text);
